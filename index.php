@@ -3,6 +3,7 @@ error_reporting(E_ERROR);
 require_once("lib/sql.class.php");
 require_once("lib/Misc.php");
 require_once("conf.php");
+ob_start();
 include("tmpl/head.html");
 $db = new sql();
 
@@ -58,12 +59,13 @@ if ($_POST["animation"]) {
 }
 
 
-echo "<h1>Gateway Server CP for {$GLOBALS["PLAYER_NAME"]} </h1>";
+echo "<h1>Gateway Server CP for {$GLOBALS["PLAYER_NAME"]}".(($_GET["autorefresh"])?" (autorefreshes every 5 secs)":"")." </h1>";
 echo "
 <div class='menupane'>
 <a href='index.php?table=response' class='buttonify'>Responses</a> ::
 <a href='index.php?table=event'  class='buttonify'>Events</a> ::
 <a href='index.php?table=log'  class='buttonify'>Log</a> ::
+<a href='index.php?table=event&autorefresh=true'  class='buttonify'>Monitor events</a> ::::
 <a href='index.php?clean=true&table=response'  class='buttonify' onclick=\"return confirm('Sure?')\">Clean sent</a> ::
 <a href='index.php?reset=true&table=event'  class='buttonify' onclick=\"return confirm('Sure?')\">Reset events</a> ::
 <a href='index.php?reinstall=true'  class='buttonify' onclick=\"return confirm('Sure?')\">Reinstall</a> ::
@@ -105,6 +107,10 @@ if ($_GET["table"] == "event") {
     $results = $db->fetchAll("select  A.*,ROWID FROM eventlog a order by ts  desc");
     echo "<p>Event log</p>";
     print_array_as_table($results);
+    if ($_GET["autorefresh"]) {
+        header("Refresh:5");
+        header("Refresh:5");
+    }
 }
 if ($_GET["table"] == "cache") {
     $results = $db->fetchAll("select  A.*,ROWID FROM eventlog a order by ts  desc");
@@ -116,4 +122,12 @@ if ($_GET["table"] == "log") {
     echo "<p>Repsonse log</p>";
     print_array_as_table($results);
 }
+
+$buffer=ob_get_contents();
+ob_end_clean();
+$title = "Gateway Server CP for {$GLOBALS["PLAYER_NAME"]}";
+$title.=(($_GET["autorefresh"])?" (autorefreshes every 5 secs)":"");
+$buffer = preg_replace('/(<title>)(.*?)(<\/title>)/i', '$1' . $title . '$3', $buffer);
+echo $buffer;
+    
 ?>
