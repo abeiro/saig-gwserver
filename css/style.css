@@ -156,3 +156,16 @@ div.debugpane {
     display:none;
     
 }
+
+table {
+    font-size:small;
+    border:1px solid grey;
+    background-color:grey;
+}
+
+td {
+    font-size:small;
+    background-color:white;
+    padding:1px;
+  
+}
