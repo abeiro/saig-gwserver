@@ -20,7 +20,7 @@ if ($_GET["reset"]) {
 
 if ($_GET["export"]) {
     while(@ob_end_clean());
-    $data=$db->fetchAll("select data from eventlog where type<>'combatend' and type<>'location' and type<>'quest' order by ts desc");
+    $data=$db->fetchAll("select case when type='book' then 'The party find a book: '||data else data end as data  from eventlog a where type<>'combatend' and type<>'location' and type<>'quest' order by ts desc");
     header('Content-type: text/plain');
     
     foreach (array_reverse($data) as $row) {
