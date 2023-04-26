@@ -86,7 +86,12 @@ if ($finalParsedData[0] == "combatend") {
 } else if ($finalParsedData[0] == "quest") { // Books should be cached
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
-	requestGeneric("(Chat as Herika)", "Herika, what do you think about last events?", 'AASPGDialogueHerika1WhatTopic', 15);
+	requestGeneric("(Chat as Herika)", "Herika, what do you think about last events?", 'AASPGDialogueHerika1WhatTopic', 10);
 
+} else if ($finalParsedData[0] == "bleedout") { 
+	require_once("chat/generic.php");
+	$GLOBALS["DEBUG_MODE"] = false;
+	requestGeneric("(Chat as Herika, complain about almost being defeated)", "", 'AASPGQuestDialogue2Topic1B1Topic', 10);
 }
+
 ?>
