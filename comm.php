@@ -81,7 +81,7 @@ if ($finalParsedData[0] == "combatend") {
 } else if ($finalParsedData[0] == "book") { // Books should be cached
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
-	requestGeneric("(Chat as Herika)", "Herika, summarize the book '{$finalParsedData[3]}' in one sentence", 'AASPGQuestDialogue2Topic1B1Topic', 0);
+	requestGeneric("(Chat as Herika)", "Herika, summarize the book '{$finalParsedData[3]}' in one sentence", 'AASPGQuestDialogue2Topic1B1Topic', 1);
 
 } else if ($finalParsedData[0] == "quest") { // Books should be cached
 	require_once("chat/generic.php");
