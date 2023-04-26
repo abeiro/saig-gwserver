@@ -20,9 +20,9 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
     $head = array();
     $foot = array();
 
-    $head[] = array('role' => 'user', 'content' => '(Let\'s roleplay in the Universe of Skyrim. I\'m Plugineer. You are Herika,a breton female who likes jokes and sarcastic comments)');
+    $head[] = array('role' => 'user', 'content' => '(Let\'s roleplay in the Universe of Skyrim. I\'m '.$GLOBALS["PLAYER_NAME"].'. You are Herika,a breton female who likes jokes and sarcastic comments)');
     $prompt[] = array('role' => 'assistant', 'content' => $request);
-    $foot[] = array('role' => 'user', 'content' => 'Plugineer: ' . $preprompt);
+    $foot[] = array('role' => 'user', 'content' => $GLOBALS["PLAYER_NAME"].': ' . $preprompt);
 
     if (!$preprompt)
         $parms = array_merge($head, ($historic), $prompt);

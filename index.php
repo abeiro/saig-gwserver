@@ -2,6 +2,8 @@
 error_reporting(E_ERROR);
 require_once("lib/sql.class.php");
 require_once("lib/Misc.php");
+require_once("conf.php");
+
 $db = new sql();
 
 if ($_GET["clean"]) {
@@ -56,7 +58,7 @@ if ($_POST["animation"]) {
 }
 
 
-echo "<h1>Gateway Server CP</h1>";
+echo "<h1>Gateway Server CP for {$GLOBALS["PLAYER_NAME"]} </h1>";
 echo "
 <div>
 <a href='index.php?table=response'>Responses</a> ::
@@ -70,7 +72,7 @@ echo "
 <div style='border:1px solid grey'>
 <form action='index.php' method='post'>
     <input type='text' name='prompt' value='(Chat as Herika)'>
-    <input type='text' size='128' name='preprompt' value='Plugineer: What do you think about Adrianne?'>
+    <input type='text' size='128' name='preprompt' value='{$GLOBALS["PLAYER_NAME"]}': What do you think about Adrianne?'>
     <input type='submit' value='Request Chat'>
 </form>
 <form action='index.php' method='post'>

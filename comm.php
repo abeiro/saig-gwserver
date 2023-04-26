@@ -15,7 +15,7 @@ ob_start();
 
 $responseDataMl = $db->dequeue();
 foreach ($responseDataMl as $responseData)
-	echo "${responseData["actor"]}|${responseData["action"]}|${responseData["text"]}\r\n";
+	echo "{$responseData["actor"]}|{$responseData["action"]}|{$responseData["text"]}\r\n";
 
 // Fake Close conection asap
 
