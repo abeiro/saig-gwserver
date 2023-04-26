@@ -3,7 +3,7 @@ error_reporting(E_ERROR);
 require_once("lib/sql.class.php");
 require_once("lib/Misc.php");
 require_once("conf.php");
-
+include("tmpl/head.html");
 $db = new sql();
 
 if ($_GET["clean"]) {
@@ -60,19 +60,26 @@ if ($_POST["animation"]) {
 
 echo "<h1>Gateway Server CP for {$GLOBALS["PLAYER_NAME"]} </h1>";
 echo "
-<div>
-<a href='index.php?table=response'>Responses</a> ::
-<a href='index.php?table=event'>Events</a> ::
-<a href='index.php?table=log'>Log</a> ::
-<a href='index.php?clean=true&table=response'>Clean sent</a> ::
-<a href='index.php?reset=true&table=event'>Reset events</a> ::
-<a href='index.php?reinstall=true'>Reinstall</a> ::
-<!--<a href='index.php?openai=true'>OpenAI API Usage</a> -->::
+<div class='menupane'>
+<a href='index.php?table=response' class='buttonify'>Responses</a> ::
+<a href='index.php?table=event'  class='buttonify'>Events</a> ::
+<a href='index.php?table=log'  class='buttonify'>Log</a> ::
+<a href='index.php?clean=true&table=response'  class='buttonify' onclick=\"return confirm('Sure?')\">Clean sent</a> ::
+<a href='index.php?reset=true&table=event'  class='buttonify' onclick=\"return confirm('Sure?')\">Reset events</a> ::
+<a href='index.php?reinstall=true'  class='buttonify' onclick=\"return confirm('Sure?')\">Reinstall</a> ::
+<span onclick='toggleDP()' class='buttonify'>Debug Pane</span> 
+
+<!--<a href='index.php?openai=true'  class='buttonify'>OpenAI API Usage</a> -->
 </div>
-<div style='border:1px solid grey'>
+
+<script>
+function toggleDP() {document.getElementsByClassName('debugpane')[0].style.display=document.getElementsByClassName('debugpane')[0].style.display=='block'?'none':'block'}
+</script>
+
+<div style='border:1px solid grey' class='debugpane'>
 <form action='index.php' method='post'>
     <input type='text' name='prompt' value='(Chat as Herika)'>
-    <input type='text' size='128' name='preprompt' value='{$GLOBALS["PLAYER_NAME"]}': What do you think about Adrianne?'>
+    <input type='text' size='128' name='preprompt' value='{$GLOBALS["PLAYER_NAME"]}: What...?'>
     <input type='submit' value='Request Chat'>
 </form>
 <form action='index.php' method='post'>
