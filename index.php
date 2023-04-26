@@ -7,6 +7,8 @@ ob_start();
 include("tmpl/head.html");
 $db = new sql();
 
+
+/* Actions */
 if ($_GET["clean"]) {
     $db->delete("responselog","sent=1");
 
@@ -16,7 +18,17 @@ if ($_GET["reset"]) {
 
 }
 
-
+if ($_GET["export"]) {
+    while(@ob_end_clean());
+    $data=$db->fetchAll("select data from eventlog where type<>'combatend' and type<>'location' and type<>'quest' order by ts desc");
+    header('Content-type: text/plain');
+    
+    foreach (array_reverse($data) as $row) {
+        echo $row["data"]."\r\n";
+    }
+    ob_end_clean();
+    die();
+}
 
 if ($_GET["reinstall"]) {
     require_once("cmd/install-db.php");
@@ -58,6 +70,8 @@ if ($_POST["animation"]) {
     header("Location: index.php?table=response");
 }
 
+/* Actions */
+
 
 echo "<h1>Gateway Server CP for {$GLOBALS["PLAYER_NAME"]}".(($_GET["autorefresh"])?" (autorefreshes every 5 secs)":"")." </h1>";
 echo "
@@ -69,6 +83,7 @@ echo "
 <a href='index.php?clean=true&table=response'  class='buttonify' onclick=\"return confirm('Sure?')\">Clean sent</a> ::
 <a href='index.php?reset=true&table=event'  class='buttonify' onclick=\"return confirm('Sure?')\">Reset events</a> ::
 <a href='index.php?reinstall=true'  class='buttonify' onclick=\"return confirm('Sure?')\">Reinstall</a> ::
+<a href='index.php?export=true'  class='buttonify' target='_blank'>Export Adventure</a> ::
 <span onclick='toggleDP()' class='buttonify'>Debug Pane</span> 
 
 <!--<a href='index.php?openai=true'  class='buttonify'>OpenAI API Usage</a> -->
