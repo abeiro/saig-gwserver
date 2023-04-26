@@ -10,7 +10,7 @@ require_once($path . "lib/Misc.php");
 
 // Preparing data to send
 
-function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2Topic1B1Topic',$lastDataAmount=15,$tag='')
+function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2Topic1B1Topic',$lastDataAmount=10,$tag='')
 {
     $db = new sql();
     $client = OpenAI::client($GLOBALS["OPENAI_API_KEY"]);
@@ -35,16 +35,24 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
         'max_tokens' => 48
     ];
 
-    $response = $client->chat()->create($callParms);
-    // PARSE RESPONSE
-    if ($GLOBALS["DEBUG_MODE"]) {
-        print_r($callParms);
-        print_r($response->toArray());
-    }
-    // What we want
-    $rawResponse = $response->toArray()["choices"][0]["message"]["content"];
+    $sentence="";
+    $errorFlag=false;
+    try {
+        $response = $client->chat()->create($callParms);
+           // PARSE RESPONSE
+        if ($GLOBALS["DEBUG_MODE"]) {
+            print_r($callParms);
+            print_r($response->toArray());
+        }
+        // What we want
+        $rawResponse = $response->toArray()["choices"][0]["message"]["content"];
 
-    $sentence = cleanReponse($rawResponse);
+        $sentence = cleanReponse($rawResponse);
+    } catch (Exception $e) {
+        $sentence="Error ".$e->getMessage();
+        $errorFlag=true;
+    }
+ 
     
   
 
@@ -52,18 +60,19 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
     if ($GLOBALS["DEBUG_MODE"])
         echo "# $sentence #\n";
     // Action is the queue plugin will store the response
-    if (trim(preg_replace('/\s\s+/', ' ', preg_replace('/\'/m', "''", $sentence)))) {
-        $db->insert(
-            'responselog',
-            array(
-                'localts' => time(),
-                'sent' => 0,
-                'text' => trim(preg_replace('/\s\s+/', ' ', preg_replace('/\'/m', "''", $sentence))),
-                'actor' => "Herika",
-                'action' => $queue,
-                'tag'=>$tag
-            )
-        );
+    if ($sentence) {
+        if (!$errorFlag)
+            $db->insert(
+                'responselog',
+                array(
+                    'localts' => time(),
+                    'sent' => 0,
+                    'text' => trim(preg_replace('/\s\s+/', ' ', SQLite3::escapeString($sentence))),
+                    'actor' => "Herika",
+                    'action' => $queue,
+                    'tag'=>$tag
+                )
+            );
         $db->insert(
             'log',
             array(

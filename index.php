@@ -37,7 +37,7 @@ if ($_GET["reinstall"]) {
 
 if ($_POST["prompt"]) {
     require_once("chat/generic.php");
-    $GLOBALS["DEBUG_MODE"]=false;
+    $GLOBALS["DEBUG_MODE"]=true;
     requestGeneric($_POST["prompt"],$_POST["preprompt"], 'AASPGQuestDialogue2Topic1B1Topic',15);
     header("Location: index.php?table=response");
 }
