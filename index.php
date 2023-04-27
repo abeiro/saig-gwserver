@@ -19,7 +19,7 @@ if ($_GET["reset"]) {
 }
 
 if ($_GET["sendclean"]) {
-       $db->update("responselog", "sent=0", "sent=1 and action='AASPGDialogueHerika1WhatTopic'");
+       $db->update("responselog", "sent=0", "sent=1 and (action='AASPGDialogueHerika1WhatTopic'");
 
 
 }

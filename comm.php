@@ -41,7 +41,7 @@ try {
 
 	if ($finalParsedData[0] == "init") {// Reset reponses if init sent (Think about this)
 		$db->delete("eventlog", "gamets>{$finalParsedData[2]}  ");
-		$db->update("responselog", "sent=0", "sent=1 and (tag='AASPGDialogueHerika1WhatTopic' or tag='AASPGDialogueHerika2Branch1Topic')");
+		$db->update("responselog", "sent=0", "sent=1 and (action='AASPGDialogueHerika1WhatTopic' or action='AASPGDialogueHerika2Branch1Topic')");
 	}
 	else if ($finalParsedData[0] == "request") { // Just requested reponse
 		// Do nothing
