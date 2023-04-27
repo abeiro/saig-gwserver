@@ -39,8 +39,10 @@ try {
 		$finalParsedData[$i] = trim(preg_replace('/\s\s+/', ' ', preg_replace('/\'/m', "''", $ele)));
 
 
-	if ($finalParsedData[0] == "init") // Reset reponses if init sent (Think about this)
+	if ($finalParsedData[0] == "init") {// Reset reponses if init sent (Think about this)
 		$db->delete("eventlog", "gamets>{$finalParsedData[2]}  ");
+		$db->update("responselog", "sent=0", "sent=1 and (tag='AASPGDialogueHerika1WhatTopic' or tag='AASPGDialogueHerika2Branch1Topic')");
+	}
 	else if ($finalParsedData[0] == "request") { // Just requested reponse
 		// Do nothing
 	} else // It's an event. Store it
@@ -81,17 +83,22 @@ if ($finalParsedData[0] == "combatend") {
 } else if ($finalParsedData[0] == "book") { // Books should be cached
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
-	requestGeneric("(Chat as Herika)", "Herika, summarize the book '{$finalParsedData[3]}' shortly", 'AASPGQuestDialogue2Topic1B1Topic', 1);
+	requestGeneric("Herika: It's about ", "Herika, summarize the book '{$finalParsedData[3]}' shortly", 'AASPGQuestDialogue2Topic1B1Topic', 1);
 
-} else if ($finalParsedData[0] == "quest") { // Books should be cached
+} else if ($finalParsedData[0] == "quest") { 
+	$questName=explode("'",$finalParsedData[3])[1];
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
-	requestGeneric("(Chat as Herika)", "Herika, what do you think about last events?", 'AASPGDialogueHerika1WhatTopic', 10);
+	requestGeneric("(Chat as Herika)", "Herika, what do should we do about this quest? $questName", 'AASPGDialogueHerika2Branch1Topic', 10);
 
 } else if ($finalParsedData[0] == "bleedout") { 
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
 	requestGeneric("(Chat as Herika, complain about almost being defeated)", "", 'AASPGQuestDialogue2Topic1B1Topic', 10);
+} else if ($finalParsedData[0] == "bored") { 
+	require_once("chat/generic.php");
+	$GLOBALS["DEBUG_MODE"] = false;
+	requestGeneric("(Chat as Herika)", "What do you think about?", 'AASPGDialogueHerika1WhatTopic', 10);
 }
 
 ?>

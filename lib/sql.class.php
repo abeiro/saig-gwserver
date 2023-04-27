@@ -67,13 +67,15 @@ class sql
   function lastDataFor($actor, $lastNelements = -10)
   {
     $lastDialogFull = array();
-    $results = self::$link->query("select  A.*,ROWID FROM  eventlog a WHERE data like '%$actor%' and type<>'combatend'  and type<>'book' and type<>'location' order by ts asc");
+    $results = self::$link->query("select  A.*,ROWID FROM  eventlog a WHERE data like '%$actor%' and type<>'combatend'  and type<>'book' and type<>'location'  and type<>'bored' order by ts asc");
     while ($row = $results->fetchArray())
       $lastDialogFull[] = array('role' => 'user', 'content' => $row["data"]);
 
 
     $lastDialog = array_slice($lastDialogFull, $lastNelements);
     $last_location = null;
+
+    // Remove Context Location part when repeated
     foreach ($lastDialog as $k => $message) {
       preg_match('/\(Context location: (.\w*)\)/', $message['content'], $matches);
       $current_location = isset($matches[1]) ? $matches[1] : null;
