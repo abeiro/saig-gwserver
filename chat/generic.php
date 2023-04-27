@@ -37,6 +37,7 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
 
     $sentence="";
     $errorFlag=false;
+    $startTime=time();
     try {
         $response = $client->chat()->create($callParms);
            // PARSE RESPONSE
@@ -79,7 +80,8 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
                 'localts' => time(),
                 'prompt' => nl2br(SQLite3::escapeString(print_r($parms,true))),
                 'response' => nl2br(SQLite3::escapeString(print_r($rawResponse,true))),
-                'url' => nl2br(SQLite3::escapeString(print_r( base64_decode(stripslashes($_GET["DATA"])),true))),
+                'url' => nl2br(SQLite3::escapeString(print_r( base64_decode(stripslashes($_GET["DATA"])),true)." in ".(time()-$startTime)." secs " ))
+                  
                
             )
         );
