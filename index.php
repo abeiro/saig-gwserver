@@ -23,7 +23,9 @@ if ($_GET["sendclean"]) {
 
 
 }
-
+if ($_GET["sendlocation"]) {
+    $db->delete("responselog","action='AASPGDialogueHerika3Branch1Topic'");
+}
 
 if ($_GET["export"]) {
     while(@ob_end_clean());
@@ -83,14 +85,15 @@ if ($_POST["animation"]) {
 echo "<h1>Gateway Server CP for {$GLOBALS["PLAYER_NAME"]}".(($_GET["autorefresh"])?" (autorefreshes every 5 secs)":"")." </h1>";
 echo "
 <div class='menupane'>
-<a href='index.php?table=response' class='buttonify'>Responses</a> ::
+<a href='index.php?table=response' class='buttonify' title=''>Responses</a> ::
 <a href='index.php?table=event'  class='buttonify'>Events</a> ::
 <a href='index.php?table=log'  class='buttonify'>Log</a> ::
 <a href='index.php?table=event&autorefresh=true'  class='buttonify'>Monitor events</a> ::::
-<a href='index.php?clean=true&table=response'  class='buttonify' onclick=\"return confirm('Sure?')\">Clean sent</a> ::
-<a href='index.php?sendclean=true&table=response'  class='buttonify' onclick=\"return confirm('Sure?')\">Reset sent</a> ::
-<a href='index.php?reset=true&table=event'  class='buttonify' onclick=\"return confirm('Sure?')\">Reset events</a> ::
-<a href='index.php?reinstall=true'  class='buttonify' onclick=\"return confirm('Sure?')\">Reinstall</a> ::
+<a href='index.php?clean=true&table=response'   title='Delete sent responses' class='buttonify' onclick=\"return confirm('Sure?')\">Clean sent</a> ::
+<a href='index.php?sendclean=true&table=response' title='Marks unsent responses from queue What do you think about?'  class='buttonify' onclick=\"return confirm('Sure?')\">Reset sent</a> ::
+<a href='index.php?sendlocation=true&table=response'  title='Delete all locations reponses What do you know about...' class='buttonify' onclick=\"return confirm('Sure?')\">Reset locations</a> ::
+<a href='index.php?reset=true&table=event'  title='Delete all events.' class='buttonify' onclick=\"return confirm('Sure?')\">Reset events</a> ::
+<a href='index.php?reinstall=true'  title='Drop all tables and then create them' class='buttonify' onclick=\"return confirm('Sure?')\">Reinstall</a> ::
 <a href='index.php?export=true'  class='buttonify' target='_blank'>Export Adventure</a> ::
 <span onclick='toggleDP()' class='buttonify'>Debug Pane</span> 
 

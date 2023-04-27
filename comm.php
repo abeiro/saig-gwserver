@@ -67,7 +67,7 @@ if ($finalParsedData[0] == "combatend") {
 	$GLOBALS["DEBUG_MODE"] = false;
 	requestGeneric("(Chat as Herika, comment about last combat)");
 
-} else if ($finalParsedData[0] == "location") { // Locations might be cached
+} else if ($finalParsedData[0] == "location") { // Locations might be cached	
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
 	$alreadyGenerated = $db->fetchAll(("select * from responselog where  sent=1 and tag='{$finalParsedData[3]}'"));
@@ -75,26 +75,31 @@ if ($finalParsedData[0] == "combatend") {
 		$db->update("responselog", "sent=0", "sent=1 and tag='{$finalParsedData[3]}'");
 		die();
 	}
-
 	//requestGeneric("(Chat as Herika)","What do you think about last events?","AASPGDialogueHerika1WhatTopic");
 	//requestGeneric("(Chat as Herika)","What should we do?","AASPGDialogueHerika2Branch1Topic");
-	requestGeneric("(Chat as Herika)", "What do you know about this place?", "AASPGDialogueHerika3Branch1Topic", 5, $finalParsedData[3]);
+	requestGeneric("(Chat as Herika)", "{$finalParsedData[3]} What do you know about this place?", "AASPGDialogueHerika3Branch1Topic", 2, $finalParsedData[3]);
 
 } else if ($finalParsedData[0] == "book") { // Books should be cached
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
+	if (stripos($finalParsedData[3],'note')!==false)	// Avoid notes
+		return;
 	requestGeneric("Herika: It's about ", "Herika, summarize the book '{$finalParsedData[3]}' shortly", 'AASPGQuestDialogue2Topic1B1Topic', 1);
 
 } else if ($finalParsedData[0] == "quest") { 
-	$questName=explode("'",$finalParsedData[3])[1];
 	require_once("chat/generic.php");
+
+	$questNameA=explode("'",$finalParsedData[3]);
+	$questName=$questNameA[2];
 	$GLOBALS["DEBUG_MODE"] = false;
-	requestGeneric("(Chat as Herika)", "Herika, what do should we do about this quest? $questName", 'AASPGDialogueHerika2Branch1Topic', 10);
+	
+	requestGeneric("(Chat as Herika)", "Herika, what do should we do about this quest '{$questName}'?", 'AASPGDialogueHerika2Branch1Topic', 5);
 
 } else if ($finalParsedData[0] == "bleedout") { 
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
 	requestGeneric("(Chat as Herika, complain about almost being defeated)", "", 'AASPGQuestDialogue2Topic1B1Topic', 10);
+
 } else if ($finalParsedData[0] == "bored") { 
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
