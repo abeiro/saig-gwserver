@@ -18,6 +18,13 @@ if ($_GET["reset"]) {
 
 }
 
+if ($_GET["sendclean"]) {
+       $db->update("responselog", "sent=0", "sent=1 and action='AASPGDialogueHerika1WhatTopic'");
+
+
+}
+
+
 if ($_GET["export"]) {
     while(@ob_end_clean());
     $data=$db->fetchAll("select case when type='book' then 'The party find a book: '||data else data end as data  from eventlog a where type<>'combatend' and type<>'location' and type<>'quest' order by ts desc");
@@ -81,6 +88,7 @@ echo "
 <a href='index.php?table=log'  class='buttonify'>Log</a> ::
 <a href='index.php?table=event&autorefresh=true'  class='buttonify'>Monitor events</a> ::::
 <a href='index.php?clean=true&table=response'  class='buttonify' onclick=\"return confirm('Sure?')\">Clean sent</a> ::
+<a href='index.php?sendclean=true&table=response'  class='buttonify' onclick=\"return confirm('Sure?')\">Reset sent</a> ::
 <a href='index.php?reset=true&table=event'  class='buttonify' onclick=\"return confirm('Sure?')\">Reset events</a> ::
 <a href='index.php?reinstall=true'  class='buttonify' onclick=\"return confirm('Sure?')\">Reinstall</a> ::
 <a href='index.php?export=true'  class='buttonify' target='_blank'>Export Adventure</a> ::
