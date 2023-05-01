@@ -12,7 +12,7 @@ require_once($path . "lib/Misc.php");
 
 function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2Topic1B1Topic',$lastDataAmount=10,$tag='')
 {
-    $db = new sql();
+    global $db;
     $client = OpenAI::client($GLOBALS["OPENAI_API_KEY"]);
 
     
@@ -79,12 +79,27 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
             array(
                 'localts' => time(),
                 'prompt' => nl2br(SQLite3::escapeString(print_r($parms,true))),
-                'response' => nl2br(SQLite3::escapeString(print_r($rawResponse,true))),
+                'response' => (SQLite3::escapeString(print_r($rawResponse,true))),
                 'url' => nl2br(SQLite3::escapeString(print_r( base64_decode(stripslashes($_GET["DATA"])),true)." in ".(time()-$startTime)." secs " ))
                   
                
             )
         );
+
+        return trim(preg_replace('/\s\s+/', ' ', $sentence));
+    } else {
+        $db->insert(
+            'log',
+            array(
+                'localts' => time(),
+                'prompt' => nl2br(SQLite3::escapeString(print_r($parms,true))),
+                'response' => (SQLite3::escapeString(print_r($rawResponse,true))),
+                'url' => nl2br(SQLite3::escapeString(print_r( base64_decode(stripslashes($_GET["DATA"])),true)." in ".(time()-$startTime)." secs with ERROR STATE" ))
+                  
+               
+            )
+        );
+
     }
 
 }

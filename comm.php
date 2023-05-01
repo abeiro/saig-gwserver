@@ -104,6 +104,31 @@ if ($finalParsedData[0] == "combatend") {
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
 	requestGeneric("(Chat as Herika)", "What do you think about?", 'AASPGDialogueHerika1WhatTopic', 10);
+
+} else if ($finalParsedData[0] == "goodmorning") { 
+	require_once("chat/generic.php");
+	$GLOBALS["DEBUG_MODE"] = false;
+	requestGeneric("(Chat as Herika)", "(wakes up). ahhhh  ", 'AASPGQuestDialogue2Topic1B1Topic', 1);
+
+} else if ($finalParsedData[0] == "inputtext") { // Highest priority, must return qeuee data
+	require_once("chat/generic.php");
+	$GLOBALS["DEBUG_MODE"] = false;
+	
+	$newString = preg_replace("/^[^:]*:/", "", $finalParsedData[3]); // Work here
+
+	$responseText=requestGeneric("(put mood in parenthesys,valid moods:angry, cheerful ,assistant ,calm ,embarrassed ,excited ,lyrical ,sad ,shouting ,whispering ,terrified) Herika:", $newString, 'AASPGQuestDialogue2Topic1B1Topic', 10);
+	preg_match_all('/\((.*?)\)/', $responseText, $matches);
+	$responseTextUnmooded=preg_replace('/\((.*?)\)/', '',$responseText);
+	$mood = $matches[1][0];
+
+	require_once("tts/tts-azure.php");
+	tts($responseTextUnmooded,$mood, $responseText);
+
+	$responseDataMl = $db->dequeue();
+	foreach ($responseDataMl as $responseData)
+		echo "{$responseData["actor"]}|{$responseData["action"]}|{$responseData["text"]}\r\n";
+
+		
 }
 
 ?>
