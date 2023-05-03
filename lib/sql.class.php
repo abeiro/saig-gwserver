@@ -27,6 +27,14 @@ class sql
 
   }
 
+  function query($query)
+  {
+  
+    return self::$link->query($query);
+
+
+  }
+  
   function delete($table, $where = " false ")
   {
     self::$link->exec("DELETE FROM  $table WHERE $where");
@@ -78,10 +86,10 @@ class sql
 
     // Remove Context Location part when repeated
     foreach ($lastDialog as $k => $message) {
-      preg_match('/\(Context location: (.\w*)\)/', $message['content'], $matches);
+      preg_match('/\(Context location: (.*)\)/', $message['content'], $matches);
       $current_location = isset($matches[1]) ? $matches[1] : null;
       if ($current_location === $last_location) {
-        $message['content'] = preg_replace('/\(Context location: (\w*)\)/', '', $message['content']);
+        $message['content'] = preg_replace('/\(Context location: (.*)\)/', '', $message['content']);
       } else {
         $last_location = $current_location;
       }

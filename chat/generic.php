@@ -60,7 +60,7 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
     // Final result.
     if ($GLOBALS["DEBUG_MODE"])
         echo "# $sentence #\n";
-    // Action is the queue plugin will store the response
+    // Action is the plugin queue which will store the response
     if ($sentence) {
         if (!$errorFlag)
             $db->insert(

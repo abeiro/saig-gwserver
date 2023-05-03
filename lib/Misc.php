@@ -4,11 +4,8 @@
 
 function split_sentences($paragraph)
 {
-    $paragraphNcr = br2nl($paragraph); // Some BR detected sometimes in response
-    if (strlen($paragraphNcr) < 149) {
-        $sentences[] = $paragraphNcr;
-        return $sentences;
-    } // Split the paragraph into an array of sentences using a regular expression
+$paragraphNcr = br2nl($paragraph); // Some BR detected sometimes in response
+	// Split the paragraph into an array of sentences using a regular expression
     preg_match_all('/[^\n?.!]+[?.!]/', $paragraphNcr, $matches);
 
     $sentences=$matches[0];
