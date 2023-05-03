@@ -68,7 +68,7 @@ class sql
   {
     $lastDialogFull = array();
     $results = self::$link->query("select  A.*,ROWID FROM  eventlog a WHERE data like '%$actor%' and type<>'combatend'  and type<>'book' and type<>'location'  
-    and type<>'bored' order by ts asc");
+    and type<>'bored' and type<>'init' order by ts asc");
     while ($row = $results->fetchArray())
       $lastDialogFull[] = array('role' => 'user', 'content' => $row["data"]);
 

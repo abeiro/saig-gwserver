@@ -39,21 +39,34 @@ try {
 		$finalParsedData[$i] = trim(preg_replace('/\s\s+/', ' ', preg_replace('/\'/m', "''", $ele)));
 
 
-	if ($finalParsedData[0] == "init") {// Reset reponses if init sent (Think about this)
-		$db->delete("eventlog", "gamets>{$finalParsedData[2]}  ");
+	if ($finalParsedData[0] == "init") { // Reset reponses if init sent (Think about this)
+		$db->delete("eventlog", "ts>{$finalParsedData[1]}  ");
+		//die(print_r($finalParsedData,true));
 		$db->update("responselog", "sent=0", "sent=1 and (action='AASPGDialogueHerika1WhatTopic' or action='AASPGDialogueHerika2Branch1Topic')");
-	}
-	else if ($finalParsedData[0] == "request") { // Just requested reponse
+		$db->insert(
+			'eventlog',
+			array(
+				'ts' => $finalParsedData[1],
+				'gamets' => $finalParsedData[2],
+				'type' => $finalParsedData[0],
+				'data' => $finalParsedData[3],
+				'sess' => 'pending',
+				'localts' => time()
+			)
+		);
+	} else if ($finalParsedData[0] == "request") { // Just requested response
 		// Do nothing
 	} else // It's an event. Store it
-		$db->insert('eventlog', array(
-			'ts' => $finalParsedData[1],
-			'gamets' => $finalParsedData[2],
-			'type' => $finalParsedData[0],
-			'data' => $finalParsedData[3],
-			'sess' => 'pending',
-			'localts' => time()
-		)
+		$db->insert(
+			'eventlog',
+			array(
+				'ts' => $finalParsedData[1],
+				'gamets' => $finalParsedData[2],
+				'type' => $finalParsedData[0],
+				'data' => $finalParsedData[3],
+				'sess' => 'pending',
+				'localts' => time()
+			)
 		);
 
 } catch (Exception $e) {
@@ -82,30 +95,30 @@ if ($finalParsedData[0] == "combatend") {
 } else if ($finalParsedData[0] == "book") { // Books should be cached
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
-	if (stripos($finalParsedData[3],'note')!==false)	// Avoid notes
+	if (stripos($finalParsedData[3], 'note') !== false) // Avoid notes
 		return;
 	requestGeneric("Herika: It's about ", "Herika, summarize the book '{$finalParsedData[3]}' shortly", 'AASPGQuestDialogue2Topic1B1Topic', 1);
 
-} else if ($finalParsedData[0] == "quest") { 
+} else if ($finalParsedData[0] == "quest") {
 	require_once("chat/generic.php");
 
-	$questNameA=explode("'",$finalParsedData[3]);
-	$questName=$questNameA[2];
+	$questNameA = explode("'", $finalParsedData[3]);
+	$questName = $questNameA[2];
 	$GLOBALS["DEBUG_MODE"] = false;
-	
+
 	requestGeneric("(Chat as Herika)", "Herika, what do should we do about this quest '{$questName}'?", 'AASPGDialogueHerika2Branch1Topic', 5);
 
-} else if ($finalParsedData[0] == "bleedout") { 
+} else if ($finalParsedData[0] == "bleedout") {
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
 	requestGeneric("(Chat as Herika, complain about almost being defeated)", "", 'AASPGQuestDialogue2Topic1B1Topic', 10);
 
-} else if ($finalParsedData[0] == "bored") { 
+} else if ($finalParsedData[0] == "bored") {
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
 	requestGeneric("(Chat as Herika)", "What do you think about?", 'AASPGDialogueHerika1WhatTopic', 10);
 
-} else if ($finalParsedData[0] == "goodmorning") { 
+} else if ($finalParsedData[0] == "goodmorning") {
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
 	requestGeneric("(Chat as Herika)", "(wakes up). ahhhh  ", 'AASPGQuestDialogue2Topic1B1Topic', 1);
@@ -113,22 +126,22 @@ if ($finalParsedData[0] == "combatend") {
 } else if ($finalParsedData[0] == "inputtext") { // Highest priority, must return qeuee data
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
-	
+
 	$newString = preg_replace("/^[^:]*:/", "", $finalParsedData[3]); // Work here
 
-	$responseText=requestGeneric("(put mood in parenthesys,valid moods:angry, cheerful ,assistant ,calm ,embarrassed ,excited ,lyrical ,sad ,shouting ,whispering ,terrified) Herika:", $newString, 'AASPGQuestDialogue2Topic1B1Topic', 10);
+	$responseText = requestGeneric("(put mood in parenthesys,valid moods:angry, cheerful ,assistant ,calm ,embarrassed ,excited ,lyrical ,sad ,shouting ,whispering ,terrified) Herika:", $newString, 'AASPGQuestDialogue2Topic1B1Topic', 10);
 	preg_match_all('/\((.*?)\)/', $responseText, $matches);
-	$responseTextUnmooded=preg_replace('/\((.*?)\)/', '',$responseText);
+	$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $responseText);
 	$mood = $matches[1][0];
-
-	require_once("tts/tts-azure.php");
-	tts($responseTextUnmooded,$mood, $responseText);
-
+	if ($GLOBALS["AZURE_API_KEY"]) {
+		require_once("tts/tts-azure.php");
+		tts($responseTextUnmooded, $mood, $responseText);
+	}
 	$responseDataMl = $db->dequeue();
 	foreach ($responseDataMl as $responseData)
 		echo "{$responseData["actor"]}|{$responseData["action"]}|{$responseData["text"]}\r\n";
 
-		
+
 }
 
 ?>
