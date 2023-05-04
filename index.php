@@ -94,6 +94,7 @@ echo "
 <a href='index.php?sendlocation=true&table=response'  title='Delete all locations reponses What do you know about...' class='buttonify' onclick=\"return confirm('Sure?')\">Reset locations</a> ::
 <a href='index.php?reset=true&table=event'  title='Delete all events.' class='buttonify' onclick=\"return confirm('Sure?')\">Reset events</a> ::
 <a href='index.php?reinstall=true'  title='Drop all tables and then create them' class='buttonify' onclick=\"return confirm('Sure?')\">Reinstall</a> ::
+<a href='conf_editor.php'  title='Simple config editor' class='buttonify'\">Config</a> ::
 <a href='index.php?export=true'  class='buttonify' target='_blank'>Export Adventure</a> ::
 <a href='soundcache/'  class='buttonify' target='_blank'>TTS cache</a> ::
 <span onclick='toggleDP()' class='buttonify'>Debug Pane</span> 
