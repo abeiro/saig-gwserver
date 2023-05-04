@@ -55,22 +55,22 @@ function tts($textString,$mood="friendly",$stringforhash)
         $voice = $doc->createElement("voice");
         //$voice->setAttribute( "xml:lang" , "en-us" );
         $voice->setAttribute("xml:gender", "Female");
-        $voice->setAttribute("name", "en-US-AmberNeural"); // Short name for "Microsoft Server Speech Text to Speech Voice (en-US, Guy24KRUS)"
+        $voice->setAttribute("name", "en-US-JennyNeural"); // Read https://learn.microsoft.com/es-es/azure/cognitive-services/speech-service/language-support?tabs=tts
 
         $text = $doc->createTextNode($textString);
 
 
         $prosody = $doc->createElement("prosody");
-        $prosody->setAttribute("rate", "+10.00%");
-        $prosody->setAttribute( "volume" , "10" );
+        $prosody->setAttribute("rate", "fast");
+        $prosody->setAttribute( "volume" , "20" );
         
 
         $prosody->appendChild($text);
 
         $style = $doc->createElement("mstts:express-as");
-        $style->setAttribute("style", $validMood);
-        $style->setAttribute("styledegree", "2");
-        $style->setAttribute( "role" , "YoungAdultFemale" );
+        $style->setAttribute("style", $validMood);              // not supported for all voices
+        $style->setAttribute("styledegree", "2");               // not supported for all voices
+        //$style->setAttribute( "role" , "YoungAdultFemale" );  // not supported for all voices
         $style->appendChild($prosody);
 
         $voice->appendChild($style);

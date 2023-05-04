@@ -1,4 +1,5 @@
 <?php
+error_reporting(E_ERROR);
 
 // Credits to https://stackoverflow.com/questions/8226958/simple-php-editor-of-text-files
 ob_start();
