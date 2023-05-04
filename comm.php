@@ -40,7 +40,7 @@ try {
 
 
 	if ($finalParsedData[0] == "init") { // Reset reponses if init sent (Think about this)
-		$db->delete("eventlog", "ts>{$finalParsedData[1]}  ");
+		$db->delete("eventlog", "gamets>{$finalParsedData[2]}  ");
 		//die(print_r($finalParsedData,true));
 		$db->update("responselog", "sent=0", "sent=1 and (action='AASPGDialogueHerika1WhatTopic' or action='AASPGDialogueHerika2Branch1Topic')");
 		$db->insert(
@@ -78,7 +78,17 @@ try {
 if ($finalParsedData[0] == "combatend") {
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
-	requestGeneric("(Chat as Herika, comment about last combat)");
+	$responseText=requestGeneric("(Chat as Herika, comment about last combat)");
+	preg_match_all('/\((.*?)\)/', $responseText, $matches);
+	$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $responseText);
+	$mood = $matches[1][0];
+	if ($GLOBALS["AZURE_API_KEY"]) {
+		require_once("tts/tts-azure.php");
+		tts($responseTextUnmooded, $mood, $responseText);
+	}
+	$responseDataMl = $db->dequeue();
+	foreach ($responseDataMl as $responseData)
+		echo "{$responseData["actor"]}|{$responseData["action"]}|{$responseData["text"]}\r\n";
 
 } else if ($finalParsedData[0] == "location") { // Locations might be cached	
 	require_once("chat/generic.php");
