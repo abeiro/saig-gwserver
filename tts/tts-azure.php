@@ -8,6 +8,8 @@ function tts($textString,$mood="cheerful",$stringforhash)
     $AccessTokenUri = "https://" . $region . ".api.cognitive.microsoft.com/sts/v1.0/issueToken";
     $apiKey = $GLOBALS["AZURE_API_KEY"];
 
+    if (empty(trim($mood)))
+        $mood="cheerful";
     $valid_tokens = array('angry', 'cheerful', 'assistant', 'calm', 'embarrassed', 'excited', 'lyrical', 'sad', 'shouting', 'whispering', 'terrified');
     $distancia_minima = PHP_INT_MAX;
     $token_mas_cercano = '';
@@ -109,6 +111,6 @@ function tts($textString,$mood="cheerful",$stringforhash)
         //fwrite(STDOUT, $result);
 
         file_put_contents(dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR."soundcache/" . md5(trim($stringforhash)) . ".wav", $result);
-        file_put_contents(dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR."soundcache/" . md5(trim($stringforhash)) . ".txt", trim($data));
+        file_put_contents(dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR."soundcache/" . md5(trim($stringforhash)) . ".txt", trim($data)."\n\rfunction tts($textString,$mood=\"cheerful\",$stringforhash)");
     }
 }
