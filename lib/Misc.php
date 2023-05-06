@@ -4,10 +4,10 @@
 
 function split_sentences($paragraph)
 {
-$paragraphNcr = br2nl($paragraph); // Some BR detected sometimes in response
+    $paragraphNcr = br2nl($paragraph); // Some BR detected sometimes in response
 	// Split the paragraph into an array of sentences using a regular expression
     preg_match_all('/[^\n?.!]+[?.!]/', $paragraphNcr, $matches);
-
+    //print_r($matches);
     $sentences=$matches[0];
     // Check if the last sentence is truncated (i.e., doesn't end with a period)
     /*$last_sentence = end($sentences);
@@ -29,6 +29,12 @@ function br2nl($string)
 
 function cleanReponse($rawResponse)
 {
+    // Remove Context Location between parenthesys
+    $pattern = '/\(C[^)]*\)/';
+    $replacement = ''; 
+    $rawResponse= preg_replace($pattern, $replacement, $rawResponse);
+
+    
     if (strpos($rawResponse, "(Context location") !== false) {
         $rawResponseSplited = explode(":", $rawResponse);
         $sentences = split_sentences($rawResponseSplited[2]);

@@ -42,7 +42,7 @@ try {
 	if ($finalParsedData[0] == "init") { // Reset reponses if init sent (Think about this)
 		$db->delete("eventlog", "gamets>{$finalParsedData[2]}  ");
 		//die(print_r($finalParsedData,true));
-		$db->update("responselog", "sent=0", "sent=1 and (action='AASPGDialogueHerika1WhatTopic' or action='AASPGDialogueHerika2Branch1Topic')");
+		$db->update("responselog", "sent=0", "sent=1 and (action='AASPGDialogueHerika2Branch1Topic')");
 		$db->insert(
 			'eventlog',
 			array(
@@ -126,7 +126,7 @@ if ($finalParsedData[0] == "combatend") {
 } else if ($finalParsedData[0] == "bored") {
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
-	requestGeneric("(Chat as Herika)", "What do you think about?", 'AASPGDialogueHerika1WhatTopic', 10);
+	requestGeneric("(Make joke Herika) Herika:", "What do you think about?", 'AASPGDialogueHerika1WhatTopic', 10);
 
 } else if ($finalParsedData[0] == "goodmorning") {
 	require_once("chat/generic.php");
@@ -152,6 +152,23 @@ if ($finalParsedData[0] == "combatend") {
 		echo "{$responseData["actor"]}|{$responseData["action"]}|{$responseData["text"]}\r\n";
 
 
+} else if ($finalParsedData[0] == "inputtext_s") { // Highest priority, must return qeuee data
+	require_once("chat/generic.php");
+	$GLOBALS["DEBUG_MODE"] = false;
+
+	$newString = preg_replace("/^[^:]*:/", "", $finalParsedData[3]); // Work here
+
+	$responseText = requestGeneric("(whispering) Herika: ", $newString, 'AASPGQuestDialogue2Topic1B1Topic', 10);
+	preg_match_all('/\((.*?)\)/', $responseText, $matches);
+	$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $responseText);
+	$mood = "whispering"; // So easy...
+	if ($GLOBALS["AZURE_API_KEY"]) {
+		require_once("tts/tts-azure.php");
+		tts($responseTextUnmooded, $mood, $responseText);
+	}
+	$responseDataMl = $db->dequeue();
+	foreach ($responseDataMl as $responseData)
+		echo "{$responseData["actor"]}|{$responseData["action"]}|{$responseData["text"]}\r\n";
 }
 
 ?>

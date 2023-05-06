@@ -2,7 +2,7 @@
 $path = dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR;
 require_once($path . "conf.php"); // API KEY must be there
 
-function tts($textString,$mood="friendly",$stringforhash)
+function tts($textString,$mood="cheerful",$stringforhash)
 {
     $region = 'westeurope';
     $AccessTokenUri = "https://" . $region . ".api.cognitive.microsoft.com/sts/v1.0/issueToken";
@@ -21,6 +21,7 @@ function tts($textString,$mood="friendly",$stringforhash)
         }
     }
     $validMood=$token_mas_cercano;
+   
 
     // use key 'http' even if you send the request to https://...
     $options = array(
@@ -61,7 +62,7 @@ function tts($textString,$mood="friendly",$stringforhash)
 
 
         $prosody = $doc->createElement("prosody");
-        $prosody->setAttribute("rate", "fast");
+        $prosody->setAttribute("rate", "1.25");             //https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/speech-synthesis-markup-voice#adjust-prosody
         $prosody->setAttribute( "volume" , "20" );
         
 

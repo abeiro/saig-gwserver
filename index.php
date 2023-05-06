@@ -143,7 +143,7 @@ if ($_GET["table"] == "event") {
     print_array_as_table($results);
     if ($_GET["autorefresh"]) {
         header("Refresh:5");
-        header("Refresh:5");
+        
     }
 }
 if ($_GET["table"] == "cache") {
