@@ -57,7 +57,7 @@ if ($_POST["command"]) {
         array(
             'localts' => time(),
             'sent' => 0,
-            'text' => $_POST["command"],
+            'text' => $_POST["command"]."@".$_POST["parameter"],
             'actor' => "Herika",
             'action' => 'command'
         )
@@ -120,8 +120,11 @@ function toggleDP() {document.getElementsByClassName('debugpane')[0].style.displ
 </form>
 <form action='index.php' method='post'>
     <select name='command'>
-        <option value='IdleLookFar'>IdleLookFar</option>
+        <option value='MoveTo'>MoveTo</option>
+        <option value='SneakTo'>SneakTo</option>
+        <option value='Attack'>Attack</option>
     </select>
+    <input type='text' value='' name='parameter' placeholder='parameter'>
     <input type='submit' value='Post command'>
 </form>
 <form action='index.php' method='post'>
