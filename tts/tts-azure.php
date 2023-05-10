@@ -4,12 +4,15 @@ require_once($path . "conf.php"); // API KEY must be there
 
 function tts($textString,$mood="cheerful",$stringforhash)
 {
-    $region = 'westeurope';
+    global $AZURETTS_CONF;
+    
+    $region = $AZURETTS_CONF["region"];
     $AccessTokenUri = "https://" . $region . ".api.cognitive.microsoft.com/sts/v1.0/issueToken";
     $apiKey = $GLOBALS["AZURE_API_KEY"];
 
     if (empty(trim($mood)))
         $mood="cheerful";
+    
     $valid_tokens = array('angry', 'cheerful', 'assistant', 'calm', 'embarrassed', 'excited', 'lyrical', 'sad', 'shouting', 'whispering', 'terrified');
     $distancia_minima = PHP_INT_MAX;
     $token_mas_cercano = '';
@@ -58,20 +61,27 @@ function tts($textString,$mood="cheerful",$stringforhash)
         $voice = $doc->createElement("voice");
         //$voice->setAttribute( "xml:lang" , "en-us" );
         $voice->setAttribute("xml:gender", "Female");
-        $voice->setAttribute("name", "en-US-JennyNeural"); // Read https://learn.microsoft.com/es-es/azure/cognitive-services/speech-service/language-support?tabs=tts
+        $voice->setAttribute("name", $AZURETTS_CONF["voice"]); // Read https://learn.microsoft.com/es-es/azure/cognitive-services/speech-service/language-support?tabs=tts
 
         $text = $doc->createTextNode($textString);
 
 
         $prosody = $doc->createElement("prosody");
-        $prosody->setAttribute("rate", "1.25");             //https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/speech-synthesis-markup-voice#adjust-prosody
-        $prosody->setAttribute( "volume" , "20" );
+        $prosody->setAttribute("rate", $AZURETTS_CONF["rate"]);             //https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/speech-synthesis-markup-voice#adjust-prosody
+        $prosody->setAttribute( "volume" , $AZURETTS_CONF["volume"] );
+        if ($AZURETTS_CONF["countour"])
+            $prosody->setAttribute("contour" , $AZURETTS_CONF["countour"]);
+
         
 
         $prosody->appendChild($text);
 
         $style = $doc->createElement("mstts:express-as");
-        $style->setAttribute("style", $validMood);              // not supported for all voices
+        if ($AZURETTS_CONF["fixedMood"])
+            $style->setAttribute("style", $AZURETTS_CONF["fixedMood"]);              // not supported for all voices
+        else
+            $style->setAttribute("style", $validMood);              // not supported for all voices
+            
         $style->setAttribute("styledegree", "2");               // not supported for all voices
         //$style->setAttribute( "role" , "YoungAdultFemale" );  // not supported for all voices
         $style->appendChild($prosody);
@@ -110,7 +120,13 @@ function tts($textString,$mood="cheerful",$stringforhash)
         }
         //fwrite(STDOUT, $result);
 
-        file_put_contents(dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR."soundcache/" . md5(trim($stringforhash)) . ".wav", $result);
-        file_put_contents(dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR."soundcache/" . md5(trim($stringforhash)) . ".txt", trim($data)."\n\rfunction tts($textString,$mood=\"cheerful\",$stringforhash)");
+        // Trying to avoid sync problems.
+        $stream = fopen(dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR."soundcache/" . md5(trim($stringforhash)) . ".wav", 'w');
+        $size=fwrite($stream, $result);
+        fsync($stream);
+        fclose($stream);
+
+        //file_put_contents(dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR."soundcache/" . md5(trim($stringforhash)) . ".wav", $result);
+        file_put_contents(dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR."soundcache/" . md5(trim($stringforhash)) . ".txt", trim($data)."\n\rsize of wav ($size)\n\rfunction tts($textString,$mood=\"cheerful\",$stringforhash)");
     }
 }
