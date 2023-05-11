@@ -28,17 +28,17 @@ if ($zip->open($zipball_file) === TRUE) {
 
     
     
-    $orig_dir = '.';
+$orig_dir = __DIR__;
 $update_dir = 'update_cache';
 
 // Loop through files in update directory
 echo "<ul>";
 foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($update_dir)) as $file) {
     if ($file->isFile()) {
-        $relative_path = str_replace($update_dir . '/', '', $file->getPathname());
+        $relative_path = str_replace($update_dir . DIRECTORY_SEPARATOR, '', $file->getPathname());
         $relative_path=str_replace("saig-gwserver-{$zipball_url}",'',$relative_path);
         
-        $orig_file = $orig_dir . '/' . $relative_path;
+        $orig_file = $orig_dir . DIRECTORY_SEPARATOR . $relative_path;
         //$newPath = basename(dirname($orig_file)) . '/' . basename($orig_file);
         //$orig_file=$newPath;
         
@@ -59,7 +59,7 @@ foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($update_di
                 // Do something to update the file
             }
         } else {
-            echo "<li>File $relative_path is a new file</b>  ($orig_file vs {$file->getPathname()})</li>";
+            echo "<li><span style='color:red'>File $relative_path is a new file</b>  ($orig_file vs {$file->getPathname()})</span></li>";
              if ($_POST["doit"]) {
                   echo "updating..";
                   @mkdir(dirname($orig_file));
