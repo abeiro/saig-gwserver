@@ -47,7 +47,7 @@ $release = json_decode($data);
 
 $zipball_url = basename($release->zipball_url);
 $url = "https://github.com/abeiro/saig-gwserver/archive/refs/tags/$zipball_url.zip";
-
+echo "Checking $url<br/>";
 $zipball_file = __DIR__.DIRECTORY_SEPARATOR.'update_cache/release.zip';
 file_put_contents($zipball_file, fopen($url, 'r'));
 
@@ -105,7 +105,7 @@ echo "</ul>";
 echo "
 <p><strong>Note. Files marked in bold, will be ovewritten!!!!</strong>
 <form action='updater.php' method='post'>
-    ".(($_POST["doit"])?"<input type='submit' value='Proceed' name='doit' onclick=\"return confirm('Are you sure?')\">":"")."
+    ".((!$_POST["doit"])?"<input type='submit' value='Proceed' name='doit' onclick=\"return confirm('Are you sure?')\">":"")."
     <input type='button' value='Back' onclick=\"location.href='index.php'\"/>
     <input type='button' value='Refresh' onclick=\"location.href='updater.php'\"/>
 </form>
