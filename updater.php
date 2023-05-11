@@ -1,6 +1,37 @@
 <?php
 
 include("tmpl/head.html");
+
+function deleteDirectory($dir) {
+    if (!is_dir($dir)) {
+        throw new InvalidArgumentException("$dir must be a directory");
+    }
+
+    // Open the directory and iterate over its contents
+    $files = scandir($dir);
+    foreach ($files as $file) {
+        // Skip "." and ".." directories
+        if ($file === '.' || $file === '..') {
+            continue;
+        }
+
+        $path = $dir . DIRECTORY_SEPARATOR . $file;
+        if (is_dir($path)) {
+            // Recursively delete subdirectories
+            deleteDirectory($path);
+        } else {
+            // Delete files
+            unlink($path);
+        }
+    }
+
+    // Delete the directory itself
+    rmdir($dir);
+}
+
+deleteDirectory(__DIR__.DIRECTORY_SEPARATOR."update_cache");
+mkdir(__DIR__.DIRECTORY_SEPARATOR."update_cache");
+
 $api_url = 'https://api.github.com/repos/abeiro/saig-gwserver/releases/latest';
 $options = [
     'http' => [
@@ -74,7 +105,7 @@ echo "</ul>";
 echo "
 <p><strong>Note. Files marked in bold, will be ovewritten!!!!</strong>
 <form action='updater.php' method='post'>
-    <input type='submit' value='Proceed' name='doit' onclick=\"return confirm('Are you sure?')\">
+    ".(($_POST["doit"])?"<input type='submit' value='Proceed' name='doit' onclick=\"return confirm('Are you sure?')\">":"")."
     <input type='button' value='Back' onclick=\"location.href='index.php'\"/>
     <input type='button' value='Refresh' onclick=\"location.href='updater.php'\"/>
 </form>
