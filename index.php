@@ -97,6 +97,7 @@ echo "
 <a href='conf_editor.php'  title='Simple config editor' class='buttonify'\">Config</a> ::
 <a href='index.php?export=true'  class='buttonify' target='_blank'>Export Adventure</a> ::
 <a href='soundcache/'  class='buttonify' target='_blank'>TTS cache</a> ::
+<a href='updater.php'  class='buttonify' >Updater</a> ::
 <span onclick='toggleDP()' class='buttonify'>Debug Pane</span> 
 
 <!--<a href='index.php?openai=true'  class='buttonify'>OpenAI API Usage</a> -->
