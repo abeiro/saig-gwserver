@@ -146,7 +146,12 @@ if ($finalParsedData[0] == "combatend") {
 	if ($GLOBALS["AZURE_API_KEY"]) {
 		require_once("tts/tts-azure.php");
 		tts($responseTextUnmooded, $mood, $responseText);
+	
+	} else 	if ($GLOBALS["MIMIC3"]) {
+		require_once("tts/tts-mimic3.php");
+		ttsMimic($responseTextUnmooded, $mood, $responseText);
 	}
+
 	$responseDataMl = $db->dequeue();
 	foreach ($responseDataMl as $responseData)
 		echo "{$responseData["actor"]}|{$responseData["action"]}|{$responseData["text"]}\r\n";
@@ -162,9 +167,14 @@ if ($finalParsedData[0] == "combatend") {
 	preg_match_all('/\((.*?)\)/', $responseText, $matches);
 	$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $responseText);
 	$mood = "whispering"; // So easy...
+	
 	if ($GLOBALS["AZURE_API_KEY"]) {
 		require_once("tts/tts-azure.php");
 		tts($responseTextUnmooded, $mood, $responseText);
+
+	} else 	if ($GLOBALS["MIMIC3"]) {
+		require_once("tts/tts-mimic3.php");
+		ttsMimic($responseTextUnmooded, $mood, $responseText);
 	}
 	$responseDataMl = $db->dequeue();
 	foreach ($responseDataMl as $responseData)
