@@ -56,7 +56,8 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
  
     
   
-
+    $modifiedSentence = preg_replace("/\.+/", ".", $sentence);  // Get ride of the double point issue
+    $sentence=$modifiedSentence;
     // Final result.
     if ($GLOBALS["DEBUG_MODE"])
         echo "# $sentence #\n";
