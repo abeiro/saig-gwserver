@@ -107,7 +107,23 @@ if ($finalParsedData[0] == "combatend") {
 	$GLOBALS["DEBUG_MODE"] = false;
 	if (stripos($finalParsedData[3], 'note') !== false) // Avoid notes
 		return;
-	requestGeneric("Herika: It's about ", "Herika, summarize the book '{$finalParsedData[3]}' shortly", 'AASPGQuestDialogue2Topic1B1Topic', 1);
+	$responseText=requestGeneric("Herika: It's about ", "Herika, summarize the book '{$finalParsedData[3]}' shortly", 'AASPGQuestDialogue2Topic1B1Topic', 1);
+	preg_match_all('/\((.*?)\)/', $responseText, $matches);
+	$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $responseText);
+	$mood = $matches[1][0];
+	if ($GLOBALS["AZURE_API_KEY"]) {
+		require_once("tts/tts-azure.php");
+		tts($responseTextUnmooded, $mood, $responseText);
+	
+	} else 	if ($GLOBALS["MIMIC3"]) {
+		require_once("tts/tts-mimic3.php");
+		ttsMimic($responseTextUnmooded, $mood, $responseText);
+	}
+
+	$responseDataMl = $db->dequeue();
+	foreach ($responseDataMl as $responseData)
+		echo "{$responseData["actor"]}|{$responseData["action"]}|{$responseData["text"]}\r\n";
+
 
 } else if ($finalParsedData[0] == "quest") {
 	require_once("chat/generic.php");
