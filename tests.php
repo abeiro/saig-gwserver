@@ -39,8 +39,10 @@ $response = $client->models()->retrieve('gpt-3.5-turbo');
 if ($response->id) {
     echo "Ok {$response->id} available<br/>";
 } else
+    echo "Not ok<br/>";
 
-    echo "Opening database...";
+
+echo "Opening database...";
 $db = new sql();
 if (!$db)
     echo "error<br/>";
