@@ -11,15 +11,16 @@ $finalName=__DIR__.DIRECTORY_SEPARATOR."soundcache/".md5($_FILES["file"]["tmp_na
 if ($STTFUNCTION=="azure") {
     
     require_once($path."stt/stt-azure.php");
-    return stt($finalName);
+    $text= stt($finalName);
     
 } else if ($STTFUNCTION=="whisper") { 
 
     require_once($path."stt/stt-whisper.php");
-    return stt($finalName);
+    $text= stt($finalName);
     
 }
 
+echo $text;
 
 ?>
 

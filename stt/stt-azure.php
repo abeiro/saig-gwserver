@@ -11,7 +11,7 @@ function stt($file)
 
    // URL y cuerpo de la solicitud
 $url = "https://$region.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=en-US";
-$fileData = file_get_contents('test.wav');
+$fileData = file_get_contents($file);
 
 // Encabezados de la solicitud
 $headers = array(

@@ -7,7 +7,7 @@ require_once($path . "lib/$DRIVER.class.php");
 require_once($path . "lib/Misc.php");
 
 
-function sst($file) {
+function stt($file) {
   $client = OpenAI::client($GLOBALS["OPENAI_API_KEY"]);
   
   $response = $client->audio()->transcribe([
