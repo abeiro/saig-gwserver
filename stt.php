@@ -3,7 +3,7 @@
 $path = dirname((__FILE__)) . DIRECTORY_SEPARATOR;
 require_once($path . "conf.php"); // API KEY must be there
 
-$finalName=__DIR__.DIRECTORY_SEPARATOR."soundcache/".md5($_FILES["file"]["tmp_name"]).".wav";
+$finalName=__DIR__.DIRECTORY_SEPARATOR."soundcache/_stt_".md5($_FILES["file"]["tmp_name"]).".wav";
 
 @copy($_FILES["file"]["tmp_name"] ,$finalName);
 

@@ -14,6 +14,7 @@ function stt($file) {
       'model' => 'whisper-1',
       'file' => fopen($file, 'r'),
       'response_format' => 'verbose_json',
+      'language'=>'en'
   ]);
 
   return $response["text"];
