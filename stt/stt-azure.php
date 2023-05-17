@@ -40,9 +40,10 @@ if ($response === false) {
     // Procesar la respuesta
     
 }
+$reponseParsed=json_decode($response);
 
     
-return $response["DisplayText"];
+return $reponseParsed->DisplayText;
 
     
 }
