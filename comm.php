@@ -78,7 +78,7 @@ try {
 if ($finalParsedData[0] == "combatend") {
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
-	$responseText=requestGeneric("(Chat as Herika, comment about last combat)");
+	$responseText = requestGeneric("(Chat as Herika, comment about last combat)");
 	preg_match_all('/\((.*?)\)/', $responseText, $matches);
 	$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $responseText);
 	$mood = $matches[1][0];
@@ -107,15 +107,15 @@ if ($finalParsedData[0] == "combatend") {
 	$GLOBALS["DEBUG_MODE"] = false;
 	if (stripos($finalParsedData[3], 'note') !== false) // Avoid notes
 		return;
-	$responseText=requestGeneric("Herika: It's about ", "Herika, summarize the book '{$finalParsedData[3]}' shortly", 'AASPGQuestDialogue2Topic1B1Topic', 1);
+	$responseText = requestGeneric("Herika: It's about ", "Herika, summarize the book '{$finalParsedData[3]}' shortly", 'AASPGQuestDialogue2Topic1B1Topic', 1);
 	preg_match_all('/\((.*?)\)/', $responseText, $matches);
 	$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $responseText);
 	$mood = $matches[1][0];
 	if ($GLOBALS["AZURE_API_KEY"]) {
 		require_once("tts/tts-azure.php");
 		tts($responseTextUnmooded, $mood, $responseText);
-	
-	} else 	if ($GLOBALS["MIMIC3"]) {
+
+	} else if ($GLOBALS["MIMIC3"]) {
 		require_once("tts/tts-mimic3.php");
 		ttsMimic($responseTextUnmooded, $mood, $responseText);
 	}
@@ -155,15 +155,15 @@ if ($finalParsedData[0] == "combatend") {
 
 	$newString = preg_replace("/^[^:]*:/", "", $finalParsedData[3]); // Work here
 
-	$responseText = requestGeneric("(put mood in parenthesys,valid moods:angry, cheerful ,assistant ,calm ,embarrassed ,excited ,lyrical ,sad ,shouting ,whispering ,terrified) Herika:", $newString, 'AASPGQuestDialogue2Topic1B1Topic', 10);
+	$responseText = requestGeneric("(put mood in parenthesys,valid moods:" . implode(",", $GLOBALS["AZURETTS_CONF"]["validMoods"]) . ") Herika:", $newString, 'AASPGQuestDialogue2Topic1B1Topic', 10);
 	preg_match_all('/\((.*?)\)/', $responseText, $matches);
 	$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $responseText);
 	$mood = $matches[1][0];
 	if ($GLOBALS["AZURE_API_KEY"]) {
 		require_once("tts/tts-azure.php");
 		tts($responseTextUnmooded, $mood, $responseText);
-	
-	} else 	if ($GLOBALS["MIMIC3"]) {
+
+	} else if ($GLOBALS["MIMIC3"]) {
 		require_once("tts/tts-mimic3.php");
 		ttsMimic($responseTextUnmooded, $mood, $responseText);
 	}
@@ -183,12 +183,12 @@ if ($finalParsedData[0] == "combatend") {
 	preg_match_all('/\((.*?)\)/', $responseText, $matches);
 	$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $responseText);
 	$mood = "whispering"; // So easy...
-	
+
 	if ($GLOBALS["AZURE_API_KEY"]) {
 		require_once("tts/tts-azure.php");
 		tts($responseTextUnmooded, $mood, $responseText);
 
-	} else 	if ($GLOBALS["MIMIC3"]) {
+	} else if ($GLOBALS["MIMIC3"]) {
 		require_once("tts/tts-mimic3.php");
 		ttsMimic($responseTextUnmooded, $mood, $responseText);
 	}

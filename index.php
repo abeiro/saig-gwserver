@@ -146,7 +146,7 @@ if ($_GET["table"] == "response") {
 }
 
 if ($_GET["table"] == "event") {
-    $results = $db->fetchAll("select  A.*,ROWID FROM eventlog a order by ts  desc");
+    $results = $db->fetchAll("select  A.*,ROWID FROM eventlog a order by gamets desc,ts  desc");
     echo "<p>Event log</p>";
     print_array_as_table($results);
     if ($_GET["autorefresh"]) {

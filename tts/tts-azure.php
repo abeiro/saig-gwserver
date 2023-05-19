@@ -1,22 +1,27 @@
 <?php
 $path = dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR;
 require_once($path . "conf.php"); // API KEY must be there
+require_once($path . "lib/sharedmem.class.php"); // Caching token
 
-function tts($textString,$mood="cheerful",$stringforhash)
+function tts($textString, $mood = "cheerful", $stringforhash)
 {
     global $AZURETTS_CONF;
-    
+
     $region = $AZURETTS_CONF["region"];
     $AccessTokenUri = "https://" . $region . ".api.cognitive.microsoft.com/sts/v1.0/issueToken";
     $apiKey = $GLOBALS["AZURE_API_KEY"];
 
     if (empty(trim($mood)))
-        $mood="cheerful";
-    
-    $valid_tokens = array('angry', 'cheerful', 'assistant', 'calm', 'embarrassed', 'excited', 'lyrical', 'sad', 'shouting', 'whispering', 'terrified');
+        $mood = "default";
+
+    if ($GLOBALS["AZURETTS_CONF"]["validMoods"])
+        $valid_tokens=$GLOBALS["AZURETTS_CONF"]["validMoods"];
+    else
+        $valid_tokens = array('angry', 'cheerful', 'assistant', 'calm', 'embarrassed', 'excited', 'lyrical', 'sad', 'shouting', 'whispering', 'terrified');
+
     $distancia_minima = PHP_INT_MAX;
     $token_mas_cercano = '';
-    
+
     // Iteramos sobre cada token del array
     foreach ($valid_tokens as $token) {
         $distancia = levenshtein($mood, $token);
@@ -25,28 +30,40 @@ function tts($textString,$mood="cheerful",$stringforhash)
             $token_mas_cercano = $token;
         }
     }
-    $validMood=$token_mas_cercano;
-   
+    $validMood = $token_mas_cercano;
+    $starTime = microtime(true);
 
-    // use key 'http' even if you send the request to https://...
-    $options = array(
-        'http' => array(
-            'header' => "Ocp-Apim-Subscription-Key: " . $apiKey . "\r\n" .
-            "content-length: 0\r\n",
-            'method' => 'POST',
-        ),
-    );
+    $cache = new CacheManager();
 
-    $context = stream_context_create($options);
+    if (!$cache->get_cache()) {
 
-    //get the Access Token
-    $access_token = file_get_contents($AccessTokenUri, false, $context);
+
+        $options = array(
+            'http' => array(
+                'header' => "Ocp-Apim-Subscription-Key: " . $apiKey . "\r\n" .
+                "content-length: 0\r\n",
+                'method' => 'POST',
+            ),
+        );
+
+        $context = stream_context_create($options);
+
+        //get the Access Token
+        $access_token = file_get_contents($AccessTokenUri, false, $context);
+        $cache->save_cache($access_token);
+        $cacheUsed="false";
+    } else {
+        $access_token = $cache->get_cache();
+        $cacheUsed="yes";
+    }
+
 
     if (!$access_token) {
         return false;
     } else {
         //echo "Access Token: ". $access_token. "<br>";
 
+       
         $ttsServiceUri = "https://" . $region . ".tts.speech.microsoft.com/cognitiveservices/v1";
 
         //$SsmlTemplate = "<speak version='1.0' xml:lang='en-us'><voice xml:lang='%s' xml:gender='%s' name='%s'>%s</voice></speak>";
@@ -67,22 +84,22 @@ function tts($textString,$mood="cheerful",$stringforhash)
 
 
         $prosody = $doc->createElement("prosody");
-        $prosody->setAttribute("rate", $AZURETTS_CONF["rate"]);             //https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/speech-synthesis-markup-voice#adjust-prosody
-        $prosody->setAttribute( "volume" , $AZURETTS_CONF["volume"] );
+        $prosody->setAttribute("rate", $AZURETTS_CONF["rate"]); //https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/speech-synthesis-markup-voice#adjust-prosody
+        $prosody->setAttribute("volume", $AZURETTS_CONF["volume"]);
         if ($AZURETTS_CONF["countour"])
-            $prosody->setAttribute("contour" , $AZURETTS_CONF["countour"]);
+            $prosody->setAttribute("contour", $AZURETTS_CONF["countour"]);
 
-        
+
 
         $prosody->appendChild($text);
 
         $style = $doc->createElement("mstts:express-as");
         if ($AZURETTS_CONF["fixedMood"])
-            $style->setAttribute("style", $AZURETTS_CONF["fixedMood"]);              // not supported for all voices
+            $style->setAttribute("style", $AZURETTS_CONF["fixedMood"]); // not supported for all voices
         else
-            $style->setAttribute("style", $validMood);              // not supported for all voices
-            
-        $style->setAttribute("styledegree", "2");               // not supported for all voices
+            $style->setAttribute("style", $validMood); // not supported for all voices
+
+        $style->setAttribute("styledegree", "2"); // not supported for all voices
         //$style->setAttribute( "role" , "YoungAdultFemale" );  // not supported for all voices
         $style->appendChild($prosody);
 
@@ -112,7 +129,7 @@ function tts($textString,$mood="cheerful",$stringforhash)
         // get the wave data
         $result = file_get_contents($ttsServiceUri, false, $context);
         if (!$result) {
-            file_put_contents(dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR."soundcache/" . md5(trim($stringforhash)) . ".err", trim($$data));
+            file_put_contents(dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "soundcache/" . md5(trim($stringforhash)) . ".err", trim($$data));
             return false;
             //throw new Exception("Problem with $ttsServiceUri, $php_errormsg");
         } else {
@@ -121,12 +138,12 @@ function tts($textString,$mood="cheerful",$stringforhash)
         //fwrite(STDOUT, $result);
 
         // Trying to avoid sync problems.
-        $stream = fopen(dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR."soundcache/" . md5(trim($stringforhash)) . ".wav", 'w');
-        $size=fwrite($stream, $result);
+        $stream = fopen(dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "soundcache/" . md5(trim($stringforhash)) . ".wav", 'w');
+        $size = fwrite($stream, $result);
         fsync($stream);
         fclose($stream);
 
         //file_put_contents(dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR."soundcache/" . md5(trim($stringforhash)) . ".wav", $result);
-        file_put_contents(dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR."soundcache/" . md5(trim($stringforhash)) . ".txt", trim($data)."\n\rsize of wav ($size)\n\rfunction tts($textString,$mood=\"cheerful\",$stringforhash)");
+        file_put_contents(dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "soundcache/" . md5(trim($stringforhash)) . ".txt", trim($data) . "\n\rCache:$cacheUsed\n\rtotal call time:" . (microtime(true) - $starTime) . " ms\n\rsize of wav ($size)\n\rfunction tts($textString,$mood=\"cheerful\",$stringforhash)");
     }
 }
