@@ -17,6 +17,7 @@ $AZURETTS_CONF["voice"]="en-US-JennyNeural";	// Voice. Read https://learn.micros
 $AZURETTS_CONF["volume"]="20";					// Default volume
 $AZURETTS_CONF["rate"]="1.25";					// Default rate (speed)
 $AZURETTS_CONF["countour"]="";					
+$AZURETTS_CONF["validMoods"]=array("whispering","default");	// New, limits moods allowed in TTS transcription
 
 // Azure TTS Stuff. Copy desired block to conf.php (only one block)
 // This conf is for variable fixed is mastered by rang97. 
