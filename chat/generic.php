@@ -32,7 +32,7 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
     $callParms = [
         'model' => 'gpt-3.5-turbo',
         'messages' => $parms,
-        'max_tokens' => ($GLOBALS["OPENAI_MAX_TOKENS"]+0)
+        'max_tokens' => ((isset($GLOBALS["OPENAI_MAX_TOKENS"])?$GLOBALS["OPENAI_MAX_TOKENS"]:48)+0)
     ];
 
     $sentence="";
