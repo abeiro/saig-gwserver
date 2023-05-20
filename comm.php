@@ -30,7 +30,39 @@ flush();
 // Log here (we can be slower)
 
 
+function parseResponse($responseText, $forceMood = "")
+{
 
+	global $db;
+	preg_match_all('/\((.*?)\)/', $responseText, $matches);
+	$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $responseText);
+	if ($forceMood) {
+		$mood = $forceMood;
+	} else
+		$mood = $matches[1][0];
+
+	$responseText=$responseTextUnmooded;
+
+	if ($GLOBALS["TTSFUNCTION"] == "azure") {
+		if ($GLOBALS["AZURE_API_KEY"]) {
+			require_once("tts/tts-azure.php");
+			tts($responseTextUnmooded, $mood, $responseText);
+		}
+	}
+
+	if ($GLOBALS["TTSFUNCTION"] == "mimic3") {
+		if ($GLOBALS["MIMIC3"]) {
+			require_once("tts/tts-mimic3.php");
+			ttsMimic($responseTextUnmooded, $mood, $responseText);
+		}
+	}
+
+	$responseDataMl = $db->dequeue();
+	foreach ($responseDataMl as $responseData)
+		echo "{$responseData["actor"]}|{$responseData["action"]}|$responseText\r\n";
+
+
+}
 
 try {
 	$finalData = base64_decode(stripslashes($_GET["DATA"]));
@@ -75,20 +107,17 @@ try {
 
 
 // Queue for more responses. Be carefull here. This will efective send data to AI Chat.
+// AASPGQuestDialogue2Topic1B1Topic will enqueue on ASAP TopicInfo
+// AASPGDialogueHerika3Branch1Topic will enqueue on What do you know about this place? TopicInfo
+// AASPGQuestDialogue2Topic1B1Topic will enqueue on What we should do now? TopicInfo
+
+
 if ($finalParsedData[0] == "combatend") {
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
-	$responseText = requestGeneric("(Chat as Herika, comment about last combat)");
-	preg_match_all('/\((.*?)\)/', $responseText, $matches);
-	$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $responseText);
-	$mood = $matches[1][0];
-	if ($GLOBALS["AZURE_API_KEY"]) {
-		require_once("tts/tts-azure.php");
-		tts($responseTextUnmooded, $mood, $responseText);
-	}
-	$responseDataMl = $db->dequeue();
-	foreach ($responseDataMl as $responseData)
-		echo "{$responseData["actor"]}|{$responseData["action"]}|{$responseData["text"]}\r\n";
+	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
+	$responseText = requestGeneric($PROMPTS["combatend"][0]);
+	parseResponse($responseText);
 
 } else if ($finalParsedData[0] == "location") { // Locations might be cached	
 	require_once("chat/generic.php");
@@ -100,77 +129,63 @@ if ($finalParsedData[0] == "combatend") {
 	}
 	//requestGeneric("(Chat as Herika)","What do you think about last events?","AASPGDialogueHerika1WhatTopic");
 	//requestGeneric("(Chat as Herika)","What should we do?","AASPGDialogueHerika2Branch1Topic");
-	requestGeneric("(Chat as Herika)", "{$finalParsedData[3]} What do you know about this place?", "AASPGDialogueHerika3Branch1Topic", 2, $finalParsedData[3]);
+	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
+	requestGeneric($PROMPTS["location"][0], $PROMPTS["location"][1], "AASPGDialogueHerika3Branch1Topic", 2, $finalParsedData[3]);
 
 } else if ($finalParsedData[0] == "book") { // Books should be cached
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
 	if (stripos($finalParsedData[3], 'note') !== false) // Avoid notes
 		return;
-	$responseText = requestGeneric("Herika: It's about ", "Herika, summarize the book '{$finalParsedData[3]}' shortly", 'AASPGQuestDialogue2Topic1B1Topic', 1);
-	preg_match_all('/\((.*?)\)/', $responseText, $matches);
-	$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $responseText);
-	$mood = $matches[1][0];
-	if ($GLOBALS["AZURE_API_KEY"]) {
-		require_once("tts/tts-azure.php");
-		tts($responseTextUnmooded, $mood, $responseText);
-
-	} else if ($GLOBALS["MIMIC3"]) {
-		require_once("tts/tts-mimic3.php");
-		ttsMimic($responseTextUnmooded, $mood, $responseText);
-	}
-
-	$responseDataMl = $db->dequeue();
-	foreach ($responseDataMl as $responseData)
-		echo "{$responseData["actor"]}|{$responseData["action"]}|{$responseData["text"]}\r\n";
+	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
+	$responseText = requestGeneric($PROMPTS["book"][0], $PROMPTS["book"][1], 'AASPGQuestDialogue2Topic1B1Topic', 1);
+	parseResponse($responseText);
 
 
 } else if ($finalParsedData[0] == "quest") {
 	require_once("chat/generic.php");
 
-	$questNameA = explode("'", $finalParsedData[3]);
-	$questName = $questNameA[2];
-	$GLOBALS["DEBUG_MODE"] = false;
+	preg_match('/"(.*?)"/', $finalParsedData[3], $matches);
 
-	requestGeneric("(Chat as Herika)", "Herika, what do should we do about this quest '{$questName}'?", 'AASPGDialogueHerika2Branch1Topic', 5);
+	$questName = $matches[1];
+
+	$GLOBALS["DEBUG_MODE"] = false;
+	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
+	requestGeneric($PROMPTS["quest"][0], $PROMPTS["quest"][1], 'AASPGDialogueHerika2Branch1Topic', 5);
 
 } else if ($finalParsedData[0] == "bleedout") {
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
-	requestGeneric("(Chat as Herika, complain about almost being defeated)", "", 'AASPGQuestDialogue2Topic1B1Topic', 10);
+	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
+	$responseText = requestGeneric($PROMPTS["bleedout"][0], $PROMPTS["bleedout"][1], 'AASPGQuestDialogue2Topic1B1Topic', 10);
+	parseResponse($responseText);
 
 } else if ($finalParsedData[0] == "bored") {
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
-	requestGeneric("(Make joke Herika) Herika:", "What do you think about?", 'AASPGDialogueHerika1WhatTopic', 10);
+	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
+	$responseText = requestGeneric($PROMPTS["bored"][0], $PROMPTS["bored"][1], 'AASPGQuestDialogue2Topic1B1Topic', 10);
+	parseResponse($responseText);
+
+
 
 } else if ($finalParsedData[0] == "goodmorning") {
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
-	requestGeneric("(Chat as Herika)", "(wakes up). ahhhh  ", 'AASPGQuestDialogue2Topic1B1Topic', 1);
-
+	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
+	$responseText=requestGeneric($PROMPTS["goodmorning"][0], $PROMPTS["goodmorning"][1], 'AASPGQuestDialogue2Topic1B1Topic', 5);
+	parseResponse($responseText);
+	
 } else if ($finalParsedData[0] == "inputtext") { // Highest priority, must return qeuee data
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
 
 	$newString = preg_replace("/^[^:]*:/", "", $finalParsedData[3]); // Work here
+	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
 
-	$responseText = requestGeneric("(put mood in parenthesys,valid moods:" . implode(",", $GLOBALS["AZURETTS_CONF"]["validMoods"]) . ") Herika:", $newString, 'AASPGQuestDialogue2Topic1B1Topic', 10);
-	preg_match_all('/\((.*?)\)/', $responseText, $matches);
-	$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $responseText);
-	$mood = $matches[1][0];
-	if ($GLOBALS["AZURE_API_KEY"]) {
-		require_once("tts/tts-azure.php");
-		tts($responseTextUnmooded, $mood, $responseText);
+	$responseText = requestGeneric($PROMPTS["inputtext"][0], $newString, 'AASPGQuestDialogue2Topic1B1Topic', 10);
 
-	} else if ($GLOBALS["MIMIC3"]) {
-		require_once("tts/tts-mimic3.php");
-		ttsMimic($responseTextUnmooded, $mood, $responseText);
-	}
-
-	$responseDataMl = $db->dequeue();
-	foreach ($responseDataMl as $responseData)
-		echo "{$responseData["actor"]}|{$responseData["action"]}|{$responseData["text"]}\r\n";
+	parseResponse($responseText);
 
 
 } else if ($finalParsedData[0] == "inputtext_s") { // Highest priority, must return qeuee data
@@ -178,23 +193,18 @@ if ($finalParsedData[0] == "combatend") {
 	$GLOBALS["DEBUG_MODE"] = false;
 
 	$newString = preg_replace("/^[^:]*:/", "", $finalParsedData[3]); // Work here
+	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
+	$responseText = requestGeneric($PROMPTS["inputtext_s"][0], $newString, 'AASPGQuestDialogue2Topic1B1Topic', 10);
+	parseResponse($responseText, "whispering");
 
-	$responseText = requestGeneric("(whispering) Herika: ", $newString, 'AASPGQuestDialogue2Topic1B1Topic', 10);
-	preg_match_all('/\((.*?)\)/', $responseText, $matches);
-	$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $responseText);
-	$mood = "whispering"; // So easy...
 
-	if ($GLOBALS["AZURE_API_KEY"]) {
-		require_once("tts/tts-azure.php");
-		tts($responseTextUnmooded, $mood, $responseText);
+} else if ($finalParsedData[0] == "lockpicked") {
+	require_once("chat/generic.php");
 
-	} else if ($GLOBALS["MIMIC3"]) {
-		require_once("tts/tts-mimic3.php");
-		ttsMimic($responseTextUnmooded, $mood, $responseText);
-	}
-	$responseDataMl = $db->dequeue();
-	foreach ($responseDataMl as $responseData)
-		echo "{$responseData["actor"]}|{$responseData["action"]}|{$responseData["text"]}\r\n";
+	$GLOBALS["DEBUG_MODE"] = false;
+	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
+	$responseText=requestGeneric($PROMPTS["lockpicked"][0], $PROMPTS["lockpicked"][1], 'AASPGQuestDialogue2Topic1B1Topic', 5);
+	parseResponse($responseText, "whispering");
 }
 
 ?>

@@ -32,7 +32,7 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
     $callParms = [
         'model' => 'gpt-3.5-turbo',
         'messages' => $parms,
-        'max_tokens' => 48
+        'max_tokens' => ($GLOBALS["OPENAI_MAX_TOKENS"]+0)
     ];
 
     $sentence="";
@@ -56,8 +56,12 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
  
     
   
-    $modifiedSentence = preg_replace("/\.+/", ".", $sentence);  // Get ride of the double point issue
+    //$modifiedSentence = preg_replace("/\.+/", ".", $sentence);  // Get ride of the double point issue
+    $modifiedSentence = preg_replace("/(?<!\.)\.{2}(?!\.)/", ".", $sentence); // Get ride of the double point issue, leaving ...
+
     $sentence=$modifiedSentence;
+
+    $responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $sentence);
     // Final result.
     if ($GLOBALS["DEBUG_MODE"])
         echo "# $sentence #\n";
@@ -69,7 +73,7 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
                 array(
                     'localts' => time(),
                     'sent' => 0,
-                    'text' => trim(preg_replace('/\s\s+/', ' ', SQLite3::escapeString($sentence))),
+                    'text' => trim(preg_replace('/\s\s+/', ' ', SQLite3::escapeString($responseTextUnmooded))),
                     'actor' => "Herika",
                     'action' => $queue,
                     'tag'=>$tag
@@ -80,7 +84,7 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
             array(
                 'localts' => time(),
                 'prompt' => nl2br(SQLite3::escapeString(print_r($parms,true))),
-                'response' => (SQLite3::escapeString(print_r($rawResponse,true))),
+                'response' => (SQLite3::escapeString(print_r($rawResponse,true).$responseTextUnmooded)),
                 'url' => nl2br(SQLite3::escapeString(print_r( base64_decode(stripslashes($_GET["DATA"])),true)." in ".(time()-$startTime)." secs " ))
                   
                

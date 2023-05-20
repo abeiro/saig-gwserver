@@ -3,7 +3,7 @@ $path = dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR;
 require_once($path . "conf.php"); // API KEY must be there
 require_once($path . "lib/sharedmem.class.php"); // Caching token
 
-function tts($textString, $mood = "cheerful", $stringforhash)
+function tts($textString, $mood = "default", $stringforhash)
 {
     global $AZURETTS_CONF;
 
@@ -15,10 +15,16 @@ function tts($textString, $mood = "cheerful", $stringforhash)
         $mood = "default";
 
     if ($GLOBALS["AZURETTS_CONF"]["validMoods"])
-        $valid_tokens=$GLOBALS["AZURETTS_CONF"]["validMoods"];
+        $valid_tokens = $GLOBALS["AZURETTS_CONF"]["validMoods"];
     else
         $valid_tokens = array('angry', 'cheerful', 'assistant', 'calm', 'embarrassed', 'excited', 'lyrical', 'sad', 'shouting', 'whispering', 'terrified');
 
+
+    if (in_array($mood, $valid_tokens))
+        $validMood = $mood;
+    else
+        $validMood = "default";
+    /*
     $distancia_minima = PHP_INT_MAX;
     $token_mas_cercano = '';
 
@@ -31,6 +37,7 @@ function tts($textString, $mood = "cheerful", $stringforhash)
         }
     }
     $validMood = $token_mas_cercano;
+    */
     $starTime = microtime(true);
 
     $cache = new CacheManager();
@@ -51,10 +58,10 @@ function tts($textString, $mood = "cheerful", $stringforhash)
         //get the Access Token
         $access_token = file_get_contents($AccessTokenUri, false, $context);
         $cache->save_cache($access_token);
-        $cacheUsed="false";
+        $cacheUsed = "false";
     } else {
         $access_token = $cache->get_cache();
-        $cacheUsed="yes";
+        $cacheUsed = "yes";
     }
 
 
@@ -63,7 +70,7 @@ function tts($textString, $mood = "cheerful", $stringforhash)
     } else {
         //echo "Access Token: ". $access_token. "<br>";
 
-       
+
         $ttsServiceUri = "https://" . $region . ".tts.speech.microsoft.com/cognitiveservices/v1";
 
         //$SsmlTemplate = "<speak version='1.0' xml:lang='en-us'><voice xml:lang='%s' xml:gender='%s' name='%s'>%s</voice></speak>";

@@ -37,6 +37,8 @@ $GLOBALS["MIMIC3_CONF"]["rate"]="1.25";
 $GLOBALS["MIMIC3_CONF"]["volume"]="80";
 
 $STTFUNCTION="azure";								// Valid options are azure or whisper so far
+$TTSFUNCTION="azure";								// Valid options are azure or mimic3 so far
 
+$OPENAI_MAX_TOKENS="48";							// Limit size of reponses
 
 ?>
