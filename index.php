@@ -2,7 +2,8 @@
 error_reporting(E_ERROR);
 
 if (!file_exists("conf.php")) {
-    die("Please, copy conf_sample.php to conf.php in folder ".__DIR__." and make the necessary adjustments.");
+    @copy("conf.sample.php","conf.php");
+    die(header("Location: conf_editor.php"));
 }
 
 
