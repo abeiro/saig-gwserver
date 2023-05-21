@@ -1,5 +1,12 @@
 <?php
 error_reporting(E_ERROR);
+
+if (!file_exists("conf.php")) {
+    die("Please, copy conf_sample.php to conf.php in folder ".__DIR__." and make the necessary adjustments.");
+}
+
+
+
 require_once("lib/sql.class.php");
 require_once("lib/Misc.php");
 require_once("conf.php");
@@ -7,9 +14,6 @@ ob_start();
 include("tmpl/head.html");
 $db = new sql();
 
-if (!file_exists("conf.php")) {
-    die("Please, copy conf_sample.php to conf.php in folder ".__DIR__." and make the necessary adjustments.");
-}
 
 /* Actions */
 if ($_GET["clean"]) {
