@@ -4,7 +4,7 @@ include("tmpl/head.html");
 
 function deleteDirectory($dir) {
     if (!is_dir($dir)) {
-        throw new InvalidArgumentException("$dir must be a directory");
+        return;
     }
 
     // Open the directory and iterate over its contents
