@@ -49,5 +49,6 @@ $PROMPTS=array(
 
 
 // You can override prompts here
-require_once(__DIR__.DIRECTORY_SEPARATOR."prompts_custom.php");
+if (file_exists(__DIR__.DIRECTORY_SEPARATOR."prompts_custom.php"))
+    require_once(__DIR__.DIRECTORY_SEPARATOR."prompts_custom.php");
 ?>

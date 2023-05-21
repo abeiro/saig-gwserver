@@ -59,7 +59,15 @@ function cleanReponse($rawResponse)
             ",."=>","
             )
     );
-    return $sentenceX;
+
+    // Strip no ascii.
+    $sentenceXX = str_replace(
+        array('á', 'é', 'í', 'ó', 'ú', 'Á', 'É', 'Í', 'Ó', 'Ú','¿','¡'),
+        array('a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U', '', ''),
+        $sentenceX
+    );
+
+    return $sentenceXX;
 }
 
 function print_array_as_table($data)

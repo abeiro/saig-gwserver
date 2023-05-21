@@ -8,9 +8,10 @@ function stt($file)
     
     $region = $AZURETTS_CONF["region"];
     $apiKey = $GLOBALS["AZURE_API_KEY"];
-
+    $lang=($GLOBALS["TTSLANGUAGE_AZURE"])?$GLOBALS["TTSLANGUAGE_AZURE"]:"en-US";
+    
    // URL y cuerpo de la solicitud
-$url = "https://$region.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=en-US";
+$url = "https://$region.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=$lang";
 $fileData = file_get_contents($file);
 
 // Encabezados de la solicitud

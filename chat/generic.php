@@ -15,12 +15,13 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
     global $db;
     $client = OpenAI::client($GLOBALS["OPENAI_API_KEY"]);
 
-    
+    $PROMPT_HEAD=($GLOBALS["PROMPT_HEAD"])?$GLOBALS["PROMPT_HEAD"]:"Let\'s roleplay in the Universe of Skyrim. I\'m {$GLOBALS["PLAYER_NAME"]} ";
+
     $historic = $db->lastDataFor("",$lastDataAmount*-1);
     $head = array();
     $foot = array();
 
-    $head[] = array('role' => 'user', 'content' => '(Let\'s roleplay in the Universe of Skyrim. I\'m '.$GLOBALS["PLAYER_NAME"].'. '.$GLOBALS["HERIKA_PERS"]);
+    $head[] = array('role' => 'user', 'content' => '('.$PROMPT_HEAD.$GLOBALS["HERIKA_PERS"]);
     $prompt[] = array('role' => 'assistant', 'content' => $request);
     $foot[] = array('role' => 'user', 'content' => $GLOBALS["PLAYER_NAME"].': ' . $preprompt);
 

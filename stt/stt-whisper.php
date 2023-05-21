@@ -9,12 +9,13 @@ require_once($path . "lib/Misc.php");
 
 function stt($file) {
   $client = OpenAI::client($GLOBALS["OPENAI_API_KEY"]);
-  
+  $lang=($GLOBALS["TTSLANGUAGE_WHISPER"])?$GLOBALS["TTSLANGUAGE_WHISPER"]:"en";
+
   $response = $client->audio()->transcribe([
       'model' => 'whisper-1',
       'file' => fopen($file, 'r'),
       'response_format' => 'verbose_json',
-      'language'=>'en'
+      'language'=>$GLOBALS["TTSLANGUAGE_WHISPER"]
   ]);
 
   return $response["text"];

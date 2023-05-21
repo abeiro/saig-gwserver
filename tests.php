@@ -51,11 +51,11 @@ else
 
 
 echo "Trying to make a request...<pre>";
-/*
+
 $GLOBALS["DEBUG_MODE"] = true;
 $response = requestGeneric("(Chat as Herika)", "Are you there?", 'AASPGQuestDialogue2Topic1B1Topic', 1);
 echo "</pre><p>Response: <h3><b>$response</b></p></h3>";
-*/
+
 echo "Testing Azure Cache\n";
 require_once($path . "lib/sharedmem.class.php"); // Caching token
 $cache = new CacheManager();
