@@ -10,11 +10,11 @@ $PROMPTS=array(
         "Herika, summarize the book '{$finalParsedData[3]}' shortly"
     ],
     "combatend"=>[
-        "(Chat as Herika, comment about last combat)"
+        "(Chat as Herika, comment about the last combat encounter)"
     ],
     "quest"=>[
         "(Chat as Herika)",
-        "Herika, what do should we do about this quest '{$questName}'?"
+        "Herika, what should we do about this quest '{$questName}'?"
     ],
 
     "bleedout"=>[
