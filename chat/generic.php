@@ -17,6 +17,8 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
 
     $PROMPT_HEAD=($GLOBALS["PROMPT_HEAD"])?$GLOBALS["PROMPT_HEAD"]:"Let\'s roleplay in the Universe of Skyrim. I\'m {$GLOBALS["PLAYER_NAME"]} ";
 
+    $starTime=microtime(true);
+    
     $historic = $db->lastDataFor("",$lastDataAmount*-1);
     $head = array();
     $foot = array();
@@ -55,6 +57,10 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
         $errorFlag=true;
     }
  
+ 
+    $GLOBALS["DEBUG_DATA"]["OPENAI_PARMS"]=$callParms;
+    $GLOBALS["DEBUG_DATA"]["OPENAI_DATA"]=$response->toArray();
+    $GLOBALS["DEBUG_DATA"]["OPENAI_LAG"]=(microtime(true)-$starTime);
     
   
     //$modifiedSentence = preg_replace("/\.+/", ".", $sentence);  // Get ride of the double point issue
@@ -63,50 +69,13 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
     $sentence=$modifiedSentence;
 
     $responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $sentence);
+    
+    return trim(preg_replace('/\s\s+/', ' ', $sentence));
     // Final result.
     if ($GLOBALS["DEBUG_MODE"])
         echo "# $sentence #\n";
     // Action is the plugin queue which will store the response
-    if ($sentence) {
-        if (!$errorFlag)
-            $db->insert(
-                'responselog',
-                array(
-                    'localts' => time(),
-                    'sent' => 0,
-                    'text' => trim(preg_replace('/\s\s+/', ' ', SQLite3::escapeString($responseTextUnmooded))),
-                    'actor' => "Herika",
-                    'action' => $queue,
-                    'tag'=>$tag
-                )
-            );
-        $db->insert(
-            'log',
-            array(
-                'localts' => time(),
-                'prompt' => nl2br(SQLite3::escapeString(print_r($parms,true))),
-                'response' => (SQLite3::escapeString(print_r($rawResponse,true).$responseTextUnmooded)),
-                'url' => nl2br(SQLite3::escapeString(print_r( base64_decode(stripslashes($_GET["DATA"])),true)." in ".(time()-$startTime)." secs " ))
-                  
-               
-            )
-        );
-
-        return trim(preg_replace('/\s\s+/', ' ', $sentence));
-    } else {
-        $db->insert(
-            'log',
-            array(
-                'localts' => time(),
-                'prompt' => nl2br(SQLite3::escapeString(print_r($parms,true))),
-                'response' => (SQLite3::escapeString(print_r($rawResponse,true))),
-                'url' => nl2br(SQLite3::escapeString(print_r( base64_decode(stripslashes($_GET["DATA"])),true)." in ".(time()-$startTime)." secs with ERROR STATE" ))
-                  
-               
-            )
-        );
-
-    }
+    
 
 }
 

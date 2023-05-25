@@ -13,56 +13,181 @@ ob_start();
 /* Send reponse */
 // Dequeue message and send +		action	"AASPGDialogueHerika1WhatTopic"	std::string
 
+$startTime=time();
+
 $responseDataMl = $db->dequeue();
 foreach ($responseDataMl as $responseData)
 	echo "{$responseData["actor"]}|{$responseData["action"]}|{$responseData["text"]}\r\n";
 
 // Fake Close conection asap
 
-header('Content-Encoding: none');
-header('Content-Length: ' . ob_get_length());
-header('Connection: close');
+//header('Content-Encoding: none');
+//header('Content-Length: ' . ob_get_length());
+//header('Connection: close');
 
-ob_end_flush();
-ob_flush();
-flush();
+//ob_end_flush();
+//ob_flush();
+//flush();
 
 // Log here (we can be slower)
 
 
-function parseResponse($responseText, $forceMood = "")
-{
+function parseResponse($responseText, $forceMood = "") {
 
-	global $db;
-	preg_match_all('/\((.*?)\)/', $responseText, $matches);
-	$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $responseText);
-	if ($forceMood) {
-		$mood = $forceMood;
-	} else
-		$mood = $matches[1][0];
+	global $db,$startTime;
+	
 
-	$responseText=$responseTextUnmooded;
+	/* Split into sentences for better timing in-game */
+	$sentences = preg_split('/(?<=[.!?])\s+/', $responseText, -1, PREG_SPLIT_NO_EMPTY);
 
-	if ($GLOBALS["TTSFUNCTION"] == "azure") {
-		if ($GLOBALS["AZURE_API_KEY"]) {
-			require_once("tts/tts-azure.php");
-			tts($responseTextUnmooded, $mood, $responseText);
+	$splitSentences = [];
+	$currentSentence = '';
+
+	foreach ($sentences as $sentence) {
+		$currentSentence .= ' ' . $sentence;
+		if (strlen($currentSentence) > 120) {
+			$splitSentences[] = trim($currentSentence);
+			$currentSentence = '';
+		} elseif (strlen($currentSentence) >= 60 && strlen($currentSentence) <= 120) {
+			$splitSentences[] = trim($currentSentence);
+			$currentSentence = '';
 		}
 	}
 
-	if ($GLOBALS["TTSFUNCTION"] == "mimic3") {
-		if ($GLOBALS["MIMIC3"]) {
-			require_once("tts/tts-mimic3.php");
-			ttsMimic($responseTextUnmooded, $mood, $responseText);
-		}
+	if (!empty($currentSentence)) {
+		$splitSentences[] = trim($currentSentence);
 	}
 
-	$responseDataMl = $db->dequeue();
+	
+	
+	/*****************************/
+	
+	
+	foreach ($splitSentences as $n=>$sentence) {
+		preg_match_all('/\((.*?)\)/', $sentence, $matches);
+		
+		$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $sentence);
+		
+		if ($forceMood) {
+			$mood = $forceMood;
+		} else
+			$mood = $matches[1][0];
+
+		$responseText=$responseTextUnmooded;
+
+		if ($n==0) {	// TTS stuff for first sentence
+			if ($GLOBALS["TTSFUNCTION"] == "azure") {
+				if ($GLOBALS["AZURE_API_KEY"]) {
+					require_once("tts/tts-azure.php");
+					tts($responseTextUnmooded, $mood, $responseText);
+				}
+			}
+
+			if ($GLOBALS["TTSFUNCTION"] == "mimic3") {
+				if ($GLOBALS["MIMIC3"]) {
+					require_once("tts/tts-mimic3.php");
+					ttsMimic($responseTextUnmooded, $mood, $responseText);
+				}
+			}
+		}
+	
+		if ($sentence) {
+			if (!$errorFlag) {
+				$db->insert(
+					'responselog',
+					array(
+						'localts' => time(),
+						'sent' => 1,
+						'text' => trim(preg_replace('/\s\s+/', ' ', SQLite3::escapeString($responseTextUnmooded))),
+						'actor' => "Herika",
+						'action' => "AASPGQuestDialogue2Topic1B1Topic",
+						'tag'=>$tag
+					)
+				);
+				$outBuffer[]=array(
+						'localts' => time(),
+						'sent' => 1,
+						'text' => trim(preg_replace('/\s\s+/', ' ', $responseTextUnmooded)),
+						'actor' => "Herika",
+						'action' => "AASPGQuestDialogue2Topic1B1Topic",
+						'tag'=>$tag
+					);
+			}
+			$db->insert(
+				'log',
+				array(
+					'localts' => time(),
+					'prompt' => nl2br(SQLite3::escapeString(print_r($GLOBALS["DEBUG_DATA"],true))),
+					'response' => (SQLite3::escapeString(print_r($rawResponse,true).$responseTextUnmooded)),
+					'url' => nl2br(SQLite3::escapeString(print_r( base64_decode(stripslashes($_GET["DATA"])),true)." in ".(time()-$startTime)." secs " ))
+					
+				
+				)
+			);
+
+		} else {
+			$db->insert(
+				'log',
+				array(
+					'localts' => time(),
+					'prompt' => nl2br(SQLite3::escapeString(print_r($parms,true))),
+					'response' => (SQLite3::escapeString(print_r($rawResponse,true))),
+					'url' => nl2br(SQLite3::escapeString(print_r( base64_decode(stripslashes($_GET["DATA"])),true)." in ".(time()-$startTime)." secs with ERROR STATE" ))
+					
+				
+				)
+			);
+
+		}
+	}
+    
+	$responseDataMl = $outBuffer;
 	foreach ($responseDataMl as $responseData)
-		echo "{$responseData["actor"]}|{$responseData["action"]}|$responseText\r\n";
+		echo "{$responseData["actor"]}|{$responseData["action"]}|{$responseData["text"]}\r\n";
 
+	echo 'X-CUSTOM-CLOSE';
+	ob_end_flush();
+	ob_flush();
+	flush();	
+	//header('Content-Encoding: none');
+	//header('Content-Length: ' . ob_get_length());
+	//header('Connection: close');
 
+	foreach ($splitSentences as $n=>$sentence) {
+		
+		preg_match_all('/\((.*?)\)/', $sentence, $matches);
+		$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $sentence);
+		
+		if ($forceMood) {
+			$mood = $forceMood;
+		} else
+			$mood = $matches[1][0];
+
+		$responseText=$responseTextUnmooded;
+		
+		if ($n==0) 		//First sentence was genetared
+			continue;
+
+		if ($GLOBALS["TTSFUNCTION"] == "azure") {
+			if ($GLOBALS["AZURE_API_KEY"]) {
+				require_once("tts/tts-azure.php");
+				tts($responseTextUnmooded, $mood, $responseText);
+			}
+		}
+
+		if ($GLOBALS["TTSFUNCTION"] == "mimic3") {
+			if ($GLOBALS["MIMIC3"]) {
+				require_once("tts/tts-mimic3.php");
+				ttsMimic($responseTextUnmooded, $mood, $responseText);
+			}
+		}
+	
+		
+	}
+	
 }
+
+
 
 try {
 	$finalData = base64_decode(stripslashes($_GET["DATA"]));

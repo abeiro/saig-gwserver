@@ -8,7 +8,7 @@ class sql
 
   function __construct()
   {
-    self::$link = new SQLite3('mysqlitedb.db');
+    self::$link = new SQLite3(__DIR__.DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR."mysqlitedb.db");
     self::$link->busyTimeOut(5000);
 
   }
@@ -61,6 +61,7 @@ class sql
   function dequeue()
   {
 
+    //$results = self::$link->query("select  A.*,ROWID FROM  responselog a  order by ROWID asc");
     $results = self::$link->query("select  A.*,ROWID FROM  responselog a WHERE sent=0 order by ROWID asc");
     $finalData=array();
     while($row = $results->fetchArray())

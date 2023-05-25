@@ -88,8 +88,10 @@ function print_array_as_table($data)
     // Print the remaining rows with array values
     foreach ($data as $row) {
         echo "<tr>";
-        foreach ($row as $cell) {
-            if (strpos($cell, 'background chat') !== false)
+        foreach ($row as $n=>$cell) {
+            if ($n=="prompt")
+                echo "<td><pre>" . $cell . "</pre></td>";
+            else if (strpos($cell, 'background chat') !== false)
                 echo "<td style='font-style:italic'>" . $cell . "</td>";
             else if (strpos($cell, 'Plugineer:') !== false)
                 echo "<td  style='color:blue'>" . $cell . "</td>";
@@ -97,7 +99,7 @@ function print_array_as_table($data)
                 echo "<td  style='font-weight:bold'>" . $cell . "</td>";
             else if (strpos($cell, 'Herika:') !== false)
                 echo "<td  style='color:green'>" . $cell . "</td>";
-            else
+            else    
                 echo "<td>" . $cell . "</td>";
         }
         echo "</tr>";
