@@ -53,7 +53,7 @@ function split_sentences_stream($paragraph) {
 
 function returnLines($lines) {
 	
-	global $db,$startTime,$forceMood;
+	global $db,$startTime,$forceMood,$staticMood;
 	foreach ($lines as $n=>$sentence) {
 
 		preg_match_all('/\((.*?)\)/', $sentence, $matches);
@@ -64,6 +64,10 @@ function returnLines($lines) {
 		} else
 			$mood = $matches[1][0];
 
+		if (isset($staticMood))
+			$mood=$staticMood;
+		else
+			$staticMood=$mood;
 		$responseText=$responseTextUnmooded;
 
 		
@@ -250,6 +254,7 @@ if ($handle === false) {
     }
     if (trim($buffer)) {
 		 $sentences=split_sentences_stream(trim($buffer));
+		 $GLOBALS["DEBUG_DATA"][]=(microtime(true) - $starTime)." secs in openai stream";
          returnLines($sentences);
 		
 	}
