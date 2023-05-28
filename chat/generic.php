@@ -53,13 +53,16 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
 
         $sentence = cleanReponse($rawResponse);
     } catch (Exception $e) {
-        $sentence="Error ".$e->getMessage();
+        $GLOBALS["DEBUG_DATA"]["OPENAI_RESPONSE"][]=$e->getMessage();
         $errorFlag=true;
     }
  
  
     $GLOBALS["DEBUG_DATA"]["OPENAI_PARMS"]=$callParms;
-    $GLOBALS["DEBUG_DATA"]["OPENAI_DATA"]=$response->toArray();
+    if (!$errorFlag)
+        $GLOBALS["DEBUG_DATA"]["OPENAI_DATA"]=$response->toArray();
+        
+    
     $GLOBALS["DEBUG_DATA"]["OPENAI_LAG"]=(microtime(true)-$starTime);
     
   

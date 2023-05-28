@@ -37,19 +37,22 @@ function cleanReponse($rawResponse)
     
     if (strpos($rawResponse, "(Context location") !== false) {
         $rawResponseSplited = explode(":", $rawResponse);
-        $sentences = split_sentences($rawResponseSplited[2]);
+        $toSplit=$rawResponseSplited[2];
 
     } else if (strpos($rawResponse, "(Context new location") !== false) {
         $rawResponseSplited = explode(":", $rawResponse);
-        $sentences = split_sentences($rawResponseSplited[2]);
+        $toSplit=$rawResponseSplited[2];
 
-    } else if (strpos($rawResponse, "Herika:") !== false) {
-        $rawResponseSplited = explode(":", $rawResponse);
-        $sentences = split_sentences($rawResponseSplited[1]);
-    } else {
-        $sentences = split_sentences($rawResponse);
+    } else
+        $toSplit=$rawResponse;
+    
+    if (strpos($toSplit, "Herika:") !== false) {
+        $rawResponseSplited = explode(":", $toSplit);
+        $toSplit=$rawResponseSplited[1];
     }
 
+    $sentences=split_sentences($toSplit);
+    
     if ($GLOBALS["DEBUG_MODE"])
         print_r($sentences);
 
@@ -66,7 +69,8 @@ function cleanReponse($rawResponse)
         array('a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U', '', ''),
         $sentenceX
     );
-
+    
+    
     return $sentenceXX;
 }
 

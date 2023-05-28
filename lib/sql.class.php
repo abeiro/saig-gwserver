@@ -76,13 +76,13 @@ class sql
   function lastDataFor($actor, $lastNelements = -10)
   {
     $lastDialogFull = array();
-    $results = self::$link->query("select  distinct a.data  FROM  eventlog a WHERE data like '%$actor%' and type<>'combatend'  and type<>'book' and type<>'location'  
-    and type<>'bored' and type<>'init' and type<>'lockpicked'  order by gamets asc,ts asc");
+    $results = self::$link->query("select  a.data  FROM  eventlog a WHERE data like '%$actor%' and type<>'combatend'  and type<>'book' and type<>'location'  
+    and type<>'bored' and type<>'init' and type<>'lockpicked'  order by gamets desc,ts desc LIMIT 0,50"); 
     while ($row = $results->fetchArray())
       $lastDialogFull[] = array('role' => 'user', 'content' => $row["data"]);
 
-
-    $lastDialog = array_slice($lastDialogFull, $lastNelements);
+    $lastDialogFullReversed=array_reverse($lastDialogFull);
+    $lastDialog = array_slice($lastDialogFullReversed, $lastNelements);
     $last_location = null;
 
     // Remove Context Location part when repeated

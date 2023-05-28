@@ -165,8 +165,8 @@ if ($_GET["table"] == "cache") {
     print_array_as_table($results);
 }
 if ($_GET["table"] == "log") {
-    $results = $db->fetchAll("select  A.*,ROWID FROM log a order by localts  desc");
-    echo "<p>Repsonse log</p>";
+    $results = $db->fetchAll("select  A.*,ROWID FROM log a order by localts desc,rowid desc");
+    echo "<p>Debug log</p>";
     print_array_as_table($results);
 }
 

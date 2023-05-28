@@ -14,6 +14,7 @@ $AZURE_API_KEY="";  //Azure API key here
 $DEBUG_MODE=false;
 $PLAYER_NAME="Prisoner";
 $HERIKA_PERS="You are Herika, a Breton female who likes jokes and sarcastic comments.";
+$PROMPT_HEAD="Let\'s roleplay in the Universe of Skyrim. I\'m {$GLOBALS["PLAYER_NAME"]}. You dont describe things or actions, just chat as your character";
 
 //Azure TTS Configuration
 //More Azure TTS presets can be found in the Article section for the mod page

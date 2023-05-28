@@ -16,14 +16,16 @@ $startTime=time();
 
 
 function findDotPosition($string) {
-    $dotPosition = strpos($string, ".");
+    $dotPosition = strrpos($string, ".");
     
-    if ($dotPosition !== false && strpos($string, ".", $dotPosition + 1) === false) {
-        return $dotPosition ;
+    if ($dotPosition !== false && strpos($string, ".", $dotPosition + 1) === false && substr($string, $dotPosition - 3, 3) !== "...") {
+        return $dotPosition;
     }
     
     return false;
 }
+
+
 
 function split_sentences_stream($paragraph) {
     $sentences = preg_split('/(?<=[.!?])\s+/', $paragraph, -1, PREG_SPLIT_NO_EMPTY);
@@ -50,12 +52,14 @@ function split_sentences_stream($paragraph) {
 }
 
 function returnLines($lines) {
+	
+	global $db,$startTime,$forceMood;
 	foreach ($lines as $n=>$sentence) {
 
 		preg_match_all('/\((.*?)\)/', $sentence, $matches);
 		$responseTextUnmooded = trim(preg_replace('/\((.*?)\)/', '', $sentence));
 		
-		if ($forceMood) {
+		if (isset($forceMood)) {
 			$mood = $forceMood;
 		} else
 			$mood = $matches[1][0];
@@ -77,6 +81,13 @@ function returnLines($lines) {
 			}
 		}
 		
+		if ($GLOBALS["TTSFUNCTION"] == "11labs") {
+			if ($GLOBALS["MIMIC3"]) {
+				require_once("tts/tts-11labs.php");
+				tts($responseTextUnmooded, $mood, $responseText);
+			}
+		}
+		
 		
 		$outBuffer=array(
 						'localts' => time(),
@@ -84,12 +95,24 @@ function returnLines($lines) {
 						'text' => trim(preg_replace('/\s\s+/', ' ', $responseTextUnmooded)),
 						'actor' => "Herika",
 						'action' => "AASPGQuestDialogue2Topic1B1Topic",
-						'tag'=>$tag
+						'tag'=>(isset($tag)?$tag:"")
 					);
 		
 		echo "{$outBuffer["actor"]}|{$outBuffer["action"]}|$responseTextUnmooded\r\n";
 		ob_flush();
 		flush();
+		
+		$db->insert(
+				'log',
+				array(
+					'localts' => time(),
+					'prompt' => nl2br(SQLite3::escapeString(print_r($GLOBALS["DEBUG_DATA"],true))),
+					'response' => (SQLite3::escapeString($responseTextUnmooded)),
+					'url' => nl2br(SQLite3::escapeString(print_r( base64_decode(stripslashes($_GET["DATA"])),true)." in ".(time()-$startTime)." secs " ))
+					
+				
+				)
+			);
 	}
 	
 }
@@ -120,7 +143,12 @@ $db->insert(
 require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
 
 $PROMPT_HEAD=($GLOBALS["PROMPT_HEAD"])?$GLOBALS["PROMPT_HEAD"]:"Let\'s roleplay in the Universe of Skyrim. I\'m {$GLOBALS["PLAYER_NAME"]} ";
-$request=$PROMPTS["inputtext"][0];
+
+$request=$PROMPTS[$finalParsedData[0]][0];
+
+if ($finalParsedData[0]=="inputtext_s") {
+		$forceMood="whispering";
+}
 $preprompt=preg_replace("/^[^:]*:/", "", $finalParsedData[3]);
 $lastNDataForContext=10;
 $contextData = $db->lastDataFor("",$lastNDataForContext*-1);
@@ -136,7 +164,8 @@ if (!$preprompt)
 else
 	$parms = array_merge($head, ($contextData), $foot, $prompt);
 
-	
+$GLOBALS["DEBUG_DATA"][]=$parms;
+
 //// DIRECT OPENAI REST API
 	
 $url = 'https://api.openai.com/v1/chat/completions';
@@ -146,8 +175,8 @@ $data = array(
         $parms
     ,
     'stream' => true,
-    //'max_tokens'=>((isset($GLOBALS["OPENAI_MAX_TOKENS"])?$GLOBALS["OPENAI_MAX_TOKENS"]:48)+0)
-	'max_tokens'=>1024
+    'max_tokens'=>((isset($GLOBALS["OPENAI_MAX_TOKENS"])?$GLOBALS["OPENAI_MAX_TOKENS"]:48)+0)
+	
 );
 
 
@@ -168,11 +197,22 @@ $context = stream_context_create($options);
 $handle = fopen($url, 'r', false, $context);
 
 ///////DEBUG CODE
-$fileLog = fopen("log.txt", 'a');
+//$fileLog = fopen("log.txt", 'a');
 /////
 
 if ($handle === false) {
-	die("$url");
+	
+	$db->insert(
+				'log',
+				array(
+					'localts' => time(),
+					'prompt' => nl2br(SQLite3::escapeString(print_r($GLOBALS["DEBUG_DATA"],true))),
+					'response' => (SQLite3::escapeString(print_r(error_get_last(),true))),
+					'url' => nl2br(SQLite3::escapeString(print_r( base64_decode(stripslashes($_GET["DATA"])),true)." in ".(time()-$startTime)." secs " ))
+					
+				
+				)
+			);
 } else {
     // Read and process the response line by line
     $buffer="";
@@ -183,11 +223,14 @@ if ($handle === false) {
 		
 		
         $data=json_decode(substr($line,6),true);
-        if (isset($data["choices"][0]["delta"]["content"]))
+        if (isset($data["choices"][0]["delta"]["content"])) {
             if (strlen(trim($data["choices"][0]["delta"]["content"]))>0)
                 $buffer.=$data["choices"][0]["delta"]["content"];
         $totalBuffer.=$data["choices"][0]["delta"]["content"];
+		}
        
+       $buffer=strtr($buffer,array("\""=>""));
+	   
 		if (strlen($buffer)<50)	// Avoid too short buffers
 			continue;
 		
@@ -197,7 +240,7 @@ if ($handle === false) {
             $extractedData = substr($buffer, 0, $position + 1);
             $remainingData = substr($buffer, $position + 1);
             $sentences=split_sentences_stream(cleanReponse($extractedData));
-			
+			$GLOBALS["DEBUG_DATA"][]=(microtime(true) - $starTime)." secs in openai stream";
             returnLines($sentences);
             //echo "$extractedData  # ".(microtime(true)-$starTime)."\t".strlen($finalData)."\t".PHP_EOL;  // Output
             $extractedData="";
@@ -205,12 +248,13 @@ if ($handle === false) {
             
         }
     }
-    if ($buffer) {
-		 $sentences=split_sentences_stream($buffer);
+    if (trim($buffer)) {
+		 $sentences=split_sentences_stream(trim($buffer));
          returnLines($sentences);
+		
 	}
     fclose($handle);
-	fwrite($fileLog, $totalBuffer . PHP_EOL); // Write the line to the file with a line break // DEBUG CODE
+	//fwrite($fileLog, $totalBuffer . PHP_EOL); // Write the line to the file with a line break // DEBUG CODE
 }
 
 

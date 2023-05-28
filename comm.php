@@ -89,6 +89,13 @@ function parseResponse($responseText, $forceMood = "") {
 					ttsMimic($responseTextUnmooded, $mood, $responseText);
 				}
 			}
+			
+			if ($GLOBALS["TTSFUNCTION"] == "11labs") {
+				if ($GLOBALS["ELEVENLABS_API_KEY"]) {
+					require_once("tts/tts-11labs.php");
+					tts($responseTextUnmooded, $mood, $responseText);
+				}
+			}
 		}
 	
 		if ($sentence) {
@@ -183,6 +190,13 @@ function parseResponse($responseText, $forceMood = "") {
 		}
 	
 		
+		if ($GLOBALS["TTSFUNCTION"] == "11labs") {
+			if ($GLOBALS["ELEVENLABS_API_KEY"]) {
+				require_once("tts/tts-11labs.php");
+				tts($responseTextUnmooded, $mood, $responseText);
+			}
+		}
+			
 	}
 	
 }
@@ -244,18 +258,18 @@ if ($finalParsedData[0] == "combatend") {
 	$responseText = requestGeneric($PROMPTS["combatend"][0]);
 	parseResponse($responseText);
 
-} else if ($finalParsedData[0] == "location") { // Locations might be cached	
-	require_once("chat/generic.php");
-	$GLOBALS["DEBUG_MODE"] = false;
-	$alreadyGenerated = $db->fetchAll(("select * from responselog where  sent=1 and tag='{$finalParsedData[3]}'"));
-	if (sizeof($alreadyGenerated) > 0) {
-		$db->update("responselog", "sent=0", "sent=1 and tag='{$finalParsedData[3]}'");
-		die();
-	}
+} else if ($finalParsedData[0] == "location") { // Locations might be cached	// Disabled
+	//require_once("chat/generic.php");
+	//$GLOBALS["DEBUG_MODE"] = false;
+	//$alreadyGenerated = $db->fetchAll(("select * from responselog where  sent=1 and tag='{$finalParsedData[3]}'"));
+	//if (sizeof($alreadyGenerated) > 0) {
+	//	$db->update("responselog", "sent=0", "sent=1 and tag='{$finalParsedData[3]}'");
+	//	die();
+	//}
 	//requestGeneric("(Chat as Herika)","What do you think about last events?","AASPGDialogueHerika1WhatTopic");
 	//requestGeneric("(Chat as Herika)","What should we do?","AASPGDialogueHerika2Branch1Topic");
-	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
-	requestGeneric($PROMPTS["location"][0], $PROMPTS["location"][1], "AASPGDialogueHerika3Branch1Topic", 2, $finalParsedData[3]);
+	//require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
+	//requestGeneric($PROMPTS["location"][0], $PROMPTS["location"][1], "AASPGDialogueHerika3Branch1Topic", 2, $finalParsedData[3]);
 
 } else if ($finalParsedData[0] == "book") { // Books should be cached
 	require_once("chat/generic.php");
@@ -268,6 +282,7 @@ if ($finalParsedData[0] == "combatend") {
 
 
 } else if ($finalParsedData[0] == "quest") {
+	/* Disabled
 	require_once("chat/generic.php");
 
 	preg_match('/"(.*?)"/', $finalParsedData[3], $matches);
@@ -277,12 +292,15 @@ if ($finalParsedData[0] == "combatend") {
 	$GLOBALS["DEBUG_MODE"] = false;
 	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
 	requestGeneric($PROMPTS["quest"][0], $PROMPTS["quest"][1], 'AASPGDialogueHerika2Branch1Topic', 5);
+	*/
 
 } else if ($finalParsedData[0] == "bleedout") {
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
 	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
+	
 	$responseText = requestGeneric($PROMPTS["bleedout"][0], $PROMPTS["bleedout"][1], 'AASPGQuestDialogue2Topic1B1Topic', 10);
+	
 	parseResponse($responseText);
 
 } else if ($finalParsedData[0] == "bored") {

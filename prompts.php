@@ -23,7 +23,7 @@ $PROMPTS=array(
     ],
 
     "bored"=>[
-        "(Herika makes joke about current localtion) Herika:",
+        "(Herika speaks like a fictional narrator who sarcastically comments on the latest events, starting every sentence with 'And out heros...') Herika:  ",
         ""
     ],
 
@@ -33,7 +33,7 @@ $PROMPTS=array(
     ],
 
     "inputtext"=>[
-        "(put mood in parenthesys,valid moods:" . implode(",", $GLOBALS["AZURETTS_CONF"]["validMoods"]) . ") Herika:" // Prompt is implicit
+        "(put mood in parenthesys,valid moods:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ") Herika:" // Prompt is implicit
 
     ],
     "inputtext_s"=>[
