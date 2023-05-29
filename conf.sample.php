@@ -56,7 +56,7 @@ $TTSLANGUAGE_AZURE="en-US";							// en-US, es-ES formats
 $TTSLANGUAGE_WHISPER="en";							// en, es formats
 
 //Large Value = Longer responses from Herika (she can speak in Paragraphs). However this will increase API useage cost!
-//Setting it to 100 is a good starting point for expirmenting with larger reponses.
-$OPENAI_MAX_TOKENS="48";							// Limit size of reponses. 
+//Setting it to 100 is a good starting point for experimenting with larger responses.
+$OPENAI_MAX_TOKENS="48";							// Limit size of responses. 
 
 ?>
