@@ -37,7 +37,10 @@ $MIMIC3_CONF["voice"]="en_US/ljspeech_low";
 $GLOBALS["MIMIC3_CONF"]["rate"]="1.25";
 $GLOBALS["MIMIC3_CONF"]["volume"]="80";
 
-
+// To use a custom voice which you have created with Elevenlabs go here: https://api.elevenlabs.io/docs#/voices/Get_voices_v1_voices_get
+// In the "x-api-key" textbox enter in your API key. Then click the "Try it out" button.
+// You should see just below a list of all the available voices you can use, including any custom ones.
+// Just copy and paste that "voice_id" into the "voice_id" variable below.
 $ELEVEN_LABS["voice_id"]="EXAVITQu4vr4xnSDxMaL";	// https://api.elevenlabs.io/v1/voices for voice list
 $ELEVEN_LABS["optimize_streaming_latency"]="0";		// https://docs.elevenlabs.io/api-reference/text-to-speech for API parameters
 $ELEVEN_LABS["model_id"]="eleven_monolingual_v1";	// Check https://beta.elevenlabs.io/speech-synthesis for voice parameters
