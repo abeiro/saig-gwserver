@@ -47,7 +47,7 @@ $ELEVEN_LABS["model_id"]="eleven_monolingual_v1";	// Check https://beta.elevenla
 $ELEVEN_LABS["stability"]="0.75";			// Check https://beta.elevenlabs.io/speech-synthesis for voice parameters
 $ELEVEN_LABS["similarity_boost"]="0.75";		// Check https://beta.elevenlabs.io/speech-synthesis for voice parameters
 
-//Allows you to toogle which providers you use for Text-to-Speech or Speech-to-Text
+//Allows you to toggle which providers you use for Text-to-Speech or Speech-to-Text
 $STTFUNCTION="azure";								// Valid options are azure or whisper so far
 $TTSFUNCTION="azure";								// Valid options are azure or mimic3 or 11labs  so far
 
