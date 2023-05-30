@@ -57,6 +57,7 @@ function tts($textString, $mood = "default", $stringforhash) {
 			return true;
 			
 		} else {
+			$textString.=print_r($http_response_header,true);
 			file_put_contents(dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "soundcache/" . md5(trim($stringforhash)) . ".err", trim($textString));
             return false;
 			

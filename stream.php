@@ -253,7 +253,7 @@ if ($handle === false) {
         }
     }
     if (trim($buffer)) {
-		 $sentences=split_sentences_stream(trim($buffer));
+		 $sentences=split_sentences_stream(cleanReponse(trim($buffer)));
 		 $GLOBALS["DEBUG_DATA"][]=(microtime(true) - $starTime)." secs in openai stream";
          returnLines($sentences);
 		

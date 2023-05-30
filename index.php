@@ -133,6 +133,13 @@ function toggleDP() {document.getElementsByClassName('debugpane')[0].style.displ
         <option value='MoveTo'>MoveTo</option>
         <option value='SneakTo'>SneakTo</option>
         <option value='Attack'>Attack</option>
+        <option value='Follow'>Follow</option>
+        <option value='StopCurrent'>StopCurrent</option>
+        <option value='Inspect'>Inspect</option>
+        <option value='FindFurniture'>FindFurniture</option>
+        <option value='FindActor'>FindActor</option>
+        <option value='OpenInventory'>OpenInventory</option>
+        
     </select>
     <input type='text' value='' name='parameter' placeholder='parameter'>
     <input type='submit' value='Post command'>
