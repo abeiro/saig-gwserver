@@ -37,14 +37,17 @@ $MIMIC3_CONF["voice"]="en_US/ljspeech_low";
 $GLOBALS["MIMIC3_CONF"]["rate"]="1.25";
 $GLOBALS["MIMIC3_CONF"]["volume"]="80";
 
-
+// To use a custom voice which you have created with Elevenlabs go here: https://api.elevenlabs.io/docs#/voices/Get_voices_v1_voices_get
+// Click the "Try it out" button and in the "x-api-key" textbox enter in your API key. 
+// Click Execute. You should see just below a list of all the available voices you can use, including any custom ones.
+// Just copy and paste that "voice_id" into the "voice_id" variable below.
 $ELEVEN_LABS["voice_id"]="EXAVITQu4vr4xnSDxMaL";	// https://api.elevenlabs.io/v1/voices for voice list
 $ELEVEN_LABS["optimize_streaming_latency"]="0";		// https://docs.elevenlabs.io/api-reference/text-to-speech for API parameters
 $ELEVEN_LABS["model_id"]="eleven_monolingual_v1";	// Check https://beta.elevenlabs.io/speech-synthesis for voice parameters
 $ELEVEN_LABS["stability"]="0.75";			// Check https://beta.elevenlabs.io/speech-synthesis for voice parameters
 $ELEVEN_LABS["similarity_boost"]="0.75";		// Check https://beta.elevenlabs.io/speech-synthesis for voice parameters
 
-//Allows you to toogle which providers you use for Text-to-Speech or Speech-to-Text
+//Allows you to toggle which providers you use for Text-to-Speech or Speech-to-Text
 $STTFUNCTION="azure";								// Valid options are azure or whisper so far
 $TTSFUNCTION="azure";								// Valid options are azure or mimic3 or 11labs  so far
 
@@ -53,7 +56,7 @@ $TTSLANGUAGE_AZURE="en-US";							// en-US, es-ES formats
 $TTSLANGUAGE_WHISPER="en";							// en, es formats
 
 //Large Value = Longer responses from Herika (she can speak in Paragraphs). However this will increase API useage cost!
-//Setting it to 100 is a good starting point for expirmenting with larger reponses.
-$OPENAI_MAX_TOKENS="48";							// Limit size of reponses. 
+//Setting it to 100 is a good starting point for experimenting with larger responses.
+$OPENAI_MAX_TOKENS="48";							// Limit size of responses. 
 
 ?>
