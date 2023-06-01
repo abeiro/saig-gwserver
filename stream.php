@@ -86,7 +86,7 @@ function returnLines($lines) {
 		}
 		
 		if ($GLOBALS["TTSFUNCTION"] == "11labs") {
-			if ($GLOBALS["MIMIC3"]) {
+			if ($GLOBALS["ELEVENLABS_API_KEY"]) {
 				require_once("tts/tts-11labs.php");
 				tts($responseTextUnmooded, $mood, $responseText);
 			}
