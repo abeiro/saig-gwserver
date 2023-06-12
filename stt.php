@@ -22,6 +22,11 @@ if ($STTFUNCTION=="azure") {
     require_once($path."stt/stt-whisper.php");
     $text= stt($finalName);
     
+} else if ($STTFUNCTION=="localwhisper") { 
+
+    require_once($path."stt/stt-localwhisper.php");
+    $text= stt($finalName);
+    
 }
 
 echo $text;
