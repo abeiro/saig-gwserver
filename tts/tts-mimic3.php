@@ -47,7 +47,7 @@ function ttsMimic($textString, $mood = "cheerful", $stringforhash)
     // get the wave data
     $result = file_get_contents($ttsServiceUri, false, $context);
     if (!$result) {
-        file_put_contents(dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "soundcache/" . md5(trim($stringforhash)) . ".err", trim($$data));
+        file_put_contents(dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "soundcache/" . md5(trim($stringforhash)) . ".err", trim($data));
         return false;
     } else {
     }

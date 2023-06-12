@@ -76,11 +76,27 @@ class sql
   function lastDataFor($actor, $lastNelements = -10)
   {
     $lastDialogFull = array();
-    $results = self::$link->query("select  a.data  FROM  eventlog a WHERE data like '%$actor%' and type<>'combatend'  and type<>'book' and type<>'location'  
-    and type<>'bored' and type<>'init' and type<>'lockpicked'  order by gamets desc,ts desc LIMIT 0,50"); 
-    while ($row = $results->fetchArray())
-      $lastDialogFull[] = array('role' => 'user', 'content' => $row["data"]);
+    $results = self::$link->query("select  case when type like 'info%' then 'The Narrator:' else '' end||a.data  as data FROM  eventlog a WHERE data like '%$actor%' and type<>'combatend'  and type<>'book' and type<>'location'  
+    and type<>'bored' and type<>'init' and type<>'lockpicked' and type<>'infonpc' and type<>'infoloc' and type<>'info'  order by gamets desc,ts desc LIMIT 0,50"); 
+    $lastData="";
+    while ($row = $results->fetchArray()) {
+      if ($lastData!=md5($row["data"])) {
+        if ((strpos($row["data"],"Herika:")!==false)||((strpos($row["data"],"{$GLOBALS["PLAYER_NAME"]}:")!==false))) {
+          $pattern = "/\([^)]*Context location[^)]*\)/";    // Remove (Context location.. from Herikas lines.
+          $replacement = "";
+          $row["data"] = preg_replace($pattern, $replacement, $row["data"]);
+          $lastDialogFull[] = array('role' => 'user', 'content' => $row["data"]);
+          
+        } else
+          $lastDialogFull[] = array('role' => 'user', 'content' => $row["data"]);
+        
+      }
+      $lastData=md5($row["data"]);
+    }
 
+    // Clean context locations for Herikas dialog.
+    
+    
     $lastDialogFullReversed=array_reverse($lastDialogFull);
     $lastDialog = array_slice($lastDialogFullReversed, $lastNelements);
     $last_location = null;
@@ -102,6 +118,38 @@ class sql
 
   }
 
+  function lastInfoFor($actor, $lastNelements = -2)
+  {
+    $lastDialogFull = array();
+    $results = self::$link->query("select  case when type like 'info%' then 'The Narrator:' else '' end||a.data  as data  FROM  eventlog a 
+    WHERE data like '%$actor%' and type in ('infoloc','infonpc')  order by gamets desc,ts desc LIMIT 0,50"); 
+    $lastData="";
+    while ($row = $results->fetchArray()) {
+      if ($lastData!=md5($row["data"]))
+        $lastDialogFull[] = array('role' => 'user', 'content' => $row["data"]);
+      $lastData=md5($row["data"]);
+    }
+
+    $lastDialogFullReversed=array_reverse($lastDialogFull);
+    $lastDialog = array_slice($lastDialogFullReversed, $lastNelements);
+    $last_location = null;
+
+    // Remove Context Location part when repeated
+    foreach ($lastDialog as $k => $message) {
+      preg_match('/\(Context location: (.*)\)/', $message['content'], $matches);
+      $current_location = isset($matches[1]) ? $matches[1] : null;
+      if ($current_location === $last_location) {
+        $message['content'] = preg_replace('/\(Context location: (.*)\)/', '', $message['content']);
+      } else {
+        $last_location = $current_location;
+      }
+      $lastDialog[$k]["content"] = $message['content'];
+    }
+
+
+    return $lastDialog;
+
+  }
 }
 
 ?>

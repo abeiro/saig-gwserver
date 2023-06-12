@@ -136,9 +136,10 @@ function toggleDP() {document.getElementsByClassName('debugpane')[0].style.displ
         <option value='Follow'>Follow</option>
         <option value='StopCurrent'>StopCurrent</option>
         <option value='Inspect'>Inspect</option>
-        <option value='FindFurniture'>FindFurniture</option>
-        <option value='FindActor'>FindActor</option>
+        <option value='Relax'>Relax</option>
+        <option value='StopAll'>StopAll</option>
         <option value='OpenInventory'>OpenInventory</option>
+        <option value='SheatheWeapon'>SheatheWeapon</option>
         
     </select>
     <input type='text' value='' name='parameter' placeholder='parameter'>
@@ -158,7 +159,7 @@ if ($_GET["table"] == "response") {
 }
 
 if ($_GET["table"] == "event") {
-    $results = $db->fetchAll("select  A.*,ROWID FROM eventlog a order by gamets desc,ts  desc");
+    $results = $db->fetchAll("select  A.*,ROWID FROM eventlog a order by gamets desc,ts  desc,localts desc");
     echo "<p>Event log</p>";
     print_array_as_table($results);
     if ($_GET["autorefresh"]) {

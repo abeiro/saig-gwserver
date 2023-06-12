@@ -4,7 +4,8 @@
         "symfony/http-client": "^6.2",
         "nyholm/psr7": "^1.6",
         "guzzlehttp/guzzle": "^7.5",
-        "amphp/amp": "^2.6"
+        "amphp/amp": "^2.6",
+        "nlp-tools/nlp-tools": "^0.1.3"
     },
     "config": {
         "allow-plugins": {

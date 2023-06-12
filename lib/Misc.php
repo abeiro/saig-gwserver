@@ -33,7 +33,12 @@ function cleanReponse($rawResponse)
     $pattern = '/\(C[^)]*\)/';
     $replacement = ''; 
     $rawResponse= preg_replace($pattern, $replacement, $rawResponse);
+    
+    $pattern = '/\{.*?\}/';
+    $replacement = ''; 
+    $rawResponse= preg_replace($pattern, $replacement, $rawResponse);
 
+    $rawResponse=strtr($rawResponse,array("{"=>"","}"=>""));
     
     if (strpos($rawResponse, "(Context location") !== false) {
         $rawResponseSplited = explode(":", $rawResponse);

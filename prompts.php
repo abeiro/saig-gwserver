@@ -6,7 +6,7 @@ $PROMPTS=array(
             "{$finalParsedData[3]} What do you know about this place?"  //prompt
         ],
     "book"=>[
-        "Herika: It's about ",
+        "Herika: {$finalParsedData[3]}  is about ",
         "Herika, summarize the book '{$finalParsedData[3]}' shortly"
     ],
     "combatend"=>[
@@ -23,7 +23,7 @@ $PROMPTS=array(
     ],
 
     "bored"=>[
-        "(Herika speaks like a fictional narrator who sarcastically comments on the latest events, starting every sentence with 'And out heros...') Herika:  ",
+        "(Herika make a casual comment about her background story or a joke about current location) Herika: ... ",
         ""
     ],
 
