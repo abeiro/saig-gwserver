@@ -1,6 +1,7 @@
 <?php
 
 //READ THE COMMENTS TO LEARN WHAT EACH VARIABLE DOES
+//DO NOT COMMENT OUT ANY VARIABLES, YOU MAY BREAK THE MOD.
 
 //Enter API keys here
 //DO NOT SHARE YOUR API KEYS WITH ANYONE!
@@ -12,7 +13,7 @@ $ELEVENLABS_API_KEY="";         // 11labs API KEY
 
 // Player and Personality configuration. 
 // If you are using a large personality description you will need to increase the API_MAX_TOKENS amount
-// DONT USE "" (quotation marks) within the HERIKA_PERS variable otherwise it will break the conf.php file!
+// DON'T USE "" (quotation marks) within the HERIKA_PERS variable otherwise it will break the conf.php file!
 $DEBUG_MODE=false;
 $PLAYER_NAME="Prisoner";
 $HERIKA_PERS="You are Herika, a Breton female who likes jokes and sarcastic comments.";
@@ -22,11 +23,11 @@ $PROMPT_HEAD="Let\'s roleplay in the Universe of Skyrim. I\'m {$GLOBALS["PLAYER_
 // More Azure TTS presets can be found in the Article section for the mod page
 // This configuration will make Herika sound like how she does in the Dwemer Dynamics videos
 $AZURETTS_CONF["fixedMood"]="";			// Azure TTS prosody and style. Empty to stay variable.
-$AZURETTS_CONF["region"]="westeurope";			// Region, Fine tune to improve reponse time. https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/regions
+$AZURETTS_CONF["region"]="westeurope";			// Region, Fine tune to improve response time. https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/regions
 $AZURETTS_CONF["voice"]="en-US-NancyNeural";	// Voice. Read https://learn.microsoft.com/es-es/azure/cognitive-services/speech-service/language-support?tabs=tts
 $AZURETTS_CONF["volume"]="25";					// Default volume
 $AZURETTS_CONF["rate"]="1.2";					// Default rate (speed)
-$AZURETTS_CONF["countour"]= "(11%, +15%) (60%, -23%) (80%, -34%)";		//Algorithim to change pitch during speech. 
+$AZURETTS_CONF["countour"]= "(11%, +15%) (60%, -23%) (80%, -34%)";		//Algorithm to change pitch during speech. 
 $AZURETTS_CONF["validMoods"]=array("whispering","default");	// New, limits moods allowed in TTS transcription. Not all voices support all moods.
 
 // Read this and scroll down to "Prosody" for more info on these configurations: https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/speech-synthesis-markup-voice		
@@ -51,11 +52,11 @@ $ELEVEN_LABS["similarity_boost"]="0.75";		// Check https://beta.elevenlabs.io/sp
 $STTFUNCTION="azure";								// Valid options are azure or whisper so far
 $TTSFUNCTION="azure";								// Valid options are azure or mimic3 or 11labs  so far
 
-//WIP configuration for changing default language for TTS
+//Configuration for changing default language for TTS
 $TTSLANGUAGE_AZURE="en-US";							// en-US, es-ES formats
 $TTSLANGUAGE_WHISPER="en";							// en, es formats
 
-//Large Value = Longer responses from Herika (she can speak in Paragraphs). However this will increase API useage cost!
+//Large Value = Longer responses from Herika (she can speak in Paragraphs). However this will increase API usage cost!
 //Setting it to 100 is a good starting point for experimenting with larger responses.
 $OPENAI_MAX_TOKENS="48";							// Limit size of responses. 
 
