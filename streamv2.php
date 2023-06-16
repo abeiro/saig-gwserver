@@ -96,6 +96,11 @@ function returnLines($lines) {
 		if (strlen($responseText)<2)		// Avoid too shor reponses
 			return;
 		
+		
+		if (strpos($responseText,"The Narrator:")!==false) {
+			return;
+		}
+		
 		if ($responseText) {
 			if ($GLOBALS["TTSFUNCTION"] == "azure") {
 				if ($GLOBALS["AZURE_API_KEY"]) {
@@ -129,7 +134,7 @@ function returnLines($lines) {
 						'action' => "AASPGQuestDialogue2Topic1B1Topic",
 						'tag'=>(isset($tag)?$tag:"")
 					);
-		
+		$GLOBALS["DEBUG"]["BUFFER"][]="{$outBuffer["actor"]}|{$outBuffer["action"]}|$responseTextUnmooded\r\n";
 		echo "{$outBuffer["actor"]}|{$outBuffer["action"]}|$responseTextUnmooded\r\n";
 		@ob_flush();
 		@flush();
@@ -153,24 +158,25 @@ $starTime=microtime(true);
 
 // PARSE GET RESPONSE
 $finalData = base64_decode(stripslashes($_GET["DATA"]));
+//$finalData = base64_decode("ZnVuY3JldHwxOTEyMDczNjIzMzQwMDB8NDQ5MzM3MTg0fGNvbW1hbmRASW5zcGVjdFN1cnJvdW5kaW5nc0BAQWRyaWFubmUgQXZlbmljY2ksQmVsZXRob3IsV2hpdGVydW4gR3VhcmQsQnJpbGwsUGx1Z2luZWVyLEhlcmlrYSxXaGl0ZXJ1biBHdWFyZCwNCg==");
+
 $finalParsedData = explode("|", $finalData);
 foreach ($finalParsedData as $i => $ele)
 		$finalParsedData[$i] = trim(preg_replace('/\s\s+/', ' ', preg_replace('/\'/m', "''", $ele)));
 
-// Log my chat
-$db->insert(
-			'eventlog',
-			array(
-				'ts' => $finalParsedData[1],
-				'gamets' => $finalParsedData[2],
-				'type' => $finalParsedData[0],
-				'data' => SQLite3::escapeString($finalParsedData[3]),
-				'sess' => 'pending',
-				'localts' => time()
-			)
-		);
 
 if ($finalParsedData[0]=="info") {	// Output queues must be indepentent by type
+	$db->insert(
+				'eventlog',
+				array(
+					'ts' => $finalParsedData[1],
+					'gamets' => $finalParsedData[2],
+					'type' => $finalParsedData[0],
+					'data' => SQLite3::escapeString($finalParsedData[3]),
+					'sess' => 'pending',
+					'localts' => time()
+				)
+			);
 	die();
 }
 
@@ -185,48 +191,34 @@ $PROMPT_HEAD=($GLOBALS["PROMPT_HEAD"])?$GLOBALS["PROMPT_HEAD"]:"Let\'s roleplay 
 $COMMAND_PROMPT="
 To ensure a smooth and immersive experience, let's establish a set of roleplay rules:
 Rule 1: Context will be provided by the The Narrator. Please avoid giving any context yourself.
-Rule 2: You may choose from the following actions: Relax(),RelaxYourself(),Inspect(Actor Name), InspectSurroundings(),LookAround(), Inspect({$GLOBALS["PLAYER_NAME"]}), InspectGear({$GLOBALS["PLAYER_NAME"]}),InspectHerikaInventory(),InspectHerikaGear(), Attack(Target), Follow(Character),MoveTo(Character), MoveTo(Location Name), TradeWith({$GLOBALS["PLAYER_NAME"]}), OpenInventory(), SheatheWeapon()
-Rule 3: Actions should be written within curly brackets {}.
-Rule 4: Speak and respond as your character, remaining in roleplay at all times and not describing actions
-Rule 5: You may only use one action per interaction.
-Rule 6: Don't ask questions to other characters besides {$GLOBALS["PLAYER_NAME"]}, they cannot hear you. 
-Rule 7. DO NOT impersonate 'The Narrator'
+Rule 2: Speak and respond as your character, remaining in roleplay at all times and do not describe actions
+Rule 3: Don't ask questions to other characters besides {$GLOBALS["PLAYER_NAME"]}, they cannot hear you. 
+Rule 4. DO NOT impersonate 'The Narrator'
 ";
 
-if ($finalParsedData[0]=="infothink") {
+require_once(__DIR__.DIRECTORY_SEPARATOR."lib".DIRECTORY_SEPARATOR."functions.php");
 
-	$PROMPTS["inputtext"]=[
+
+$PROMPTS["inputtext"]=[
 			"(put voice style in parenthesys,valid voice styles:" . 
 			implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . 
-			")(complete herika's sentence) Herika: ..." // Prompt is implicit
+			", you can optionally call functions, complete herika's sentence) Herika: " // Prompt is implicit
 
 		];
-	$PROMPTS["inputtext_s"]=[
-			") (complete herika's sentence) Herika: (whispering) ..." // Prompt is implicit
-
-		];
-
-	$PROMPTS["infothink"]=$PROMPTS["inputtext"];
-	
-} else {
-	$PROMPTS["inputtext"]=[
-			"(put voice style in parenthesys,valid voice styles:" . 
-			implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . 
-			")(optionally specify one action and always complete herika's sentence) Herika: ..." // Prompt is implicit
-
-		];
-	$PROMPTS["inputtext_s"]=[
-			"(optionally specify one action and always complete herika's sentence) Herika: ..." // Prompt is implicit
+$PROMPTS["inputtext_s"]=[
+			"(you can optionally call functions, complete herika's sentence) Herika: " // Prompt is implicit
 
 		];
 
-	$PROMPTS["infothink"]=$PROMPTS["inputtext"];
-}
-$request=$PROMPTS[$finalParsedData[0]][0];
+$PROMPTS["funcret"]=$PROMPTS["inputtext"];
+
+
+$request=$PROMPTS[$finalParsedData[0]][0];	//*
+
 
 if (stripos($finalParsedData[3],"stop")!==false) {
 	echo "Herika|command|StopAll@\r\n";
-	ob_flush();
+	@ob_flush();
 	$alreadysent[md5("Herika|command|StopAll@\r\n")]="Herika|command|StopAll@\r\n";
 }
 
@@ -237,66 +229,111 @@ if ($finalParsedData[0]=="inputtext_s") {
 		$forceMood="whispering";
 } 
 
+if ($finalParsedData[0]=="funcret") {							// Overwrite funrect with info from database when topic requested
+	$returnFunction = explode("@",$finalParsedData[3]);			// Function returns here
+	if ($returnFunction[1]=="GetTopicInfo") {
+		
+		
+	}
+}
+
+/// LOG INTO DB
+$db->insert(
+				'eventlog',
+				array(
+					'ts' => $finalParsedData[1],
+					'gamets' => $finalParsedData[2],
+					'type' => $finalParsedData[0],
+					'data' => SQLite3::escapeString($finalParsedData[3]),
+					'sess' => 'pending',
+					'localts' => time()
+				)
+			);
+
 $preprompt=preg_replace("/^[^:]*:/", "", $finalParsedData[3]);
 $lastNDataForContext=25;
 $contextData = $db->lastDataFor("",$lastNDataForContext*-1);	// Context (last dialogues, events,...)
 $contextData2 = $db->lastInfoFor("",-2);						// Infot about location and npcs in first position
 
-$lastElement[] = array_pop($contextData);	// Extract last element (player text/voiced line)
-$lastElement[] = array_pop($contextData);	// Extract before last element
 
-$lastElementReversed=array_reverse($lastElement);
-
-
-// Lets force a dumb command so AI catch the pattern
-$contextDataFull=array_merge(
-	array(
-		array(
-			"role"=>"user","content"=>"{$GLOBALS["PLAYER_NAME"]}: Let's trade"	//  Maybe in future use this sample to track emotions
-		),
-		array(
-			"role"=>"user","content"=>"Herika: {OpenInventory()} ok"	// 
-		)
-),$contextData,$contextData2);
-
-
-
+$contextDataFull=array_merge($contextData2,$contextData);
 
 $head = array();
 $foot = array();
 
-if ($finalParsedData[0]=="infothink")
-	$head[] = array('role' => 'user', 'content' => '('.$PROMPT_HEAD.$GLOBALS["HERIKA_PERS"]); // Dont use COMMAND prompt if infothink evento to avoid endless command only loop
-else
-	$head[] = array('role' => 'user', 'content' => '('.$PROMPT_HEAD.$GLOBALS["HERIKA_PERS"].$COMMAND_PROMPT);
-
-$prompt[] = array('role' => 'assistant', 'content' => $request);
-
-$foot[] = array('role' => 'user', 'content' => $GLOBALS["PLAYER_NAME"].':' . $preprompt);
-
-if ($finalParsedData[0]=="infothink")
-	$parms = array_merge($head, ($contextDataFull), $prompt);
-else
-	//$parms = array_merge($head, ($contextDataFull), $foot, $prompt);
-	$parms = array_merge($head, ($contextDataFull), $lastElementReversed,$prompt);
+$head[] = array('role' => 'user', 'content' => '('.$PROMPT_HEAD.$GLOBALS["HERIKA_PERS"].$COMMAND_PROMPT);
 
 
-//// DIRECT OPENAI REST API
-	
+//$foot[] = array('role' => 'user', 'content' => $GLOBALS["PLAYER_NAME"].':' . $preprompt);
+
 $url = 'https://api.openai.com/v1/chat/completions';
 
+if ($finalParsedData[0]=="funcret") {
+	$prompt[] = array('role' => 'assistant', 'content' => $request);
+	
+	$returnFunction = explode("@",$finalParsedData[3]);				// Function returns here
+
+	
+	if (isset($returnFunction[2])) {
+		if ($returnFunction[1]=="GetTopicInfo") {
+			$argName="topic";
+			// Lets overwrite this
+			// Get info about $returnFunction[2]}
+			$returnFunction[3]="";
+			
+			
+		} else {
+			$argName="target";
+			
+		}
+		$functionCalled[]=array('role' => 'assistant', 'content'=>null,'function_call'=>array("name"=>$returnFunction[1],"arguments"=>"{\"$argName\":\"{$returnFunction[2]}}"));
+		
+	}
+	
+	else
+		$functionCalled[]=array('role' => 'assistant', 'content'=>null,'function_call'=>["name"=>$returnFunction[1],"arguments"=>"\"{}\""]);
+	
+	$returnFunctionArray[]=array('role' => 'function', 'name'=>$returnFunction[1],'content' => $returnFunction[3]);
+
+	$returnFunctionArray[]=	 array('role' => 'assistant', 'content' => $request);
+
+
+		
+	$parms = array_merge($head, ($contextDataFull), $functionCalled,$returnFunctionArray);
+
 	$data = array(
-		'model' => 'gpt-3.5-turbo',
+		'model' => 'gpt-3.5-turbo-0613',
 		'messages' => 
 			$parms
 		,
 		'stream' => true,
 		'max_tokens'=>((isset($GLOBALS["OPENAI_MAX_TOKENS"])?$GLOBALS["OPENAI_MAX_TOKENS"]:48)+0),
-		'temperature'=>0.5,
+		'temperature'=>1,
 		'presence_penalty'=>1
+		//'function_call'=>'none'
 		
 	);
 	
+} else {
+	//$parms = array_merge($head, ($contextDataFull), $foot, $prompt);
+	$prompt[] = array('role' => 'assistant', 'content' => $request);
+	$parms = array_merge($head, ($contextDataFull), $prompt);
+		$data = array(
+		'model' => 'gpt-3.5-turbo-0613',
+		'messages' => 
+			$parms
+		,
+		'stream' => true,
+		'max_tokens'=>((isset($GLOBALS["OPENAI_MAX_TOKENS"])?$GLOBALS["OPENAI_MAX_TOKENS"]:48)+0),
+		'temperature'=>1,
+		'presence_penalty'=>1,
+		'functions'=>$GLOBALS["FUNCTIONS"],
+		'function_call'=>'auto'
+	);
+}
+
+//print_r($data);
+//die();
 $GLOBALS["DEBUG_DATA"][]=$data;
 
 $headers = array(
@@ -311,20 +348,25 @@ $options = array(
         'content' => json_encode($data)
     )
 );
-error_reporting(E_ALL);
+
+
+
 $context = stream_context_create($options);
 
 ///////DEBUG CODE
 $fileLog = fopen("log.txt", 'a');
 fwrite($fileLog, ">>".$finalParsedData[3] . PHP_EOL); // Write the line to the file with a line break // DEBUG CODE
 
+fwrite($fileLog, ">>".print_r($data["messages"],true) . PHP_EOL); // Write the line to the file with a line break // DEBUG CODE
+
+
 $fileLogSent = fopen("logSent.txt", 'a');				// Will LOG OpenAI calls
 $stamp="@STAMP ################# ".date('h:i:s',time());
 fwrite($fileLogSent, $stamp . PHP_EOL); // Write the line to the file with a line break // DEBUG CODE
 
 /////
-
-$handle = @fopen($url, 'r', false, $context);
+error_reporting(E_ALL);
+$handle = fopen($url, 'r', false, $context);
 
 
 
@@ -342,23 +384,70 @@ if ($handle === false) {
 				)
 			);
 	echo "Seems my mind has blown, too many thoutghs\r\n";
-	ob_end_flush();
+	@ob_end_flush();
+	
+	print_r(error_get_last(),true);
+	
 } else {
     // Read and process the response line by line
     $buffer="";
     $totalBuffer="";
+	$functionIsUsed=false;
     while (!feof($handle)) {
         $line = fgets($handle);
-	    
+	    //echo $line;
+	    //continue;
 		fwrite($fileLogSent, $line . PHP_EOL); // Write the line to the file with a line break // DEBUG CODE
 		
         $data=json_decode(substr($line,6),true);
         if (isset($data["choices"][0]["delta"]["content"])) {
             if (strlen(trim($data["choices"][0]["delta"]["content"]))>0)
                 $buffer.=$data["choices"][0]["delta"]["content"];
-        $totalBuffer.=$data["choices"][0]["delta"]["content"];
+			$totalBuffer.=$data["choices"][0]["delta"]["content"];
+		
+			
+		} 
+		
+		// Catch function calling  here
+		
+		if (isset($data["choices"][0]["delta"]["function_call"])) {
+			
+			if (isset($data["choices"][0]["delta"]["function_call"]["name"])) {
+				$functionName =$data["choices"][0]["delta"]["function_call"]["name"] ;
+			}
+
+			if (isset($data["choices"][0]["delta"]["function_call"]["arguments"])) {
+				
+					$parameterBuff .= $data["choices"][0]["delta"]["function_call"]["arguments"] ;
+				
+			}
 		}
-       
+		
+		
+		if (isset($data["choices"][0]["finish_reason"])&&$data["choices"][0]["finish_reason"]=="function_call") {
+			$parameterArr=json_decode($parameterBuff,true);
+			$parameter=current($parameterArr);	// Only support for one parameter
+			
+			if (!isset($alreadysent[md5("Herika|command|$functionName@$parameter\r\n")])) {
+					echo "Herika|command|$functionName@$parameter\r\n";
+						$db->insert(
+							'eventlog',
+							array(
+								'ts' => $finalParsedData[1],
+								'gamets' => $finalParsedData[2],
+								'type' => "funccall",
+								'data' => "Herika: {"."$functionName($parameter)"."}",
+								'sess' => 'pending',
+								'localts' => time()
+							)
+						);
+						
+				}
+					
+				$alreadysent[md5("Herika|command|$functionName@$parameter\r\n")]="Herika|command|$functionName@$parameter\r\n";
+				@ob_flush();
+		}
+		
        $buffer=strtr($buffer,array("\""=>""));
 	   
 		if (strlen($buffer)<50)	// Avoid too short buffers
@@ -370,33 +459,6 @@ if ($handle === false) {
         if ($position !== false) {
             $extractedData = substr($buffer, 0, $position + 1);
             $remainingData = substr($buffer, $position + 1);
-
-			// Check for commands
-			$re = '/({(([A-Za-z]+)\(([A-Za-z\ \-\']*)\))})+/';
-			preg_match_all($re, $extractedData, $matches, PREG_SET_ORDER, 0);
-			foreach ($matches as $match) {
-				$functionName = $match[3];
-				$parameter = trim($match[4], '()');
-				if (!isset($alreadysent[md5("Herika|command|$functionName@$parameter\r\n")])) {
-					echo "Herika|command|$functionName@$parameter\r\n";
-					$db->insert(
-						'eventlog',
-						array(
-							'ts' => $finalParsedData[1],
-							'gamets' => $finalParsedData[2],
-							'type' => "chat",
-							'data' => "Herika: {"."$functionName($parameter)"."}",
-							'sess' => 'pending',
-							'localts' => time()
-						)
-					);
-					
-				}
-				$alreadysent[md5("Herika|command|$functionName@$parameter\r\n")]="Herika|command|$functionName@$parameter\r\n";
-				@ob_flush();
-			}
-			
-	
             $sentences=split_sentences_stream(cleanReponse($extractedData));
 			$GLOBALS["DEBUG_DATA"][]=(microtime(true) - $starTime)." secs in openai stream";
             returnLines($sentences);
@@ -407,32 +469,7 @@ if ($handle === false) {
         }
     }
     if (trim($buffer)) {
-			$matches=array();
-			$re = '/({(([A-Za-z]+)\(([A-Za-z\ \-\']*)\))})+/';
-			preg_match_all($re, trim($buffer), $matches, PREG_SET_ORDER, 0);
-			foreach ($matches as $match) {
-				$functionName = $match[3];
-				$parameter = trim($match[4], '()');
-				if (!isset($alreadysent[md5("Herika|command|$functionName@$parameter\r\n")])) {
-					echo "Herika|command|$functionName@$parameter\r\n";
-					$db->insert(
-						'eventlog',
-						array(
-							'ts' => $finalParsedData[1],
-							'gamets' => $finalParsedData[2],
-							'type' => "chat",
-							'data' => SQLite3::escapeString("Herika: {"."$functionName($parameter)"."}"),
-							'sess' => 'pending',
-							'localts' => time()
-						)
-					);
-				
-				}
-				$alreadysent[md5("Herika|command|$functionName@$parameter\r\n")]="Herika|command|$functionName@$parameter\r\n";
-				
-				@ob_flush();
-			}
-			
+		
 		 $sentences=split_sentences_stream(cleanReponse(trim($buffer)));
 		 $GLOBALS["DEBUG_DATA"][]=(microtime(true) - $starTime)." secs in openai stream";
          returnLines($sentences);
@@ -444,9 +481,9 @@ if ($handle === false) {
 
 if (sizeof($talkedSoFar)==0) {
 	if (sizeof($alreadysent)>0) {	// AI only issued commands, plugin will request a response in 10 seconds.
-		echo "Herika|command|Continue@\r\n";
+		//echo "Herika|command|Continue@\r\n";
 		
-		$randomFillGap = [
+		/*$randomFillGap = [
 			"Hmm... let me think",
 			"Well, let me ponder on that for a second",
 			"Hmm, I need a moment to consider all the possibilities",
@@ -473,7 +510,7 @@ if (sizeof($talkedSoFar)==0) {
 				)
 			);	
 		
-
+		*/
 	} else {			// Fail request? or maybe an invalid command was issued
 		
 		$randomFillGapWhenError = [
@@ -492,7 +529,7 @@ if (sizeof($talkedSoFar)==0) {
 		// Accessing a random sentence from the array
 		$randomSentence = $randomFillGapWhenError[array_rand($randomFillGapWhenError)];
 		
-		returnLines(array($randomSentence));
+		//returnLines(array($randomSentence));
 		$db->insert(
 				'log',
 				array(
@@ -512,6 +549,8 @@ if (sizeof($talkedSoFar)==0) {
 }
 echo 'X-CUSTOM-CLOSE';
 $stamp="@STAMP END ################# ".date('h:i:s',time());
+fwrite($fileLogSent, print_r($GLOBALS["DEBUG"]["BUFFER"],true) . PHP_EOL); // Write the line to the file with a line break // DEBUG CODE
 fwrite($fileLogSent, $stamp . PHP_EOL); // Write the line to the file with a line break // DEBUG CODE
+
 //echo "\r\n<$totalBuffer>";
 ?>

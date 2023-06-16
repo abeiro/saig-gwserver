@@ -2,7 +2,7 @@
 $path = dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR;
 require_once($path . "conf.php"); // API KEY must be there
 
-function ttsMimic($textString, $mood = "cheerful", $stringforhash)
+function ttsMimic($textString, $mood = "cheerful", $stringforhash='')
 {
 
     $start = microtime(true);

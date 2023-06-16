@@ -76,8 +76,9 @@ class sql
   function lastDataFor($actor, $lastNelements = -10)
   {
     $lastDialogFull = array();
-    $results = self::$link->query("select  case when type like 'info%' then 'The Narrator:' else '' end||a.data  as data FROM  eventlog a WHERE data like '%$actor%' and type<>'combatend'  and type<>'book' and type<>'location'  
-    and type<>'bored' and type<>'init' and type<>'lockpicked' and type<>'infonpc' and type<>'infoloc' and type<>'info'  order by gamets desc,ts desc LIMIT 0,50"); 
+    $results = self::$link->query("select  case when type like 'info%' or type like 'funcret%' then 'The Narrator:' else '' end||a.data  as data FROM  eventlog a WHERE data like '%$actor%' 
+    and type<>'combatend'  and type<>'book'  
+    and type<>'bored' and type<>'init' and type<>'lockpicked' and type<>'infonpc' and type<>'infoloc' and type<>'info' and type<>'funcret' and type<>'funccall'  order by gamets desc,ts desc LIMIT 0,50"); 
     $lastData="";
     while ($row = $results->fetchArray()) {
       if ($lastData!=md5($row["data"])) {
@@ -92,6 +93,7 @@ class sql
         
       }
       $lastData=md5($row["data"]);
+      
     }
 
     // Clean context locations for Herikas dialog.
@@ -102,7 +104,7 @@ class sql
     $last_location = null;
 
     // Remove Context Location part when repeated
-    foreach ($lastDialog as $k => $message) {
+    /*foreach ($lastDialog as $k => $message) {
       preg_match('/\(Context location: (.*)\)/', $message['content'], $matches);
       $current_location = isset($matches[1]) ? $matches[1] : null;
       if ($current_location === $last_location) {
@@ -111,7 +113,7 @@ class sql
         $last_location = $current_location;
       }
       $lastDialog[$k]["content"] = $message['content'];
-    }
+    }*/
 
 
     return $lastDialog;
@@ -150,6 +152,43 @@ class sql
     return $lastDialog;
 
   }
+  
+  
+  function lastRetFunc($actor, $lastNelements = -2)
+  {
+    $lastDialogFull = array();
+    $results = self::$link->query("select  a.data  as data  FROM  eventlog a 
+    WHERE data like '%$actor%' and type in ('funcret')  order by gamets desc,ts desc LIMIT 0,1"); 
+    $lastData="";
+    while ($row = $results->fetchArray()) {
+      $pattern = "/\{(.*?)\(/";
+      preg_match($pattern, $row["data"], $matches);
+      $functionName = $matches[1];
+      $lastDialogFull[] = array('role' => 'function', 'name'=>$functionName,'content' => $row["data"]);
+      
+    }
+
+    $lastDialogFullReversed=array_reverse($lastDialogFull);
+    $lastDialog = array_slice($lastDialogFullReversed, $lastNelements);
+    $last_location = null;
+
+    // Remove Context Location part when repeated
+    foreach ($lastDialog as $k => $message) {
+      preg_match('/\(Context location: (.*)\)/', $message['content'], $matches);
+      $current_location = isset($matches[1]) ? $matches[1] : null;
+      if ($current_location === $last_location) {
+        $message['content'] = preg_replace('/\(Context location: (.*)\)/', '', $message['content']);
+      } else {
+        $last_location = $current_location;
+      }
+      $lastDialog[$k]["content"] = $message['content'];
+    }
+
+
+    return $lastDialog;
+
+  }
+  
 }
 
 ?>
