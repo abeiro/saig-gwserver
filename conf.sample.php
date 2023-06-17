@@ -32,8 +32,8 @@ $AZURETTS_CONF["validMoods"]=array("whispering","default");	// New, limits moods
 
 // Read this and scroll down to "Prosody" for more info on these configurations: https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/speech-synthesis-markup-voice		
 
-// If using MIMIC3, comment out $AZURE_API_KEY and uncomment $MIMIC3
-$MIMIC3="http://127.0.0.1:59125";               // Don't set if using Azure.
+//  MIMIC3 configuration, navigate to the URL below to access the web interface
+$MIMIC3="http://127.0.0.1:59125";               
 $MIMIC3_CONF["voice"]="en_US/ljspeech_low";
 $GLOBALS["MIMIC3_CONF"]["rate"]="1.25";
 $GLOBALS["MIMIC3_CONF"]["volume"]="80";
