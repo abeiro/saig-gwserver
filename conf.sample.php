@@ -49,6 +49,7 @@ $ELEVEN_LABS["stability"]="0.75";			// Check https://beta.elevenlabs.io/speech-s
 $ELEVEN_LABS["similarity_boost"]="0.75";		// Check https://beta.elevenlabs.io/speech-synthesis for voice parameters
 
 //Allows you to toggle which providers you use for Text-to-Speech or Speech-to-Text
+//IF YOU DO NOT HEAR HERIKA MAKE SURE TO CHECK YOUR SYSTEM SOUNDS VOLUME
 $STTFUNCTION="azure";								// Valid options are azure or whisper so far
 $TTSFUNCTION="azure";								// Valid options are azure or mimic3 or 11labs  so far
 
