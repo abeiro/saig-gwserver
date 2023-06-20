@@ -129,6 +129,20 @@ $FUNCTIONS = [
             "required" =>[]
         ]
     ],
+    [
+        "name" => "TravelTo",
+        "description" => "Start travelling to Town or City",
+        "parameters" => [
+            "type" => "object",
+            "properties" => [
+                "target" => [
+                    "type" => "string",
+                    "description" => "Town or City to travel to",
+                ]
+            ],
+            "required" =>[]
+        ]
+    ]
     /*[
         "name" => "GetTopicInfo",
         "description" => "Get information about a topic or character on Herika's long-term memory.",

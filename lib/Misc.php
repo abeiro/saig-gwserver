@@ -96,20 +96,27 @@ function print_array_as_table($data)
 
     // Print the remaining rows with array values
     foreach ($data as $row) {
+        
+        if ($row["url"]) {
+            $colorIndex=abs(crc32(preg_replace('/in \d+ secs/', '', $row["url"])))%5;
+            $colors=array("white","#ffffc5","#d3fffb","#fad2ff","#e4ffce");
+        } else
+            $colorIndex=0;
         echo "<tr>";
         foreach ($row as $n=>$cell) {
-            if ($n=="prompt")
-                echo "<td><pre>" . $cell . "</pre></td>";
+            if ($n=="prompt") {
+                echo "<td style='background-color:{$colors[$colorIndex]}'><span class='foldableCtl' onclick='togglePre(this)' style='cursor:pointer'>[+]</span><pre class='foldable'>" . $cell . "</pre></td>";
+            }
             else if (strpos($cell, 'background chat') !== false)
-                echo "<td style='font-style:italic'>" . $cell . "</td>";
-            else if (strpos($cell, 'Plugineer:') !== false)
-                echo "<td  style='color:blue'>" . $cell . "</td>";
+                echo "<td style='font-style:italic;background-color:{$colors[$colorIndex]}'>" . $cell . "</td>";
+            else if (strpos($cell, $GLOBALS["PLAYER_NAME"].':') !== false)
+                echo "<td  style='color:blue;background-color:{$colors[$colorIndex]}'>" . $cell . "</td>";
             else if (strpos($cell, 'obtains a quest') !== false)
-                echo "<td  style='font-weight:bold'>" . $cell . "</td>";
+                echo "<td  style='font-weight:bold;background-color:{$colors[$colorIndex]}'>" . $cell . "</td>";
             else if (strpos($cell, 'Herika:') !== false)
-                echo "<td  style='color:green'>" . $cell . "</td>";
+                echo "<td  style='color:green;background-color:{$colors[$colorIndex]}'>" . $cell . "</td>";
             else    
-                echo "<td>" . $cell . "</td>";
+                echo "<td  style='background-color:{$colors[$colorIndex]}'>" . $cell . "</td>";
         }
         echo "</tr>";
     }

@@ -200,7 +200,7 @@ require_once(__DIR__.DIRECTORY_SEPARATOR."lib".DIRECTORY_SEPARATOR."functions.ph
 
 
 $PROMPTS["inputtext"]=[
-			"(put voice style in parenthesys,valid voice styles:" . 
+			"(put mood in parenthesys,valid moods:" . 
 			implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . 
 			", you can optionally call functions, complete herika's sentence) Herika: " // Prompt is implicit
 
@@ -310,6 +310,8 @@ if ($finalParsedData[0]=="funcret") {
 		'max_tokens'=>((isset($GLOBALS["OPENAI_MAX_TOKENS"])?$GLOBALS["OPENAI_MAX_TOKENS"]:48)+0),
 		'temperature'=>1,
 		'presence_penalty'=>1
+		//'functions'=>$GLOBALS["FUNCTIONS"],
+		//'function_call'=>'auto'
 		//'function_call'=>'none'
 		
 	);
@@ -481,23 +483,7 @@ if ($handle === false) {
 
 if (sizeof($talkedSoFar)==0) {
 	if (sizeof($alreadysent)>0) {	// AI only issued commands, plugin will request a response in 10 seconds.
-		//echo "Herika|command|Continue@\r\n";
 		
-		/*$randomFillGap = [
-			"Hmm... let me think",
-			"Well, let me ponder on that for a second",
-			"Hmm, I need a moment to consider all the possibilities",
-			"Let's see... give me a few seconds to mull it over",
-			"Hmm, I'm processing the information, just give me a brief moment",
-			"Hmm, let me wrap my head around that before I respond",
-			"Give me a second to find the right words, please",
-			"Hmm... I'm contemplating the best course of action",
-			"Hold on, I'm formulating my response in my mind",
-			"Let me take a moment to reflect on what you just said"
-		];
-		$randomSentence = $randomFillGap[array_rand($randomFillGap)];
-
-		returnLines(array($randomSentence));
 		$db->insert(
 				'log',
 				array(
@@ -510,24 +496,7 @@ if (sizeof($talkedSoFar)==0) {
 				)
 			);	
 		
-		*/
 	} else {			// Fail request? or maybe an invalid command was issued
-		
-		$randomFillGapWhenError = [
-			"Apologies, my mind wandered off. Could you please repeat that?",
-			"My apologies, I got caught up in my thoughts. Could you say that again?",
-			"Oh, sorry about that. I was lost in thought. Could you repeat what you just said?",
-			"Oops, my mind drifted away. Can you please say it one more time?",
-			"Pardon me, I was lost in contemplation. Could you kindly repeat your statement?",
-			"I'm sorry, I got a bit distracted. Could you go over that once more?",
-			"My apologies for spacing out. Can you repeat what you said, please?",
-			"I got a little lost in my own world. Could you say that again, please?",
-			"Sorry, I was deep in thought. Could you give me a quick recap?",
-			"Apologies for being inattentive. Can you please repeat what you just mentioned?"
-		];
-
-		// Accessing a random sentence from the array
-		$randomSentence = $randomFillGapWhenError[array_rand($randomFillGapWhenError)];
 		
 		//returnLines(array($randomSentence));
 		$db->insert(

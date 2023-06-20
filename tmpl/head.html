@@ -8,5 +8,19 @@
   <title>#TITLE#</title>
 </head>
 
+<style>
+pre.foldable {
+  display:none
+}
+</style>
+<script>
+
+function togglePre(element) {
+  if (element.parentElement.lastChild.className=='')
+    element.parentElement.lastChild.className='foldable'
+  else
+    element.parentElement.lastChild.className=''
+}
+</script>
 <body>
 
