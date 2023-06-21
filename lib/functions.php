@@ -89,7 +89,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "CheckInventory",
-        "description" => "Search in Herika\'s inventory.",
+        "description" => "Search in Herika\'s inventory, backpack or pocket",
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -141,6 +141,20 @@ $FUNCTIONS = [
                 ]
             ],
             "required" =>["target"]
+        ]
+    ], 
+    [
+        "name" => "TakeASeat",
+        "description" => "Herika seats in nearby chair or furniture ",
+        "parameters" => [
+            "type" => "object",
+            "properties" => [
+                "target" => [
+                    "type" => "string",
+                    "description" => "Keep it blank",
+                ]
+            ],
+            "required" =>[""]
         ]
     ]
     /*[
