@@ -19,7 +19,7 @@ $FUNCTIONS = [
     ],
      [
         "name" => "InspectSurroundings",
-        "description" => "Looks for new locations or targets nearby",
+        "description" => "Looks for beings nearby",
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -33,13 +33,13 @@ $FUNCTIONS = [
     ],
     [
         "name" => "MoveTo",
-        "description" => "Moves to a visible location or visible target, also used to guide Plugineer to a target o location.",
+        "description" => "Moves to a visible building or visible target, also used to guide {$GLOBALS["PLAYER_NAME"]} to a target o building.",
         "parameters" => [
             "type" => "object",
             "properties" => [
                 "target" => [
                     "type" => "string",
-                    "description" => "Visible Target NPC, Actor, or being, or location.",
+                    "description" => "Visible Target NPC, Actor, or being, or building.",
                 ]
             ],
             "required" => ["target"],
@@ -47,7 +47,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "OpenInventory",
-        "description" => "Initiates trading or exchange items with Plugineer",
+        "description" => "Initiates trading or exchange items with {$GLOBALS["PLAYER_NAME"]}",
          "parameters" => [
             "type" => "object",
             "properties" => [
@@ -131,7 +131,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "TravelTo",
-        "description" => "Start travelling to Town or City",
+        "description" => "Start travelling to Town or City,  also used to guide {$GLOBALS["PLAYER_NAME"]} to a Town o City. ",
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -140,7 +140,7 @@ $FUNCTIONS = [
                     "description" => "Town or City to travel to",
                 ]
             ],
-            "required" =>[]
+            "required" =>["target"]
         ]
     ]
     /*[

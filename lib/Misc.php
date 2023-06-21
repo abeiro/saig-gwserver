@@ -127,7 +127,174 @@ function print_array_as_table($data)
 
 
 
+function parseResponseV2($responseText, $forceMood = "",$topicQueue) {
 
+	global $db,$startTime;
+	
+
+	/* Split into sentences for better timing in-game */
+	$sentences = preg_split('/(?<=[.!?])\s+/', $responseText, -1, PREG_SPLIT_NO_EMPTY);
+
+	$splitSentences = [];
+	$currentSentence = '';
+
+	foreach ($sentences as $sentence) {
+		$currentSentence .= ' ' . $sentence;
+		if (strlen($currentSentence) > 120) {
+			$splitSentences[] = trim($currentSentence);
+			$currentSentence = '';
+		} elseif (strlen($currentSentence) >= 60 && strlen($currentSentence) <= 120) {
+			$splitSentences[] = trim($currentSentence);
+			$currentSentence = '';
+		}
+	}
+
+	if (!empty($currentSentence)) {
+		$splitSentences[] = trim($currentSentence);
+	}
+
+	
+	
+	/*****************************/
+	
+	
+	foreach ($splitSentences as $n=>$sentence) {
+		preg_match_all('/\((.*?)\)/', $sentence, $matches);
+		
+		$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $sentence);
+		
+		if ($forceMood) {
+			$mood = $forceMood;
+		} else
+			$mood = $matches[1][0];
+
+		$responseText=$responseTextUnmooded;
+
+		if ($n==0) {	// TTS stuff for first sentence
+			if ($GLOBALS["TTSFUNCTION"] == "azure") {
+				if ($GLOBALS["AZURE_API_KEY"]) {
+					require_once("tts/tts-azure.php");
+					tts($responseTextUnmooded, $mood, $responseText);
+				}
+			}
+
+			if ($GLOBALS["TTSFUNCTION"] == "mimic3") {
+				if ($GLOBALS["MIMIC3"]) {
+					require_once("tts/tts-mimic3.php");
+					ttsMimic($responseTextUnmooded, $mood, $responseText);
+				}
+			}
+			
+			if ($GLOBALS["TTSFUNCTION"] == "11labs") {
+				if ($GLOBALS["ELEVENLABS_API_KEY"]) {
+					require_once("tts/tts-11labs.php");
+					tts($responseTextUnmooded, $mood, $responseText);
+				}
+			}
+		}
+	
+		if ($sentence) {
+			if (!$errorFlag) {
+				$db->insert(
+					'responselog',
+					array(
+						'localts' => time(),
+						'sent' => 0,
+						'text' => trim(preg_replace('/\s\s+/', ' ', SQLite3::escapeString($responseTextUnmooded))),
+						'actor' => "Player",
+						'action' => $topicQueue,
+						'tag'=>$tag
+					)
+				);
+				$outBuffer[]=array(
+						'localts' => time(),
+						'sent' => 0,
+						'text' => trim(preg_replace('/\s\s+/', ' ', $responseTextUnmooded)),
+						'actor' => "Player",
+						'action' => $topicQueue,
+						'tag'=>$tag
+					);
+			}
+			$db->insert(
+				'log',
+				array(
+					'localts' => time(),
+					'prompt' => nl2br(SQLite3::escapeString(print_r($GLOBALS["DEBUG_DATA"],true))),
+					'response' => (SQLite3::escapeString(print_r($rawResponse,true).$responseTextUnmooded)),
+					'url' => nl2br(SQLite3::escapeString(print_r( base64_decode(stripslashes($_POST["preprompt"])),true)." in ".(time()-$startTime)." secs " ))
+					
+				
+				)
+			);
+
+		} else {
+			$db->insert(
+				'log',
+				array(
+					'localts' => time(),
+					'prompt' => nl2br(SQLite3::escapeString(print_r($parms,true))),
+					'response' => (SQLite3::escapeString(print_r($rawResponse,true))),
+					'url' => nl2br(SQLite3::escapeString(print_r( base64_decode(stripslashes($_GET["DATA"])),true)." in ".(time()-$startTime)." secs with ERROR STATE" ))
+					
+				
+				)
+			);
+
+		}
+	}
+    
+	$responseDataMl = $outBuffer;
+	//foreach ($responseDataMl as $responseData)
+		//echo "{$responseData["actor"]}|{$responseData["action"]}|{$responseData["text"]}\r\n";
+
+	//echo 'X-CUSTOM-CLOSE';
+	ob_end_flush();
+	ob_flush();
+	flush();	
+	//header('Content-Encoding: none');
+	//header('Content-Length: ' . ob_get_length());
+	//header('Connection: close');
+
+	foreach ($splitSentences as $n=>$sentence) {
+		
+		preg_match_all('/\((.*?)\)/', $sentence, $matches);
+		$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $sentence);
+		
+		if ($forceMood) {
+			$mood = $forceMood;
+		} else
+			$mood = $matches[1][0];
+
+		$responseText=$responseTextUnmooded;
+		
+		if ($n==0) 		//First sentence was genetared
+			continue;
+
+		if ($GLOBALS["TTSFUNCTION"] == "azure") {
+			if ($GLOBALS["AZURE_API_KEY"]) {
+				require_once("tts/tts-azure.php");
+				tts($responseTextUnmooded, $mood, $responseText);
+			}
+		}
+
+		if ($GLOBALS["TTSFUNCTION"] == "mimic3") {
+			if ($GLOBALS["MIMIC3"]) {
+				require_once("tts/tts-mimic3.php");
+				ttsMimic($responseTextUnmooded, $mood, $responseText);
+			}
+		}
+	
+		
+		if ($GLOBALS["TTSFUNCTION"] == "11labs") {
+			if ($GLOBALS["ELEVENLABS_API_KEY"]) {
+				require_once("tts/tts-11labs.php");
+				tts($responseTextUnmooded, $mood, $responseText);
+			}
+		}
+			
+	}
+	
+}
 
 
 ?>

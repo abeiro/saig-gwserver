@@ -198,13 +198,18 @@ Rule 4. DO NOT impersonate 'The Narrator'
 
 require_once(__DIR__.DIRECTORY_SEPARATOR."lib".DIRECTORY_SEPARATOR."functions.php");
 
-
-$PROMPTS["inputtext"]=[
-			"(put mood in parenthesys,valid moods:" . 
-			implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . 
-			", you can optionally call functions, complete herika's sentence) Herika: " // Prompt is implicit
-
+if (sizeof($GLOBALS["AZURETTS_CONF"]["validMoods"])>0) {
+	$PROMPTS["inputtext"]=[
+				"(put mood in parenthesys,valid moods:" . 
+				implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . 
+				", you can optionally call functions, complete herika's sentence) Herika: " // Prompt is implicit
+	];
+} else {
+		$PROMPTS["inputtext"]=[
+			"you can optionally call functions, complete herika's sentence) Herika: " // Prompt
 		];
+}
+	
 $PROMPTS["inputtext_s"]=[
 			"(you can optionally call functions, complete herika's sentence) Herika: " // Prompt is implicit
 

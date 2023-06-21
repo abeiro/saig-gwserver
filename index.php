@@ -55,7 +55,9 @@ if ($_GET["reinstall"]) {
 if ($_POST["prompt"]) {
     require_once("chat/generic.php");
     $GLOBALS["DEBUG_MODE"]=true;
-    requestGeneric($_POST["prompt"],$_POST["preprompt"], $_POST["queue"],10);
+    //$responseText=requestGeneric($_POST["prompt"],$_POST["preprompt"], $_POST["queue"],10);
+   	$res=parseResponseV2($_POST["preprompt"],"",$_POST["queue"]);
+    
     header("Location: index.php?table=response");
 }
 
@@ -119,12 +121,13 @@ function toggleDP() {document.getElementsByClassName('debugpane')[0].style.displ
 <div style='border:1px solid grey' class='debugpane'>
 <form action='index.php' method='post'>
     <input type='text' name='prompt' value='(Chat as Herika)'>
-    <input type='text' size='128' name='preprompt' value='{$GLOBALS["PLAYER_NAME"]}: What...?'>
+    <input type='text' size='128' name='preprompt' value='What...?'>
     <select name='queue'>
         <option value='AASPGDialogueHerika1WhatTopic'>What do you think about?</option>
         <option value='AASPGDialogueHerika2Branch1Topic'>What we should do?</option>
         <option value='AASPGDialogueHerika3Branch1Topic'>What do you know about this place?</option>
         <option value='AASPGQuestDialogue2Topic1B1Topic'>Tell me something (priority)</option>
+        <option value='Simchat' selected='true'>Simulate input text</option>
     </select>
     <input type='submit' value='Request Chat'>
 </form>

@@ -76,9 +76,10 @@ class sql
   function lastDataFor($actor, $lastNelements = -10)
   {
     $lastDialogFull = array();
-    $results = self::$link->query("select  case when type like 'info%' or type like 'funcret%' then 'The Narrator:' else '' end||a.data  as data FROM  eventlog a WHERE data like '%$actor%' 
+    $results = self::$link->query("select  case when type like 'info%' or type like 'funcret%' or type like 'location%' or data like '%background chat%' then 'The Narrator:' else '' end||a.data  as data FROM  eventlog a WHERE data like '%$actor%' 
     and type<>'combatend'  and type<>'book'  
-    and type<>'bored' and type<>'init' and type<>'lockpicked' and type<>'infonpc' and type<>'infoloc' and type<>'info' and type<>'funcret' and type<>'funccall'  order by gamets desc,ts desc LIMIT 0,50"); 
+    and type<>'bored' and type<>'init' and type<>'lockpicked' and type<>'infonpc' and type<>'infoloc' and type<>'info' and type<>'funcret' 
+    and type<>'funccall'  order by gamets desc,ts desc LIMIT 0,50"); 
     $lastData="";
     while ($row = $results->fetchArray()) {
       if ($lastData!=md5($row["data"])) {
