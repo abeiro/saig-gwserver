@@ -33,7 +33,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "MoveTo",
-        "description" => "Moves to a visible building or visible target, also used to guide {$GLOBALS["PLAYER_NAME"]} to a target o building.",
+        "description" => "Walk to a visible building or visible actor, also used to guide {$GLOBALS["PLAYER_NAME"]} to a actor or building.",
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -135,7 +135,7 @@ $FUNCTIONS = [
         "parameters" => [
             "type" => "object",
             "properties" => [
-                "target" => [
+                "location" => [
                     "type" => "string",
                     "description" => "Town or City to travel to",
                 ]

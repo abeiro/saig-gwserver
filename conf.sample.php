@@ -19,6 +19,9 @@ $PLAYER_NAME="Prisoner";
 $HERIKA_PERS="You are Herika, a Breton female who likes jokes and sarcastic comments.";
 $PROMPT_HEAD="Let\'s roleplay in the Universe of Skyrim. I\'m {$GLOBALS["PLAYER_NAME"]}. You dont describe things or actions, just chat as your character";
 
+// Size of context data to send. More context, more tokens, and not so fish-memory
+$CONTEXT_HISTORY="25";
+
 // Azure TTS Configuration
 // More Azure TTS presets can be found in the Article section for the mod page
 // This configuration will make Herika sound like how she does in the Dwemer Dynamics videos
