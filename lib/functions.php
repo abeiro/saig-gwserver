@@ -140,7 +140,7 @@ $FUNCTIONS = [
                     "description" => "Town or City to travel to",
                 ]
             ],
-            "required" =>["target"]
+            "required" =>["location"]
         ]
     ], 
     [
