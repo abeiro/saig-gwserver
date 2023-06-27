@@ -251,6 +251,12 @@ if ($finalParsedData[0]=="funcret") {							// Overwrite funrect with info from 
 	}
 }
 
+
+if ($finalParsedData[0]=="inputtext") {
+	$finalParsedData[3]="(To Herika) ".$finalParsedData[3];
+}
+
+	
 /// LOG INTO DB
 $db->insert(
 				'eventlog',
@@ -453,6 +459,7 @@ if ($handle === false) {
 		
 		if (isset($data["error"])) {
 			$GLOBALS["DEBUG_DATA"][]=$data["error"];
+			returnLines(["Be quiet, I'm having a flashback, give me a minute"]);
 			break;
 		}
 		

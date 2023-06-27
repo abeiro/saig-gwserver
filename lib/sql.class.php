@@ -103,8 +103,8 @@ class sql
     
     foreach ($lastDialogFull as $n=>$line) {
      
-      $pattern = '/(\w+), (\d{1,2}:\d{2} (?:AM|PM)), (\d{1,2})(?:st|nd|rd|th) of ([A-Za-z\ ]+), (4E \d+)/';
-      $replacement = 'Day name: $1, Hour: $2, Day Number: $3, Month: $4, Age: $5';
+      $pattern = '/(\w+), (\d{1,2}:\d{2} (?:AM|PM)), (\d{1,2})(?:st|nd|rd|th) of ([A-Za-z\ ]+), 4E (\d+)/';
+      $replacement = 'Day name: $1, Hour: $2, Day Number: $3, Month: $4, 4th Era, Year: $5';
       $result = preg_replace($pattern, $replacement, $line["content"]);
       $lastDialogFull[$n]["content"]=$result;
     }
@@ -162,13 +162,13 @@ class sql
       $lastDialog[$k]["content"] = $message['content'];
     }
 
-    // Date issues
-   foreach ($lastDialog as $n=>$line) {
+    
+    foreach ($lastDialog as $n=>$line) {
      
-      $pattern = '/(\w+), (\d{1,2}:\d{2} (?:AM|PM)), (\d{1,2})(?:st|nd|rd|th) of (\w+), (4E \d+)/';
-      $replacement = 'Day:$1, Hour: $2, Day Number: $3, Month: $4, Age: $5';
+      $pattern = '/(\w+), (\d{1,2}:\d{2} (?:AM|PM)), (\d{1,2})(?:st|nd|rd|th) of ([A-Za-z\ ]+), 4E (\d+)/';
+      $replacement = 'Day name: $1, Hour: $2, Day Number: $3, Month: $4, 4th Era, Year: $5';
       $result = preg_replace($pattern, $replacement, $line["content"]);
-      $lastDialog[$n]["content"]=$result;
+      $lastDialogFull[$n]["content"]=$result;
     }
     
     return $lastDialog;
