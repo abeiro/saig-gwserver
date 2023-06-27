@@ -81,6 +81,8 @@ class sql
     and type<>'bored' and type<>'init' and type<>'lockpicked' and type<>'infonpc' and type<>'infoloc' and type<>'info' and type<>'funcret' 
     and type<>'funccall'  order by gamets desc,ts desc LIMIT 0,50"); 
     $lastData="";
+    
+    
     while ($row = $results->fetchArray()) {
       if ($lastData!=md5($row["data"])) {
         if ((strpos($row["data"],"Herika:")!==false)||((strpos($row["data"],"{$GLOBALS["PLAYER_NAME"]}:")!==false))) {
@@ -101,8 +103,8 @@ class sql
     
     foreach ($lastDialogFull as $n=>$line) {
      
-      $pattern = '/(\w+), (\d{1,2}:\d{2} (?:AM|PM)), (\d{1,2})(?:st|nd|rd|th) of (\w+), (4E \d+)/';
-      $replacement = 'Day:$1, Hour: $2, Day Number: $3, Month: $4, Age: $5';
+      $pattern = '/(\w+), (\d{1,2}:\d{2} (?:AM|PM)), (\d{1,2})(?:st|nd|rd|th) of ([A-Za-z\ ]+), (4E \d+)/';
+      $replacement = 'Day name: $1, Hour: $2, Day Number: $3, Month: $4, Age: $5';
       $result = preg_replace($pattern, $replacement, $line["content"]);
       $lastDialogFull[$n]["content"]=$result;
     }

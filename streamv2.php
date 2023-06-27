@@ -97,7 +97,7 @@ function returnLines($lines) {
 			return;
 		
 		
-		if (strpos($responseText,"The Narrator:")!==false) {
+		if (strpos($responseText,"The Narrator:")!==false) {	// Force not impersonating the narrator.
 			return;
 		}
 		
@@ -219,6 +219,11 @@ $PROMPTS["inputtext_s"]=[
 		];
 
 $PROMPTS["funcret"]=$PROMPTS["inputtext"];
+
+if (!isset($PROMPTS["afterattack"]))
+	$PROMPTS["afterattack"]="(Just write a short intro catchphrase for combat) Herika: ";
+	
+	
 
 if ($finalParsedData[0]=="funcret") {							// Takea out the functions part
 	$request=str_replace("you can optionally call functions,","",$PROMPTS[$finalParsedData[0]][0]);	//*

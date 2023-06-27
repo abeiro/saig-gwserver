@@ -43,6 +43,9 @@ $PROMPTS=array(
     "lockpicked"=>[
         "(Comment about item lockpicked) Herika: ",
         "({$GLOBALS[$PLAYER_NAME]} has unlocked {$finalParsedData[3]})"
+    ],
+     "afterattack"=>[
+        "(Just write a short intro catchphrase for combat) Herika: "
     ]
 
 );
