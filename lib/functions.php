@@ -61,7 +61,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "Attack",
-        "description" => "Engages combat with actor, npc or being.Subject to moral interpretations ",
+        "description" => "Attacks actor, npc or being. but always avoid the deaths of innocent actors.",
         "parameters" => [
             "type" => "object",
             "properties" => [

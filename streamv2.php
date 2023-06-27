@@ -189,7 +189,7 @@ $PROMPT_HEAD=($GLOBALS["PROMPT_HEAD"])?$GLOBALS["PROMPT_HEAD"]:"Let\'s roleplay 
 //COMMAND Follow(NPC name): To Instruct Herika to start following the specified target, dont use if wanna engage. DONT FOLLOW {$GLOBALS["PLAYER_NAME"]}
 
 $COMMAND_PROMPT="
-To ensure a smooth and immersive experience, let's establish a set of roleplay rules:
+The following rules apply to this roleplay game
 Rule 1: Context will be provided by the The Narrator. Please avoid giving any context yourself.
 Rule 2: Speak and respond as your character, remaining in roleplay at all times and do not describe actions
 Rule 3: Don't ask questions to other characters besides {$GLOBALS["PLAYER_NAME"]}, they cannot hear you. 
@@ -203,18 +203,18 @@ require_once(__DIR__.DIRECTORY_SEPARATOR."lib".DIRECTORY_SEPARATOR."functions.ph
 
 if (sizeof($GLOBALS["AZURETTS_CONF"]["validMoods"])>0) {
 	$PROMPTS["inputtext"]=[
-				"(put mood in parenthesys,valid moods:" . 
+				"(put mood in parenthesys,valid moods[" . 
 				implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . 
-				", you can optionally call functions, complete herika's sentence) Herika: " // Prompt is implicit
+				"])(follow rules,you can optionally call functions, complete herika's sentence) Herika: " // Prompt is implicit
 	];
 } else {
 		$PROMPTS["inputtext"]=[
-			"(you can optionally call functions, complete herika's sentence) Herika: " // Prompt
+			"(follow rules,you can optionally call functions, complete herika's sentence) Herika: " // Prompt
 		];
 }
 	
 $PROMPTS["inputtext_s"]=[
-			"(you can optionally call functions, complete herika's sentence) Herika: " // Prompt is implicit
+			"(follow rules,you can optionally call functions, complete herika's sentence) Herika: " // Prompt is implicit
 
 		];
 
@@ -277,6 +277,8 @@ $head[] = array('role' => 'user', 'content' => '('.$PROMPT_HEAD.$GLOBALS["HERIKA
 
 $url = 'https://api.openai.com/v1/chat/completions';
 
+$forceAttackingText=false;
+
 if ($finalParsedData[0]=="funcret") {
 	$prompt[] = array('role' => 'assistant', 'content' => $request);
 	
@@ -294,21 +296,28 @@ if ($finalParsedData[0]=="funcret") {
 		} else if ($returnFunction[1]=="TravelTo") {
 			$argName="location";
 			
+		} else if ($returnFunction[1]=="Attack") {
+			//$useFunctionsAgain=true;
+			$forceAttackingText=true;
+			$argName="target";
+			
 		} else {
 			$argName="target";
 			
 		}
-		$functionCalled[]=array('role' => 'assistant', 'content'=>null,'function_call'=>array("name"=>$returnFunction[1],"arguments"=>"{\"$argName\":\"{$returnFunction[2]}}"));
+		$functionCalled[]=array('role' => 'assistant', 'content'=>null,'function_call'=>array("name"=>$returnFunction[1],"arguments"=>"{\"$argName\":\"{$returnFunction[2]}}\""));
 		
 	}
 	
 	else
 		$functionCalled[]=array('role' => 'assistant', 'content'=>null,'function_call'=>["name"=>$returnFunction[1],"arguments"=>"\"{}\""]);
 	
-	$returnFunctionArray[]=array('role' => 'function', 'name'=>$returnFunction[1],'content' => $returnFunction[3]);
+	$returnFunctionArray[]=array('role' => 'function', 'name'=>$returnFunction[1],'content' =>"{$returnFunction[3]}");
 
-	$returnFunctionArray[]=	 array('role' => 'assistant', 'content' => $request);
-
+	if ($forceAttackingText)
+		$returnFunctionArray[]=	 array('role' => 'assistant', 'content' => "(Just write a short intro catchphrase for combat) Herika: ");
+	else
+		$returnFunctionArray[]=	 array('role' => 'assistant', 'content' => $request);
 
 		
 	$parms = array_merge($head, ($contextDataFull), $functionCalled,$returnFunctionArray);
@@ -322,8 +331,8 @@ if ($finalParsedData[0]=="funcret") {
 		'max_tokens'=>((isset($GLOBALS["OPENAI_MAX_TOKENS"])?$GLOBALS["OPENAI_MAX_TOKENS"]:48)+0),
 		'temperature'=>1,
 		'presence_penalty'=>1
-		//'functions'=>$GLOBALS["FUNCTIONS"],
-		//'function_call'=>'auto'
+		//'functions'=>($useFunctionsAgain)?$GLOBALS["FUNCTIONS"]:array(),
+		//'function_call'=>($useFunctionsAgain)?"auto":"none",
 		//'function_call'=>'none'
 		
 	);
@@ -435,6 +444,11 @@ if ($handle === false) {
 					$parameterBuff .= $data["choices"][0]["delta"]["function_call"]["arguments"] ;
 				
 			}
+		}
+		
+		if (isset($data["error"])) {
+			$GLOBALS["DEBUG_DATA"][]=$data["error"];
+			break;
 		}
 		
 		
