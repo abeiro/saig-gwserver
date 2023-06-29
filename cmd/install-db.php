@@ -38,9 +38,24 @@ CREATE TABLE `log` (
   `prompt` text,
   `response` text,
   `url` text
-
-
 );");
+
+
+$db->exec("
+CREATE TABLE `quests` (
+  `id_quest` bigint NOT NULL,
+  `name` text,
+  `editor_id` text,
+  `giver_actor_id` bigint,
+  `reward` text,
+  `target_id` text,
+  `is_uniqe` bool,
+  `mod` text,
+  `stage` int,
+  `current_target` text
+);");
+
+
 
 @mkdir(__DIR__ .DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR."soundcache");
 
