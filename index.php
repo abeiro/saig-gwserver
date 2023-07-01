@@ -68,7 +68,7 @@ if ($_POST["command"]) {
             'localts' => time(),
             'sent' => 0,
             'text' => $_POST["command"]."@".$_POST["parameter"],
-            'actor' => "Herika",
+            'actor' => "$HERIKA_NAME",
             'action' => 'command'
         )
     );
@@ -82,7 +82,7 @@ if ($_POST["animation"]) {
             'localts' => time(),
             'sent' => 0,
             'text' => trim($_POST["animation"]),
-            'actor' => "Herika",
+            'actor' => "$HERIKA_NAME",
             'action' => 'animation'
         )
     );
@@ -120,7 +120,7 @@ function toggleDP() {document.getElementsByClassName('debugpane')[0].style.displ
 
 <div style='border:1px solid grey' class='debugpane'>
 <form action='index.php' method='post'>
-    <input type='text' name='prompt' value='(Chat as Herika)'>
+    <input type='text' name='prompt' value='(Chat as $HERIKA_NAME)'>
     <input type='text' size='128' name='preprompt' value='What...?'>
     <select name='queue'>
         <option value='AASPGDialogueHerika1WhatTopic'>What do you think about?</option>

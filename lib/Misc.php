@@ -51,7 +51,7 @@ function cleanReponse($rawResponse)
     } else
         $toSplit=$rawResponse;
     
-    if (strpos($toSplit, "Herika:") !== false) {
+    if (strpos($toSplit, "$HERIKA_NAME:") !== false) {
         $rawResponseSplited = explode(":", $toSplit);
         $toSplit=$rawResponseSplited[1];
     }
@@ -113,7 +113,7 @@ function print_array_as_table($data)
                 echo "<td  style='color:blue;background-color:{$colors[$colorIndex]}'>" . $cell . "</td>";
             else if (strpos($cell, 'obtains a quest') !== false)
                 echo "<td  style='font-weight:bold;background-color:{$colors[$colorIndex]}'>" . $cell . "</td>";
-            else if (strpos($cell, 'Herika:') !== false)
+            else if (strpos($cell, '$HERIKA_NAME:') !== false)
                 echo "<td  style='color:green;background-color:{$colors[$colorIndex]}'>" . $cell . "</td>";
             else    
                 echo "<td  style='background-color:{$colors[$colorIndex]}'>" . $cell . "</td>";

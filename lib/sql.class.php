@@ -85,7 +85,7 @@ class sql
     
     while ($row = $results->fetchArray()) {
       if ($lastData!=md5($row["data"])) {
-        if ((strpos($row["data"],"Herika:")!==false)||((strpos($row["data"],"{$GLOBALS["PLAYER_NAME"]}:")!==false))) {
+        if ((strpos($row["data"],"{$GLOBALS["HERIKA_NAME"]}:")!==false)||((strpos($row["data"],"{$GLOBALS["PLAYER_NAME"]}:")!==false))) {
           $pattern = "/\([^)]*Context location[^)]*\)/";    // Remove (Context location.. from Herikas lines.
           $replacement = "";
           $row["data"] = preg_replace($pattern, $replacement, $row["data"]);
