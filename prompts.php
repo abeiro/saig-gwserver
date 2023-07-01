@@ -23,8 +23,19 @@ $PROMPTS=array(
     ],
 
     "bored"=>[
+        "",
         "(Herika make a casual comment about her background story or a joke about current location) Herika: ... ",
-        ""
+        "(Herika make a casual comment about the current weather) Herika: ... ",
+        "(Herika make a casual comment about the time and date) Herika: ... ",
+        "(Herika make a casual comment about the last event) Herika: ... ",
+        "(Herika make a casual comment about a Skyrim Meme) Herika: ... ",
+        "(Herika make a casual comment about any of the Gods in Skyrim) Herika: ... ",
+        "(Herika make a casual comment about the politics of Skyrim) Herika: ... ",
+        "(Herika make a casual comment about a historical event from the Elder Scrolls Universe) Herika: ... ",
+        "(Herika make a casual comment about a book from the Elder Scrolls Universe) Herika: ... ",
+        "(Herika make a casual comment starting with: I once had to) Herika: ... ",
+        "(Herika make a casual comment starting with: Did you hear about what happened in) Herika: ... ",
+        "(Herika make a casual comment starting with: A wise Akaviri man once told me) Herika: ... "
     ],
 
     "goodmorning"=>[

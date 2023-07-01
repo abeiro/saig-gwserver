@@ -310,7 +310,7 @@ if ($finalParsedData[0] == "combatend") {
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
 	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
-	$responseText = requestGeneric($PROMPTS["bored"][0], $PROMPTS["bored"][1], 'AASPGQuestDialogue2Topic1B1Topic', 10);
+	$responseText = requestGeneric($PROMPTS["bored"][rand(1, 12)], $PROMPTS["bored"][0], 'AASPGQuestDialogue2Topic1B1Topic', 10);
 	parseResponse($responseText);
 
 
