@@ -184,7 +184,7 @@ class sql
       $results = self::$link->query("SElECT  distinct name,id_quest FROM quests where coalesce(status,'pending')<>'completed' and stage<200");
       if (!$results)
         return "no result";
-      while ($row = $results->fetchArray()) {
+      while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
         $data[] = $row;
       }
       return json_encode($data);
