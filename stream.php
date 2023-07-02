@@ -97,7 +97,7 @@ function returnLines($lines) {
 						'localts' => time(),
 						'sent' => 1,
 						'text' => trim(preg_replace('/\s\s+/', ' ', $responseTextUnmooded)),
-						'actor' => "Herika",
+						'actor' => "$HERIKA_NAME",
 						'action' => "AASPGQuestDialogue2Topic1B1Topic",
 						'tag'=>(isset($tag)?$tag:"")
 					);

@@ -104,19 +104,20 @@ function parseResponse($responseText, $forceMood = "")
 						'localts' => time(),
 						'sent' => 1,
 						'text' => trim(preg_replace('/\s\s+/', ' ', SQLite3::escapeString($responseTextUnmooded))),
-						'actor' => "Herika",
+						'actor' => "{$GLOBALS["HERIKA_NAME"]}",
 						'action' => "AASPGQuestDialogue2Topic1B1Topic",
 						'tag' => $tag
 					)
 				);
-				$outBuffer[] = array(
-					'localts' => time(),
-					'sent' => 1,
-					'text' => trim(preg_replace('/\s\s+/', ' ', $responseTextUnmooded)),
-					'actor' => "Herika",
-					'action' => "AASPGQuestDialogue2Topic1B1Topic",
-					'tag' => $tag
-				);
+
+				$outBuffer[]=array(
+						'localts' => time(),
+						'sent' => 1,
+						'text' => trim(preg_replace('/\s\s+/', ' ', $responseTextUnmooded)),
+						'actor' => "{$GLOBALS["HERIKA_NAME"]}",
+						'action' => "AASPGQuestDialogue2Topic1B1Topic",
+						'tag'=>$tag
+					);
 			}
 			$db->insert(
 				'log',
@@ -363,7 +364,7 @@ if ($finalParsedData[0] == "combatend") {
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
 	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
-	$responseText = requestGeneric($PROMPTS["bored"][0], $PROMPTS["bored"][1], 'AASPGQuestDialogue2Topic1B1Topic', 10);
+	$responseText = requestGeneric($PROMPTS["bored"][rand(1, 12)], $PROMPTS["bored"][0], 'AASPGQuestDialogue2Topic1B1Topic', 10);
 	parseResponse($responseText);
 
 

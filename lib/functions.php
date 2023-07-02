@@ -89,7 +89,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "CheckInventory",
-        "description" => "Search in Herika\'s inventory, backpack or pocket",
+        "description" => "Search in {$GLOBALS["HERIKA_NAME"]}\'s inventory, backpack or pocket",
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -117,7 +117,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "Relax",
-        "description" => "Makes Herika to stop current action and relax herself",
+        "description" => "Makes{$GLOBALS["HERIKA_NAME"]} to stop current action and relax herself",
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -145,7 +145,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "TakeASeat",
-        "description" => "Herika seats in nearby chair or furniture ",
+        "description" => "{$GLOBALS["HERIKA_NAME"]} seats in nearby chair or furniture ",
         "parameters" => [
             "type" => "object",
             "properties" => [

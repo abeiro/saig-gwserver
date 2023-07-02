@@ -16,6 +16,7 @@ $ELEVENLABS_API_KEY="";         // 11labs API KEY
 // DON'T USE "" (quotation marks) within the HERIKA_PERS variable otherwise it will break the conf.php file!
 $DEBUG_MODE=false;
 $PLAYER_NAME="Prisoner";
+$HERIKA_NAME="Herika";  //Work in progress configuration for changing Herika's character. Just ignore this and leave as is.
 $HERIKA_PERS="You are Herika, a Breton female who likes jokes and sarcastic comments.";
 $PROMPT_HEAD="Let\'s roleplay in the Universe of Skyrim. I\'m {$GLOBALS["PLAYER_NAME"]}. You dont describe things or actions, just chat as your character";
 
