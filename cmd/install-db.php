@@ -40,10 +40,13 @@ CREATE TABLE `log` (
   `url` text
 );");
 
+$db->exec("DROP TABLE `quests`;");
 
 $db->exec("
 CREATE TABLE `quests` (
-  `id_quest` bigint NOT NULL,
+  `ts` text NOT NULL,
+  `sess` varchar(1024) ,
+  `id_quest` varchar(1024) NOT NULL,
   `name` text,
   `editor_id` text,
   `giver_actor_id` bigint,
@@ -52,10 +55,28 @@ CREATE TABLE `quests` (
   `is_uniqe` bool,
   `mod` text,
   `stage` int,
-  `current_target` text
+  `briefing` text,
+  `briefing2` text,
+  `localts` bigint NOT NULL,
+  `gamets` bigint NOT NULL,
+  `data` text,
+  `status` text
 );");
 
+$db->exec("DROP TABLE `speech`;");
 
+$db->exec("
+CREATE TABLE `speech` (
+  `ts` text NOT NULL,
+  `sess` varchar(1024) ,
+  `speaker` text,
+  `speech` text,
+  `location` text,
+  `listener` text,
+  `topic` text,
+  `localts` bigint NOT NULL,
+  `gamets` bigint NOT NULL
+);");
 
 @mkdir(__DIR__ .DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR."soundcache");
 

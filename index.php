@@ -98,6 +98,8 @@ echo "
 <a href='index.php?table=response' class='buttonify' title=''>Responses</a> ::
 <a href='index.php?table=event'  class='buttonify'>Events</a> ::
 <a href='index.php?table=log'  class='buttonify'>Log</a> ::
+<a href='index.php?table=quests'  class='buttonify'>Quest journal</a> ::
+<a href='index.php?table=speech'  class='buttonify'>Speech journal</a> ::
 <a href='index.php?table=event&autorefresh=true'  class='buttonify'>Monitor events</a> ::::
 <a href='index.php?clean=true&table=response'   title='Delete sent responses' class='buttonify' onclick=\"return confirm('Sure?')\">Clean sent</a> ::
 <a href='index.php?sendclean=true&table=response' title='Marks unsent responses from queue What do you think about?'  class='buttonify' onclick=\"return confirm('Sure?')\">Reset sent</a> ::
@@ -180,6 +182,19 @@ if ($_GET["table"] == "log") {
     echo "<p>Debug log</p>";
     print_array_as_table($results);
 }
+
+if ($_GET["table"] == "quests") {
+    $results = $db->fetchAll("select  A.*,ROWID FROM quests A where stage<200  order by id_quest,localts asc,rowid asc");
+    echo "<p>Quest log</p>";
+    print_array_as_table($results);
+}
+
+if ($_GET["table"] == "speech") {
+    $results = $db->fetchAll("select  A.*,ROWID FROM speech A order by localts asc,rowid asc");
+    echo "<p>Speech log</p>";
+    print_array_as_table($results);
+}
+
 
 $buffer=ob_get_contents();
 ob_end_clean();

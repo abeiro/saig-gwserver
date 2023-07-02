@@ -17,7 +17,7 @@ $FUNCTIONS = [
             "required" => ["target"],
         ],
     ],
-     [
+    [
         "name" => "InspectSurroundings",
         "description" => "Looks for beings nearby",
         "parameters" => [
@@ -48,7 +48,7 @@ $FUNCTIONS = [
     [
         "name" => "OpenInventory",
         "description" => "Initiates trading or exchange items with {$GLOBALS["PLAYER_NAME"]}",
-         "parameters" => [
+        "parameters" => [
             "type" => "object",
             "properties" => [
                 "target" => [
@@ -98,10 +98,10 @@ $FUNCTIONS = [
                     "description" => "item to look for, if empty all items will be returned",
                 ]
             ],
-            "required" =>[]
+            "required" => []
         ]
     ],
-     [
+    [
         "name" => "SheatheWeapon",
         "description" => "Sheates current weapon",
         "parameters" => [
@@ -112,10 +112,10 @@ $FUNCTIONS = [
                     "description" => "Keep it blank",
                 ]
             ],
-            "required" =>[]
+            "required" => []
         ]
     ],
-     [
+    [
         "name" => "Relax",
         "description" => "Makes Herika to stop current action and relax herself",
         "parameters" => [
@@ -126,7 +126,7 @@ $FUNCTIONS = [
                     "description" => "Keep it blank",
                 ]
             ],
-            "required" =>[]
+            "required" => []
         ]
     ],
     [
@@ -140,9 +140,9 @@ $FUNCTIONS = [
                     "description" => "Town or City to travel to",
                 ]
             ],
-            "required" =>["location"]
+            "required" => ["location"]
         ]
-    ], 
+    ],
     [
         "name" => "TakeASeat",
         "description" => "Herika seats in nearby chair or furniture ",
@@ -154,7 +154,37 @@ $FUNCTIONS = [
                     "description" => "Keep it blank",
                 ]
             ],
-            "required" =>[""]
+            "required" => [""]
+        ]
+    ],
+    [
+        "name" => "ReadQuestJournal",
+        "description" => "Get info about current quests or missions",
+        "parameters" => [
+            "type" => "object",
+            "properties" => [
+                "id_quest" => [
+                    "type" => "string",
+                    "description" => "Specific quest to get info for, or blank to get all",
+                ]
+            ],
+            "required" => [""]
+        ]
+    ],
+    [
+        "name" => "SetSpeed",
+        "description" => "Herika chnnages walking speed",
+        "parameters" => [
+            "type" => "object",
+            "properties" => [
+                "speed" => [
+                    "type" => "string",
+                    "description" => "Speed",
+                    "enum" =>["run", "fastwalk","jog","walk" ]
+                ]     
+                
+            ],
+            "required" => ["speed"]
         ]
     ]
     /*[

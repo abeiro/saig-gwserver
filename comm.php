@@ -13,7 +13,7 @@ ob_start();
 /* Send reponse */
 // Dequeue message and send +		action	"AASPGDialogueHerika1WhatTopic"	std::string
 
-$startTime=time();
+$startTime = time();
 
 
 // Fake Close conection asap
@@ -29,10 +29,11 @@ $startTime=time();
 // Log here (we can be slower)
 
 
-function parseResponse($responseText, $forceMood = "") {
+function parseResponse($responseText, $forceMood = "")
+{
 
-	global $db,$startTime;
-	
+	global $db, $startTime;
+
 
 	/* Split into sentences for better timing in-game */
 	$sentences = preg_split('/(?<=[.!?])\s+/', $responseText, -1, PREG_SPLIT_NO_EMPTY);
@@ -55,24 +56,24 @@ function parseResponse($responseText, $forceMood = "") {
 		$splitSentences[] = trim($currentSentence);
 	}
 
-	
-	
+
+
 	/*****************************/
-	
-	
-	foreach ($splitSentences as $n=>$sentence) {
+
+
+	foreach ($splitSentences as $n => $sentence) {
 		preg_match_all('/\((.*?)\)/', $sentence, $matches);
-		
+
 		$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $sentence);
-		
+
 		if ($forceMood) {
 			$mood = $forceMood;
 		} else
 			$mood = $matches[1][0];
 
-		$responseText=$responseTextUnmooded;
+		$responseText = $responseTextUnmooded;
 
-		if ($n==0) {	// TTS stuff for first sentence
+		if ($n == 0) { // TTS stuff for first sentence
 			if ($GLOBALS["TTSFUNCTION"] == "azure") {
 				if ($GLOBALS["AZURE_API_KEY"]) {
 					require_once("tts/tts-azure.php");
@@ -86,7 +87,7 @@ function parseResponse($responseText, $forceMood = "") {
 					ttsMimic($responseTextUnmooded, $mood, $responseText);
 				}
 			}
-			
+
 			if ($GLOBALS["TTSFUNCTION"] == "11labs") {
 				if ($GLOBALS["ELEVENLABS_API_KEY"]) {
 					require_once("tts/tts-11labs.php");
@@ -94,7 +95,7 @@ function parseResponse($responseText, $forceMood = "") {
 				}
 			}
 		}
-	
+
 		if ($sentence) {
 			if (!$errorFlag) {
 				$db->insert(
@@ -105,27 +106,27 @@ function parseResponse($responseText, $forceMood = "") {
 						'text' => trim(preg_replace('/\s\s+/', ' ', SQLite3::escapeString($responseTextUnmooded))),
 						'actor' => "Herika",
 						'action' => "AASPGQuestDialogue2Topic1B1Topic",
-						'tag'=>$tag
+						'tag' => $tag
 					)
 				);
-				$outBuffer[]=array(
-						'localts' => time(),
-						'sent' => 1,
-						'text' => trim(preg_replace('/\s\s+/', ' ', $responseTextUnmooded)),
-						'actor' => "Herika",
-						'action' => "AASPGQuestDialogue2Topic1B1Topic",
-						'tag'=>$tag
-					);
+				$outBuffer[] = array(
+					'localts' => time(),
+					'sent' => 1,
+					'text' => trim(preg_replace('/\s\s+/', ' ', $responseTextUnmooded)),
+					'actor' => "Herika",
+					'action' => "AASPGQuestDialogue2Topic1B1Topic",
+					'tag' => $tag
+				);
 			}
 			$db->insert(
 				'log',
 				array(
 					'localts' => time(),
-					'prompt' => nl2br(SQLite3::escapeString(print_r($GLOBALS["DEBUG_DATA"],true))),
-					'response' => (SQLite3::escapeString(print_r($rawResponse,true).$responseTextUnmooded)),
-					'url' => nl2br(SQLite3::escapeString(print_r( base64_decode(stripslashes($_GET["DATA"])),true)." in ".(time()-$startTime)." secs " ))
-					
-				
+					'prompt' => nl2br(SQLite3::escapeString(print_r($GLOBALS["DEBUG_DATA"], true))),
+					'response' => (SQLite3::escapeString(print_r($rawResponse, true) . $responseTextUnmooded)),
+					'url' => nl2br(SQLite3::escapeString(print_r(base64_decode(stripslashes($_GET["DATA"])), true) . " in " . (time() - $startTime) . " secs "))
+
+
 				)
 			);
 
@@ -134,17 +135,17 @@ function parseResponse($responseText, $forceMood = "") {
 				'log',
 				array(
 					'localts' => time(),
-					'prompt' => nl2br(SQLite3::escapeString(print_r($parms,true))),
-					'response' => (SQLite3::escapeString(print_r($rawResponse,true))),
-					'url' => nl2br(SQLite3::escapeString(print_r( base64_decode(stripslashes($_GET["DATA"])),true)." in ".(time()-$startTime)." secs with ERROR STATE" ))
-					
-				
+					'prompt' => nl2br(SQLite3::escapeString(print_r($parms, true))),
+					'response' => (SQLite3::escapeString(print_r($rawResponse, true))),
+					'url' => nl2br(SQLite3::escapeString(print_r(base64_decode(stripslashes($_GET["DATA"])), true) . " in " . (time() - $startTime) . " secs with ERROR STATE"))
+
+
 				)
 			);
 
 		}
 	}
-    
+
 	$responseDataMl = $outBuffer;
 	foreach ($responseDataMl as $responseData)
 		echo "{$responseData["actor"]}|{$responseData["action"]}|{$responseData["text"]}\r\n";
@@ -152,24 +153,23 @@ function parseResponse($responseText, $forceMood = "") {
 	echo 'X-CUSTOM-CLOSE';
 	ob_end_flush();
 	ob_flush();
-	flush();	
-	//header('Content-Encoding: none');
+	flush(); //header('Content-Encoding: none');
 	//header('Content-Length: ' . ob_get_length());
 	//header('Connection: close');
 
-	foreach ($splitSentences as $n=>$sentence) {
-		
+	foreach ($splitSentences as $n => $sentence) {
+
 		preg_match_all('/\((.*?)\)/', $sentence, $matches);
 		$responseTextUnmooded = preg_replace('/\((.*?)\)/', '', $sentence);
-		
+
 		if ($forceMood) {
 			$mood = $forceMood;
 		} else
 			$mood = $matches[1][0];
 
-		$responseText=$responseTextUnmooded;
-		
-		if ($n==0) 		//First sentence was genetared
+		$responseText = $responseTextUnmooded;
+
+		if ($n == 0) //First sentence was genetared
 			continue;
 
 		if ($GLOBALS["TTSFUNCTION"] == "azure") {
@@ -185,23 +185,24 @@ function parseResponse($responseText, $forceMood = "") {
 				ttsMimic($responseTextUnmooded, $mood, $responseText);
 			}
 		}
-	
-		
+
+
 		if ($GLOBALS["TTSFUNCTION"] == "11labs") {
 			if ($GLOBALS["ELEVENLABS_API_KEY"]) {
 				require_once("tts/tts-11labs.php");
 				tts($responseTextUnmooded, $mood, $responseText);
 			}
 		}
-			
+
 	}
-	
+
 }
 
 
 
 try {
-	$finalData = base64_decode(stripslashes($_GET["DATA"]));
+	$finalData = base64_decode(strtr($_GET["DATA"], array(" " => "+")));
+	//$finalData = base64_decode($_GET["DATA"]);
 	$finalParsedData = explode("|", $finalData);
 	foreach ($finalParsedData as $i => $ele)
 		$finalParsedData[$i] = trim(preg_replace('/\s\s+/', ' ', preg_replace('/\'/m', "''", $ele)));
@@ -209,6 +210,7 @@ try {
 
 	if ($finalParsedData[0] == "init") { // Reset reponses if init sent (Think about this)
 		$db->delete("eventlog", "gamets>{$finalParsedData[2]}  ");
+		$db->delete("quests", "gamets>{$finalParsedData[2]}  ");
 		//die(print_r($finalParsedData,true));
 		$db->update("responselog", "sent=0", "sent=1 and (action='AASPGDialogueHerika2Branch1Topic')");
 		$db->insert(
@@ -227,10 +229,60 @@ try {
 		$responseDataMl = $db->dequeue();
 		foreach ($responseDataMl as $responseData)
 			echo "{$responseData["actor"]}|{$responseData["action"]}|{$responseData["text"]}\r\n";
-		
 
+
+	// NEW METHODS FROM HERE	
+	} else if ($finalParsedData[0] == "_quest") {
+		error_reporting(E_ALL);
+
+		$questParsedData = json_decode($finalParsedData[3], true);
+		//print_r($questParsedData);
+		if (!empty($questParsedData["currentbrief"])) {
+			$db->insert(
+				'quests',
+				array(
+					'ts' => $finalParsedData[1],
+					'gamets' => $finalParsedData[2],
+					'name' => $questParsedData["name"],
+					'briefing' => $questParsedData["currentbrief"],
+					'briefing2' => $questParsedData["currentbrief2"],
+					'stage' => $questParsedData["stage"],
+					'giver_actor_id' => $questParsedData["data"]["questgiver"],
+					'id_quest' => $questParsedData["formId"],
+					'data' => json_encode($questParsedData["data"]),
+					'sess' => 'pending',
+					'status' => $questParsedData["status"],
+					'localts' => time()
+				)
+			);
+
+			if ($questParsedData["status"] == "completed") {
+				$db->update("quests", "status='completed'", "id_quest='{$questParsedData["formId"]}'");
+			}
+		}
+
+
+
+	} else if ($finalParsedData[0] == "_speech") {
+		error_reporting(E_ALL);
+		$speech = json_decode($finalParsedData[3], true);
+		//print_r($questParsedData);
 		
-	} else // It's an event. Store it
+			$db->insert(
+				'speech',
+				array(
+					'ts' => $finalParsedData[1],
+					'gamets' => $finalParsedData[2],
+					'listener' => $speech["listener"],
+					'speaker' => $speech["speaker"],
+					'speech' => $speech["speech"],
+					'location' => $speech["location"],
+					'sess' => 'pending',
+					'localts' => time()
+				)
+			);
+
+	} else { // It's an event. Store it
 		$db->insert(
 			'eventlog',
 			array(
@@ -242,6 +294,7 @@ try {
 				'localts' => time()
 			)
 		);
+	}
 
 } catch (Exception $e) {
 	syslog(LOG_WARNING, $e->getMessage());
@@ -286,24 +339,24 @@ if ($finalParsedData[0] == "combatend") {
 
 } else if ($finalParsedData[0] == "quest") {
 	/* Disabled
-	require_once("chat/generic.php");
+	   require_once("chat/generic.php");
 
-	preg_match('/"(.*?)"/', $finalParsedData[3], $matches);
+	   preg_match('/"(.*?)"/', $finalParsedData[3], $matches);
 
-	$questName = $matches[1];
+	   $questName = $matches[1];
 
-	$GLOBALS["DEBUG_MODE"] = false;
-	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
-	requestGeneric($PROMPTS["quest"][0], $PROMPTS["quest"][1], 'AASPGDialogueHerika2Branch1Topic', 5);
-	*/
+	   $GLOBALS["DEBUG_MODE"] = false;
+	   require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
+	   requestGeneric($PROMPTS["quest"][0], $PROMPTS["quest"][1], 'AASPGDialogueHerika2Branch1Topic', 5);
+	   */
 
 } else if ($finalParsedData[0] == "bleedout") {
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
 	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
-	
+
 	$responseText = requestGeneric($PROMPTS["bleedout"][0], $PROMPTS["bleedout"][1], 'AASPGQuestDialogue2Topic1B1Topic', 10);
-	
+
 	parseResponse($responseText);
 
 } else if ($finalParsedData[0] == "bored") {
@@ -319,9 +372,9 @@ if ($finalParsedData[0] == "combatend") {
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
 	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
-	$responseText=requestGeneric($PROMPTS["goodmorning"][0], $PROMPTS["goodmorning"][1], 'AASPGQuestDialogue2Topic1B1Topic', 5);
+	$responseText = requestGeneric($PROMPTS["goodmorning"][0], $PROMPTS["goodmorning"][1], 'AASPGQuestDialogue2Topic1B1Topic', 5);
 	parseResponse($responseText);
-	
+
 } else if ($finalParsedData[0] == "inputtext") { // Highest priority, must return qeuee data
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
@@ -349,7 +402,7 @@ if ($finalParsedData[0] == "combatend") {
 
 	$GLOBALS["DEBUG_MODE"] = false;
 	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
-	$responseText=requestGeneric($PROMPTS["lockpicked"][0], $PROMPTS["lockpicked"][1], 'AASPGQuestDialogue2Topic1B1Topic', 5);
+	$responseText = requestGeneric($PROMPTS["lockpicked"][0], $PROMPTS["lockpicked"][1], 'AASPGQuestDialogue2Topic1B1Topic', 5);
 	parseResponse($responseText, "whispering");
 }
 

@@ -248,6 +248,9 @@ if ($finalParsedData[0]=="funcret") {							// Overwrite funrect with info from 
 	if ($returnFunction[1]=="GetTopicInfo") {
 		
 		
+	} else if ($returnFunction[1]=="ReadQuestJournal") {
+		$returnFunction[3]=$db->questJournal($returnFunction[2]);								// Overwrite funrect content with info from database
+		$finalParsedData[3].=$returnFunction[3];
 	}
 }
 
@@ -295,7 +298,7 @@ if ($finalParsedData[0]=="funcret") {
 	
 	$returnFunction = explode("@",$finalParsedData[3]);				// Function returns here
 
-	
+	$useFunctionsAgain=false;
 	if (isset($returnFunction[2])) {
 		if ($returnFunction[1]=="GetTopicInfo") {
 			$argName="topic";
@@ -307,16 +310,24 @@ if ($finalParsedData[0]=="funcret") {
 		} else if ($returnFunction[1]=="TravelTo") {
 			$argName="location";
 			
+		} else if ($returnFunction[1]=="MoveTo") {
+			if (strpos($finalParsedData[3],"TravelTo")!==false)
+				$useFunctionsAgain=true;
+			
 		} else if ($returnFunction[1]=="Attack") {
 			//$useFunctionsAgain=true;
 			$forceAttackingText=true;
 			$argName="target";
 			
+		} else if ($returnFunction[1]=="ReadQuestJournal") {
+			//$useFunctionsAgain=true;
+			$argName="id_quest";
+			
 		} else {
 			$argName="target";
 			
 		}
-		$functionCalled[]=array('role' => 'assistant', 'content'=>null,'function_call'=>array("name"=>$returnFunction[1],"arguments"=>"{\"$argName\":\"{$returnFunction[2]}}\""));
+		$functionCalled[]=array('role' => 'assistant', 'content'=>null,'function_call'=>array("name"=>$returnFunction[1],"arguments"=>"{\"$argName\":\"{$returnFunction[2]}\"}"));
 		
 	}
 	
@@ -341,12 +352,13 @@ if ($finalParsedData[0]=="funcret") {
 		'stream' => true,
 		'max_tokens'=>((isset($GLOBALS["OPENAI_MAX_TOKENS"])?$GLOBALS["OPENAI_MAX_TOKENS"]:48)+0),
 		'temperature'=>1,
-		'presence_penalty'=>1
-		//'functions'=>($useFunctionsAgain)?$GLOBALS["FUNCTIONS"]:array(),
-		//'function_call'=>($useFunctionsAgain)?"auto":"none",
-		//'function_call'=>'none'
-		
+		'presence_penalty'=>1,
 	);
+
+	if ($useFunctionsAgain) {
+		$data['functions']=$GLOBALS["FUNCTIONS"];
+		$data['function_call']="auto";
+	}
 	
 } else {
 	//$parms = array_merge($head, ($contextDataFull), $foot, $prompt);
