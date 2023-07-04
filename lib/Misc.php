@@ -51,7 +51,7 @@ function cleanReponse($rawResponse)
     } else
         $toSplit=$rawResponse;
     
-    if (strpos($toSplit, "$HERIKA_NAME:") !== false) {
+    if (strpos($toSplit, "{$GLOBALS["HERIKA_NAME"]}:") !== false) {
         $rawResponseSplited = explode(":", $toSplit);
         $toSplit=$rawResponseSplited[1];
     }

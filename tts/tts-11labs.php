@@ -17,6 +17,12 @@ function tts($textString, $mood = "default", $stringforhash) {
 			"xi-api-key: $apiKey",
 			'Content-Type: application/json'
 		);
+		
+		// 11labs does not have sggml styles, but support some kinf of prompting
+		/*if ($mood!="default") {
+			$textString="\"$textString\" she said $mood";
+		}*/
+			
 		// Request data
 		$data = array(
 			'text' => $textString,

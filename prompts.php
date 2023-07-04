@@ -57,7 +57,11 @@ $PROMPTS=array(
     ],
      "afterattack"=>[
         "(Just write a short intro catchphrase for combat) $HERIKA_NAME: "
-    ]
+    ],
+    // Like inputtext, but without the functions calls part. It's likely to be used in papyrus scripts
+    "chatnf"=>[ 
+        "(put mood in parenthesys,valid moods:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ") $HERIKA_NAME:" // Prompt is implicit
+    ],
 
 );
 

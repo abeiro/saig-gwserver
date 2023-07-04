@@ -76,7 +76,7 @@ class sql
   function lastDataFor($actor, $lastNelements = -10)
   {
     $lastDialogFull = array();
-    $results = self::$link->query("select  case when type like 'info%' or type like 'funcret%' or type like 'location%' or data like '%background chat%' then 'The Narrator:' else '' end||a.data  as data FROM  eventlog a WHERE data like '%$actor%' 
+    $results = self::$link->query("select  case when type like 'info%' or type like 'death%' or  type like 'funcret%' or type like 'location%' or data like '%background chat%' then 'The Narrator:' else '' end||a.data  as data FROM  eventlog a WHERE data like '%$actor%' 
     and type<>'combatend'  and type<>'book'  
     and type<>'bored' and type<>'init' and type<>'lockpicked' and type<>'infonpc' and type<>'infoloc' and type<>'info' and type<>'funcret' 
     and type<>'funccall'  order by gamets desc,ts desc LIMIT 0,50");
@@ -181,7 +181,7 @@ class sql
 
     if (empty($quest)) {
       $lastDialogFull = array();
-      $results = self::$link->query("SElECT  distinct name,id_quest FROM quests where coalesce(status,'pending')<>'completed' and stage<200");
+      $results = self::$link->query("SElECT  distinct name,id_quest,briefing,giver_actor_id  FROM quests where coalesce(status,'pending')<>'completed' and stage<200");
       if (!$results)
         return "no result";
       while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
@@ -191,7 +191,7 @@ class sql
 
     } else {
       $lastDialogFull = array();
-      $results = self::$link->query("SElECT  name,id_quest,briefing as stage_briefing,stage,'yes' as stage_completed,coalesce(status,'pending') as quest_status 
+      $results = self::$link->query("SElECT  name,id_quest,briefing as stage_briefing,stage,'yes' as stage_completed,coalesce(status,'pending') as quest_status,data as rawdata
       FROM quests where lower(id_quest)=lower('$quest') or lower(name)=lower('$quest') order by stage");
       $lastOne = -1;
       $data = array();
@@ -212,8 +212,26 @@ class sql
 
       }
 
+      return json_encode($data);
+
     }
   }
+  
+  function speechJournal($topic)
+  {
+
+    
+      $lastDialogFull = [];
+      $results = self::$link->query("SElECT  speaker,speech,location,listener,topic as quest FROM speech
+      where (speaker like '%$topic%' or  listener like '%$topic%' or location like '%$topic%' or  topic like '%$topic%') ");
+      if (!$results)
+        return 'no result';
+      while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+        $data[] = $row;
+      }
+      return json_encode($data);
+
+ }
 
   function lastRetFunc($actor, $lastNelements = -2)
   {

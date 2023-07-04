@@ -172,8 +172,22 @@ $FUNCTIONS = [
         ]
     ],
     [
+        "name" => "ReadDiary",
+        "description" => "Get info about past conversations and events",
+        "parameters" => [
+            "type" => "object",
+            "properties" => [
+                "topic" => [
+                    "type" => "string",
+                    "description" => "Can be a location where conversations happened, or a speaker or a listener",
+                ]
+            ],
+            "required" => ["topic"]
+        ]
+    ],
+    [
         "name" => "SetSpeed",
-        "description" => "Herika chnnages walking speed",
+        "description" => "Set {$GLOBALS["HERIKA_NAME"]} speed when moving or travelling",
         "parameters" => [
             "type" => "object",
             "properties" => [

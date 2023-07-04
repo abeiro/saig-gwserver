@@ -1,6 +1,8 @@
 <?php
 error_reporting(E_ERROR);
 
+define("MAXIMUM_SENTENCE_SIZE",100); 
+
 date_default_timezone_set('Europe/Madrid');
 
 $path = dirname((__FILE__)) . DIRECTORY_SEPARATOR;
@@ -90,6 +92,9 @@ function returnLines($lines) {
 			$mood=$staticMood;
 		else
 			$staticMood=$mood;
+		
+		if (isset($GLOBALS["FORCE_MOOD"]))
+			$mood=$GLOBALS["FORCE_MOOD"];
 		
 		$responseText=$responseTextUnmooded;
 
@@ -220,6 +225,19 @@ $PROMPTS["inputtext_s"]=[
 
 $PROMPTS["funcret"]=$PROMPTS["inputtext"];
 
+/* SUPER PROMPT CUSTOMIZATION */
+
+if (isset($PROMPTS[$finalParsedData[0]]["extra"])) {
+		if (isset($PROMPTS[$finalParsedData[0]]["extra"]["mood"])) 
+			$GLOBALS["FORCE_MOOD"]=$PROMPTS[$finalParsedData[0]]["extra"]["mood"];
+		if (isset($PROMPTS[$finalParsedData[0]]["extra"]["force_tokens_max"]))
+			$GLOBALS["OPENAI_MAX_TOKENS"]=$PROMPTS[$finalParsedData[0]]["extra"]["force_tokens_max"];
+		
+
+}
+
+/* END OF SUPER PROMPT CUSTOMIZATION */
+
 if (!isset($PROMPTS["afterattack"]))
 	$PROMPTS["afterattack"]="(Just write a short intro catchphrase for combat) {$GLOBALS["HERIKA_NAME"]}: ";
 	
@@ -251,12 +269,15 @@ if ($finalParsedData[0]=="funcret") {							// Overwrite funrect with info from 
 	} else if ($returnFunction[1]=="ReadQuestJournal") {
 		$returnFunction[3]=$db->questJournal($returnFunction[2]);								// Overwrite funrect content with info from database
 		$finalParsedData[3].=$returnFunction[3];
+	} else if ($returnFunction[1]=="ReadDiary") {
+		$returnFunction[3]=$db->speechJournal($returnFunction[2]);								// Overwrite funrect content with info from database
+		$finalParsedData[3].=$returnFunction[3];
 	}
 }
 
 
-if ($finalParsedData[0]=="inputtext") {
-	$finalParsedData[3]="(To Herika) ".$finalParsedData[3];
+if (($finalParsedData[0]=="inputtext")||($finalParsedData[0]=="inputtext_s")||($finalParsedData[0]=="chatnf")) {
+	$finalParsedData[3]="(To {$GLOBALS["HERIKA_NAME"]}) ".$finalParsedData[3];
 }
 
 	
@@ -322,6 +343,13 @@ if ($finalParsedData[0]=="funcret") {
 		} else if ($returnFunction[1]=="ReadQuestJournal") {
 			//$useFunctionsAgain=true;
 			$argName="id_quest";
+			//$useFunctionsAgain=true;
+			
+		} else if ($returnFunction[1]=="ReadDiary") {
+			//$useFunctionsAgain=true;
+			$argName="topic";
+			//$useFunctionsAgain=true;
+			
 			
 		} else {
 			$argName="target";
@@ -360,8 +388,24 @@ if ($finalParsedData[0]=="funcret") {
 		$data['function_call']="auto";
 	}
 	
+} else if ($finalParsedData[0]=="chatnf") {
+
+	$prompt[] = array('role' => 'assistant', 'content' => $request);
+	$parms = array_merge($head, ($contextDataFull), $prompt);
+		$data = array(
+		'model' => 'gpt-3.5-turbo-0613',
+		'messages' => 
+			$parms
+		,
+		'stream' => true,
+		'max_tokens'=>((isset($GLOBALS["OPENAI_MAX_TOKENS"])?$GLOBALS["OPENAI_MAX_TOKENS"]:48)+0),
+		'temperature'=>1,
+		'presence_penalty'=>1
+	);
+
+	
 } else {
-	//$parms = array_merge($head, ($contextDataFull), $foot, $prompt);
+
 	$prompt[] = array('role' => 'assistant', 'content' => $request);
 	$parms = array_merge($head, ($contextDataFull), $prompt);
 		$data = array(
@@ -502,7 +546,7 @@ if ($handle === false) {
 		
        $buffer=strtr($buffer,array("\""=>""));
 	   
-		if (strlen($buffer)<50)	// Avoid too short buffers
+		if (strlen($buffer)<MAXIMUM_SENTENCE_SIZE)	// Avoid too short buffers
 			continue;
 		
 		
