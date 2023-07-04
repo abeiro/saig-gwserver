@@ -35,7 +35,7 @@ $PROMPTS=array(
         "($HERIKA_NAME make a casual comment about a book from the Elder Scrolls Universe) $HERIKA_NAME: ... ",
         "($HERIKA_NAME make a casual comment starting with: I once had to) $HERIKA_NAME: ... ",
         "($HERIKA_NAME make a casual comment starting with: Did you hear about what happened in) $HERIKA_NAME: ... ",
-        "($HERIKA_NAME make a casual comment starting with: A wise Akaviri man once told me) $$HERIKA_NAME_NAME: ... "
+        "($HERIKA_NAME make a casual comment starting with: A wise Akaviri man once told me) $$HERIKA_NAME: ... "
     ],
 
     "goodmorning"=>[

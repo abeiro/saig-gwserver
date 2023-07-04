@@ -59,9 +59,11 @@ function split_sentences_stream($paragraph) {
 
 function returnLines($lines) {
 	
-	global $db,$startTime,$forceMood,$staticMood,$talkedSoFar;
+	global $db,$startTime,$forceMood,$staticMood,$talkedSoFar,$FORCED_STOP;
 	foreach ($lines as $n=>$sentence) {
 
+		if ($FORCED_STOP)
+			return;
 		// Remove actions
 		$pattern = '/<[^>]+>/';
 		$output = preg_replace($pattern, '', $sentence);
@@ -81,6 +83,34 @@ function returnLines($lines) {
 			$forceMood="whispering";
 		}
 		
+		$scoring=0;
+		if (stripos($responseTextUnmooded,"can't")!==false)	
+			$scoring++;
+		if (stripos($responseTextUnmooded,"apologi")!==false)	
+			$scoring++;
+		if (stripos($responseTextUnmooded,"sorry")!==false)	
+			$scoring++;
+		if (stripos($responseTextUnmooded,"not able")!==false)	
+			$scoring++;
+		if (stripos($responseTextUnmooded,"that direction")!==false)	
+			$scoring+=2;
+		if (stripos($responseTextUnmooded,"AI language model")!==false)	
+			$scoring+=4;
+		if (stripos($responseTextUnmooded,"openai")!==false)	
+			$scoring+=3;
+		if (stripos($responseTextUnmooded,"generate that story")!==false)	
+			$scoring+=2;
+		if (stripos($responseTextUnmooded,"policy")!==false)	
+			$scoring+=1;
+		if (stripos($responseTextUnmooded,"to provide")!==false)	
+			$scoring+=1;
+
+		if ($scoring>=3)	{// Catch OpenAI brekaing policies stuff
+			$responseTextUnmooded="I can't think clearly now...";
+			$FORCED_STOP=true;
+		}
+		
+		
 		if (isset($forceMood)) {
 			$mood = $forceMood;
 		} else if (isset($matches[1][0]))
@@ -98,7 +128,7 @@ function returnLines($lines) {
 		
 		$responseText=$responseTextUnmooded;
 
-		if (strlen($responseText)<2)		// Avoid too shor reponses
+		if (strlen($responseText)<2)		// Avoid too short reponses
 			return;
 		
 		
@@ -246,7 +276,7 @@ if (!isset($PROMPTS["afterattack"]))
 if ($finalParsedData[0]=="funcret") {							// Takea out the functions part
 	$request=str_replace("you can optionally call functions,","",$PROMPTS[$finalParsedData[0]][0]);	//*
 } else
-	$request=$PROMPTS[$finalParsedData[0]][0];	//*
+	$request=$PROMPTS[$finalParsedData[0]][0];					// Add support for arrays here
 
 if (stripos($finalParsedData[3],"stop")!==false) {
 	echo "Herika|command|StopAll@\r\n";
@@ -258,7 +288,7 @@ if (stripos($finalParsedData[3],"stop")!==false) {
 $commandSent=false;
 
 if ($finalParsedData[0]=="inputtext_s") {
-		$forceMood="whispering";
+		$GLOBALS["FORCE_MOOD"]="whispering";
 } 
 
 if ($finalParsedData[0]=="funcret") {							// Overwrite funrect with info from database when topic requested
