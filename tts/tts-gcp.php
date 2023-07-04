@@ -29,7 +29,7 @@ function tts($textString, $mood = 'default', $stringforhash)
 
   // Configure the synthesis input
   $input = new SynthesisInput();
-  $input->setText($textString);
+  $input->setSsml('<speak>' . $textString . '<break time="500ms"/></speak>');
 
   $voice = new VoiceSelectionParams();
   $voice->setLanguageCode("en-US");
