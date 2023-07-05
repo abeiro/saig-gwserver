@@ -191,6 +191,13 @@ function parseResponseV2($responseText, $forceMood = "",$topicQueue) {
 					tts($responseTextUnmooded, $mood, $responseText);
 				}
 			}
+
+			if ($GLOBALS["TTSFUNCTION"] == "gcp") {
+				if ($GLOBALS["GCP_SA_FILEPATH"]) {
+					require_once("tts/tts-gcp.php");
+					tts($responseTextUnmooded, $mood, $responseText);
+				}
+			}
 		}
 	
 		if ($sentence) {
@@ -288,6 +295,13 @@ function parseResponseV2($responseText, $forceMood = "",$topicQueue) {
 		if ($GLOBALS["TTSFUNCTION"] == "11labs") {
 			if ($GLOBALS["ELEVENLABS_API_KEY"]) {
 				require_once("tts/tts-11labs.php");
+				tts($responseTextUnmooded, $mood, $responseText);
+			}
+		}
+
+		if ($GLOBALS["TTSFUNCTION"] == "gcp") {
+			if ($GLOBALS["GCP_SA_FILEPATH"]) {
+				require_once("tts/tts-gcp.php");
 				tts($responseTextUnmooded, $mood, $responseText);
 			}
 		}

@@ -2,3 +2,4 @@ conf.php
 release.zip
 release/*
 prompts_custom.php
+tts/gcp_key.json

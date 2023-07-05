@@ -171,6 +171,13 @@ function returnLines($lines) {
 					tts($responseTextUnmooded, $mood, $responseText);
 				}
 			}
+
+			if ($GLOBALS["TTSFUNCTION"] == "gcp") {
+				if ($GLOBALS["GCP_SA_FILEPATH"]) {
+					require_once("tts/tts-gcp.php");
+					tts($responseTextUnmooded, $mood, $responseText);
+				}
+			}
 			if (trim($responseText))
 				$talkedSoFar[]=$responseText;
 		}

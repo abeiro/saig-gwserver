@@ -6,9 +6,10 @@
 //Enter API keys here
 //DO NOT SHARE YOUR API KEYS WITH ANYONE!
 $DRIVER="sql";
-$OPENAI_API_KEY="";             // OpenAI API key here
-$AZURE_API_KEY="";              // Azure API key here
-$ELEVENLABS_API_KEY="";         // 11labs API KEY
+$OPENAI_API_KEY="";                   // OpenAI API key here
+$AZURE_API_KEY="";                    // Azure API key here
+$ELEVENLABS_API_KEY="";               // 11labs API key here
+$GCP_SA_FILEPATH="tts/gcp_key.json";  // path to GCP SA key file here
 
 
 // Player and Personality configuration. 
