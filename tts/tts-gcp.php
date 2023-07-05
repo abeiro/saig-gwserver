@@ -1,7 +1,8 @@
 <?php
-$path = dirname((__FILE__)) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
-require_once($path . 'conf.php'); // API KEY must be there
 
+$path = dirname((__FILE__)) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
+
+require_once($path . 'conf.php'); // API KEY must be there
 require_once($path . 'vendor/autoload.php');
 
 use Google\Cloud\TextToSpeech\V1\AudioConfig;
@@ -28,12 +29,20 @@ function tts($textString, $mood = 'default', $stringforhash)
   ]);
 
   // Configure the synthesis input
+  $voiceName = $GLOBALS['GCP_CONF']['voice']['name'];
+  $languageCode = $GLOBALS['GCP_CONF']['voice']['languageCode'];
+
   $input = new SynthesisInput();
-  $input->setSsml('<speak>' . $textString . '<break time="500ms"/></speak>');
+  $input->setSsml('<speak>'.
+      (!in_array($languageCode, ['en-US-Studio-O', 'en-US-Studio-M']) ?
+      '<prosody rate="' . $GLOBALS['GCP_CONF']['ssml']['rate'] . '" pitch="' . $GLOBALS['GCP_CONF']['ssml']['pitch'] . '">' : '').
+        $textString .
+      (!in_array($languageCode, ['en-US-Studio-O', 'en-US-Studio-M']) ? '</prosody>' : '').
+      '<break time="500ms"/></speak>');
 
   $voice = new VoiceSelectionParams();
-  $voice->setLanguageCode("en-US");
-  $voice->setName("en-US-Studio-O");
+  $voice->setLanguageCode($languageCode);
+  $voice->setName($voiceName);
 
   // Configure the audio settings
   $audioConfig = new AudioConfig();
@@ -53,5 +62,7 @@ function tts($textString, $mood = 'default', $stringforhash)
 
   file_put_contents($filename . '.txt', trim($textString) . "\n\rsize of wav ($fileSize)\n\r" .
       'execution time: ' . (microtime(true) - $startTime) . ') secs ' .
-      " function tts($textString,$mood=\"cheerful\",$stringforhash)");
+      " function tts($textString,$mood,$stringforhash)");
 }
+
+?>
