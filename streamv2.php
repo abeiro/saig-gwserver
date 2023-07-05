@@ -59,7 +59,7 @@ function split_sentences_stream($paragraph) {
 
 function returnLines($lines) {
 	
-	global $db,$startTime,$forceMood,$staticMood,$talkedSoFar,$FORCED_STOP;
+	global $db,$startTime,$forceMood,$staticMood,$talkedSoFar,$FORCED_STOP,$TRANSFORMER_FUNCTION;
 	foreach ($lines as $n=>$sentence) {
 
 		if ($FORCED_STOP)
@@ -92,23 +92,37 @@ function returnLines($lines) {
 			$scoring++;
 		if (stripos($responseTextUnmooded,"not able")!==false)	
 			$scoring++;
+		if (stripos($responseTextUnmooded,"won't be able")!==false)	
+			$scoring++;
 		if (stripos($responseTextUnmooded,"that direction")!==false)	
 			$scoring+=2;
 		if (stripos($responseTextUnmooded,"AI language model")!==false)	
 			$scoring+=4;
 		if (stripos($responseTextUnmooded,"openai")!==false)	
 			$scoring+=3;
-		if (stripos($responseTextUnmooded,"generate that story")!==false)	
+		if (stripos($responseTextUnmooded,"generate that")!==false)	
 			$scoring+=2;
+		if (stripos($responseTextUnmooded,"unable")!==false)	
+			$scoring+=1;
+		if (stripos($responseTextUnmooded,"requested")!==false)	
+			$scoring+=1;
 		if (stripos($responseTextUnmooded,"policy")!==false)	
 			$scoring+=1;
 		if (stripos($responseTextUnmooded,"to provide")!==false)	
 			$scoring+=1;
+		if (stripos($responseTextUnmooded,"please provide an alternative scenario")!==false)	
+			$scoring+=3;
 
 		if ($scoring>=3)	{// Catch OpenAI brekaing policies stuff
 			$responseTextUnmooded="I can't think clearly now...";
 			$FORCED_STOP=true;
+		} else {
+			if (isset($TRANSFORMER_FUNCTION)) {
+				$responseTextUnmooded=$TRANSFORMER_FUNCTION($responseTextUnmooded);
+			}
+			
 		}
+
 		
 		
 		if (isset($forceMood)) {
@@ -262,6 +276,8 @@ if (isset($PROMPTS[$finalParsedData[0]]["extra"])) {
 			$GLOBALS["FORCE_MOOD"]=$PROMPTS[$finalParsedData[0]]["extra"]["mood"];
 		if (isset($PROMPTS[$finalParsedData[0]]["extra"]["force_tokens_max"]))
 			$GLOBALS["OPENAI_MAX_TOKENS"]=$PROMPTS[$finalParsedData[0]]["extra"]["force_tokens_max"];
+		if (isset($PROMPTS[$finalParsedData[0]]["extra"]["transformer"]))
+			$GLOBALS["TRANSFORMER_FUNCTION"]=$PROMPTS[$finalParsedData[0]]["extra"]["transformer"];
 		
 
 }
