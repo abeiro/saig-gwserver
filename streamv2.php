@@ -100,8 +100,8 @@ function returnLines($lines) {
 			$scoring+=4;
 		if (stripos($responseTextUnmooded,"openai")!==false)	
 			$scoring+=3;
-		if (stripos($responseTextUnmooded,"generate that")!==false)	
-			$scoring+=2;
+		if (stripos($responseTextUnmooded,"generate")!==false)	
+			$scoring+=1;
 		if (stripos($responseTextUnmooded,"unable")!==false)	
 			$scoring+=1;
 		if (stripos($responseTextUnmooded,"requested")!==false)	
@@ -109,6 +109,8 @@ function returnLines($lines) {
 		if (stripos($responseTextUnmooded,"policy")!==false)	
 			$scoring+=1;
 		if (stripos($responseTextUnmooded,"to provide")!==false)	
+			$scoring+=1;
+		if (stripos($responseTextUnmooded,"context")!==false)	
 			$scoring+=1;
 		if (stripos($responseTextUnmooded,"please provide an alternative scenario")!==false)	
 			$scoring+=3;
