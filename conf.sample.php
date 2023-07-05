@@ -53,6 +53,21 @@ $ELEVEN_LABS["model_id"]="eleven_monolingual_v1";	// Check https://beta.elevenla
 $ELEVEN_LABS["stability"]="0.75";			// Check https://beta.elevenlabs.io/speech-synthesis for voice parameters
 $ELEVEN_LABS["similarity_boost"]="0.75";		// Check https://beta.elevenlabs.io/speech-synthesis for voice parameters
 
+// Google Cloud Platform TTS Config
+// Catalogue of voices: https://cloud.google.com/text-to-speech?hl=en#section-11 & https://cloud.google.com/text-to-speech/docs/voices
+// Creating a service account key for GCP: https://github.com/abeiro/saig-gwserver/pull/2 . Or ask ChatGPT.
+// SSML Configuration is discarded if voice is "en-US-Studio-O" or en-US-Studio-M
+$GCP_CONF = [
+  'voice' => [
+    'name' => 'en-GB-Neural2-C',
+    'languageCode' => 'en-GB'
+  ],
+  'ssml' => [
+    'rate' => '1.15',
+    'pitch' => '+3.6st'
+  ]
+];
+
 //Allows you to toggle which providers you use for Text-to-Speech or Speech-to-Text
 //IF YOU DO NOT HEAR HERIKA MAKE SURE TO CHECK YOUR SYSTEM SOUNDS VOLUME
 $STTFUNCTION="azure";								// Valid options are azure or whisper so far
