@@ -200,6 +200,20 @@ $FUNCTIONS = [
             ],
             "required" => ["speed"]
         ]
+    ], [
+        "name" => "GetTime",
+        "description" => "Get Current Date and Time",
+        "parameters" => [
+            "type" => "object",
+            "properties" => [
+                "datestring" => [
+                    "type" => "string",
+                    "description" => "Formmated date and time",
+                ]     
+                
+            ],
+            "required" => []
+        ]
     ]
     /*[
         "name" => "GetTopicInfo",

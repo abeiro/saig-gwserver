@@ -310,5 +310,50 @@ function parseResponseV2($responseText, $forceMood = "",$topicQueue) {
 	
 }
 
-
+function checkOAIComplains($responseTextUnmooded) {
+	
+		$scoring=0;
+		if (stripos($responseTextUnmooded,"can't")!==false)	
+			$scoring++;
+		if (stripos($responseTextUnmooded,"apologi")!==false)	
+			$scoring++;
+		if (stripos($responseTextUnmooded,"sorry")!==false)	
+			$scoring++;
+		if (stripos($responseTextUnmooded,"not able")!==false)	
+			$scoring++;
+		if (stripos($responseTextUnmooded,"won't be able")!==false)	
+			$scoring++;
+		if (stripos($responseTextUnmooded,"that direction")!==false)	
+			$scoring+=2;
+		if (stripos($responseTextUnmooded,"AI language model")!==false)	
+			$scoring+=4;
+		if (stripos($responseTextUnmooded,"openai")!==false)	
+			$scoring+=3;
+		if (stripos($responseTextUnmooded,"generate")!==false)	
+			$scoring+=1;
+		if (stripos($responseTextUnmooded,"request")!==false)	
+			$scoring+=1;
+		if (stripos($responseTextUnmooded,"policy")!==false)	
+			$scoring+=1;
+		if (stripos($responseTextUnmooded,"to provide")!==false)	
+			$scoring+=1;
+		if (stripos($responseTextUnmooded,"context")!==false)	
+			$scoring+=1;
+		if (stripos($responseTextUnmooded,"unable")!==false)	
+			$scoring+=1;
+		if (stripos($responseTextUnmooded,"assist")!==false)	
+			$scoring+=1;
+		if (stripos($responseTextUnmooded,"inappropriate")!==false)	
+			$scoring+=1;
+		if (stripos($responseTextUnmooded,"explicit")!==false)	
+			$scoring+=1;
+		if (stripos($responseTextUnmooded,"roleplay")!==false)	
+			$scoring+=1;
+		if (stripos($responseTextUnmooded,"please provide an alternative scenario")!==false)	
+			$scoring+=3;
+	
+		return $scoring;
+		
+		
+}
 ?>

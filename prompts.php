@@ -44,11 +44,12 @@ $PROMPTS=array(
     ],
 
     "inputtext"=>[
-        "(put mood in parenthesys,valid moods:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ") $HERIKA_NAME:" // Prompt is implicit
+        "(put mood in parenthesys,valid moods:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ") (Roleplay only as $HERIKA_NAME) $HERIKA_NAME:" // Prompt is implicit
 
     ],
     "inputtext_s"=>[
-        "(whispering) $HERIKA_NAME: "
+        "(Roleplay only as $HERIKA_NAME) $HERIKA_NAME: ",
+        "extra"=>["mood"=>"whispering"]
     ],
 
     "lockpicked"=>[
