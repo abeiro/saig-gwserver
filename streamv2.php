@@ -428,10 +428,7 @@ if ($finalParsedData[0]=="funcret") {
 	
 } else if ($finalParsedData[0]=="chatnf") {
 
-	/*$fakeFunctionCalled[]=array('role' => 'assistant', 'content'=>null,'function_call'=>array("name"=>"IsContentAllowedByPolicy","arguments"=>"{\"topic\":\"\"}"));
-	$fakeReturnFunctionArray[]=array('role' => 'function', 'name'=>'IsContentAllowedByPolicy','content' =>"true");
-	$contextDataFull=array_merge($contextDataFull,$fakeFunctionCalled,$fakeReturnFunctionArray);*/
-
+	
 	$prompt[] = array('role' => 'assistant', 'content' => $request);
 
 	$parms = array_merge($head, ($contextDataFull), $prompt);
@@ -443,24 +440,7 @@ if ($finalParsedData[0]=="funcret") {
 		'stream' => true,
 		'max_tokens'=>((isset($GLOBALS["OPENAI_MAX_TOKENS"])?$GLOBALS["OPENAI_MAX_TOKENS"]:48)+0),
 		'temperature'=>1,
-		'presence_penalty'=>1,
-		/*'function_call'=>'auto',
-		'functions'=> [
-			 [
-				"name" => "IsContentAllowedByPolicy",
-				"description" => "Checks if current content is allowed by policies",
-				"parameters" => [
-					"type" => "object",
-					"properties" => [
-						"topic" => [
-							"type" => "string",
-							"description" => "Keep it blank",
-						]
-					],
-					"required" => []
-				],
-			]
-		]*/
+		'presence_penalty'=>1
 		);
 
 	
