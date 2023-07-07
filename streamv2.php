@@ -233,11 +233,6 @@ Rule 7. Don't create characters, enemies, or objects; the Narrator will do it.
 require_once(__DIR__.DIRECTORY_SEPARATOR."lib".DIRECTORY_SEPARATOR."functions.php");
 
 
-// If start text with asterisk, functions will not be active.
-if (strpos($finalParsedData[3],":*")!==false)
-	$finalParsedData[3]="chatnf";
-
-
 /****** PROMPT OVERWRITE *******/
 /*
 if (sizeof($GLOBALS["AZURETTS_CONF"]["validMoods"])>0) {
