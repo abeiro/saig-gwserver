@@ -44,11 +44,11 @@ $PROMPTS=array(
     ],
 
     "inputtext"=>[
-        "(put mood in parenthesys,valid moods:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ") (Roleplay only as $HERIKA_NAME) $HERIKA_NAME:" // Prompt is implicit
+        "(call functions if needed,put mood in parenthesys,valid moods:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ") (Roleplay only as $HERIKA_NAME) $HERIKA_NAME:" // Prompt is implicit
 
     ],
     "inputtext_s"=>[
-        "(Roleplay only as $HERIKA_NAME) $HERIKA_NAME: ",
+        "(call functions if needed, Roleplay only as $HERIKA_NAME) $HERIKA_NAME: ",
         "extra"=>["mood"=>"whispering"]
     ],
 
@@ -62,6 +62,9 @@ $PROMPTS=array(
     // Like inputtext, but without the functions calls part. It's likely to be used in papyrus scripts
     "chatnf"=>[ 
         "(put mood in parenthesys,valid moods:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ") $HERIKA_NAME:" // Prompt is implicit
+    ],
+    "diary"=>[ 
+        "(Use function to Write into diary) $HERIKA_NAME:" // Prompt is implicit
     ],
 
 );

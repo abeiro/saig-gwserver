@@ -3,11 +3,10 @@
 
 $db = new SQLite3('mysqlitedb.db');
 
-$db->exec("
-DROP TABLE `eventlog`;");
+//$db->exec("DROP TABLE `eventlog`;");
 
 $db->exec("
-CREATE TABLE `eventlog` (
+CREATE TABLE IF NOT EXISTS `eventlog` (
   `ts` text NOT NULL,
   `type` varchar(128) ,
   `data` text ,
@@ -16,11 +15,10 @@ CREATE TABLE `eventlog` (
   `localts` bigint NOT NULL
 );");
 
-$db->exec("
-DROP TABLE `responselog`;");
+//$db->exec("DROP TABLE `responselog`;");
 
 $db->exec("
-CREATE TABLE `responselog` (
+CREATE TABLE IF NOT EXISTS `responselog` (
   `localts` bigint NOT NULL,
   `sent` bigint NOT NULL,
   `actor` varchar(128) ,
@@ -30,20 +28,20 @@ CREATE TABLE `responselog` (
 
 );");
 
-$db->exec("DROP TABLE `log`;");
+//$db->exec("DROP TABLE `log`;");
 
 $db->exec("
-CREATE TABLE `log` (
+CREATE TABLE IF NOT EXISTS `log` (
   `localts` bigint NOT NULL,
   `prompt` text,
   `response` text,
   `url` text
 );");
 
-$db->exec("DROP TABLE `quests`;");
+//$db->exec("DROP TABLE `quests`;");
 
 $db->exec("
-CREATE TABLE `quests` (
+CREATE TABLE IF NOT EXISTS `quests` (
   `ts` text NOT NULL,
   `sess` varchar(1024) ,
   `id_quest` varchar(1024) NOT NULL,
@@ -63,10 +61,10 @@ CREATE TABLE `quests` (
   `status` text
 );");
 
-$db->exec("DROP TABLE `speech`;");
+//$db->exec("DROP TABLE `speech`;");
 
 $db->exec("
-CREATE TABLE `speech` (
+CREATE TABLE IF NOT EXISTS `speech` (
   `ts` text NOT NULL,
   `sess` varchar(1024) ,
   `speaker` text,
@@ -74,6 +72,29 @@ CREATE TABLE `speech` (
   `location` text,
   `listener` text,
   `topic` text,
+  `localts` bigint NOT NULL,
+  `gamets` bigint NOT NULL
+);");
+
+
+$db->exec("
+CREATE TABLE IF NOT EXISTS `diarylog` (
+  `ts` text NOT NULL,
+  `sess` varchar(1024) ,
+  `topic` text,
+  `content` text,
+  `tags` text,
+  `people` text,
+  `localts` bigint NOT NULL,
+  `gamets` bigint NOT NULL
+);");
+
+$db->exec("
+CREATE TABLE IF NOT EXISTS `currentmission` (
+  `ts` text NOT NULL,
+  `sess` varchar(1024) ,
+  `description` text,
+  `location` bigint NOT NULL,
   `localts` bigint NOT NULL,
   `gamets` bigint NOT NULL
 );");

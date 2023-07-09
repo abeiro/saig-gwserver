@@ -181,7 +181,8 @@ class sql
 
     if (empty($quest)) {
       $lastDialogFull = array();
-      $results = self::$link->query("SElECT  distinct name,id_quest,briefing,giver_actor_id  FROM quests where coalesce(status,'pending')<>'completed' and stage<200");
+      $results = self::$link->query("SElECT  distinct name,id_quest,briefing,giver_actor_id  
+            FROM quests where coalesce(status,'pending')<>'completed' and stage<200 order by id_quest");
       if (!$results)
         return "no result";
       $data=[];
@@ -227,15 +228,66 @@ class sql
     
       $lastDialogFull = [];
       $results = self::$link->query("SElECT  speaker,speech,location,listener,topic as quest FROM speech
-      where (speaker like '%$topic%' or  listener like '%$topic%' or location like '%$topic%' or  topic like '%$topic%') ");
+      where (speaker like '%$topic%' or  listener like '%$topic%' or location like '%$topic%' or  topic like '%$topic%') order by rowid desc");
       if (!$results)
-        return 'no result';
+        return  json_encode([]);
+
+      $data=[];
+
       while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
         $data[] = $row;
       }
+
+      if (sizeof($data)==0)
+      return  json_encode([]);
+      else if  (sizeof($data)<25)
+       $dataReversed = array_reverse($data);
+      else {
+        $smalldata = array_slice($data, 25);
+        $dataReversed = array_reverse($smalldata);
+      }
+   
+
+      return json_encode($dataReversed);
+
+ }
+
+ function diaryLog($topic)
+  {
+
+      $results = self::$link->query("SElECT  topic,content,tags,people  FROM diarylog
+      where (tags like '%$topic%' or topic like '%$topic%' or people like '%$topic%') order by gamets asc");
+      if (!$results)
+        return  json_encode([]);
+
+      $data=[];
+
+      while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+        $data[] = $row;
+      }
+
       return json_encode($data);
 
  }
+
+
+ function get_current_mission()
+  {
+
+      $results = self::$link->query("SElECT  description  FROM currentmission order by gamets desc");
+
+
+      $data=[];
+
+      while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+        $data[] = $row;
+        break;
+      }
+
+      return json_encode(current($data));
+
+ }
+
 
   function lastRetFunc($actor, $lastNelements = -2)
   {

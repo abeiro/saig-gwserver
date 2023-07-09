@@ -99,7 +99,8 @@ echo "
 <a href='index.php?table=event'  class='buttonify'>Events</a> ::
 <a href='index.php?table=log'  class='buttonify'>Log</a> ::
 <a href='index.php?table=quests'  class='buttonify'>Quest journal</a> ::
-<a href='index.php?table=speech'  class='buttonify'>Speech journal</a> ::
+<a href='index.php?table=currentmission'  class='buttonify'>Current mission</a> ::
+<a href='index.php?table=diarylog'  class='buttonify'>Diary</a> ::
 <a href='index.php?table=event&autorefresh=true'  class='buttonify'>Monitor events</a> ::::
 <a href='index.php?clean=true&table=response'   title='Delete sent responses' class='buttonify' onclick=\"return confirm('Sure?')\">Clean sent</a> ::
 <a href='index.php?sendclean=true&table=response' title='Marks unsent responses from queue What do you think about?'  class='buttonify' onclick=\"return confirm('Sure?')\">Reset sent</a> ::
@@ -184,17 +185,23 @@ if ($_GET["table"] == "log") {
 }
 
 if ($_GET["table"] == "quests") {
-    $results = $db->fetchAll("select  A.*,ROWID FROM quests A where stage<200  order by id_quest,localts asc,rowid asc");
+    $results = $db->fetchAll("SElECT  distinct name,id_quest,briefing,giver_actor_id  
+    FROM quests where coalesce(status,'pending')<>'completed' and stage<200 order by id_quest");
     echo "<p>Quest log</p>";
     print_array_as_table($results);
 }
 
-if ($_GET["table"] == "speech") {
-    $results = $db->fetchAll("select  A.*,ROWID FROM speech A order by localts asc,rowid asc");
-    echo "<p>Speech log</p>";
+if ($_GET["table"] == "currentmission") {
+    $results = $db->fetchAll("select  A.*,ROWID FROM currentmission A order by gamets desc,localts desc,rowid desc");
+    echo "<p>Current Mission log</p>";
     print_array_as_table($results);
 }
 
+if ($_GET["table"] == "diarylog") {
+    $results = $db->fetchAll("select  A.*,ROWID FROM diarylog A order by localts asc,rowid asc");
+    echo "<p>Diary log log</p>";
+    print_array_as_table($results);
+}
 
 $buffer=ob_get_contents();
 ob_end_clean();

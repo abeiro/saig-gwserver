@@ -209,9 +209,12 @@ try {
 		$finalParsedData[$i] = trim(preg_replace('/\s\s+/', ' ', preg_replace('/\'/m', "''", $ele)));
 
 
+	$finalParsedData[3] = @mb_convert_encoding($finalParsedData[3], 'UTF-8', 'UTF-8');
 	if ($finalParsedData[0] == "init") { // Reset reponses if init sent (Think about this)
 		$db->delete("eventlog", "gamets>{$finalParsedData[2]}  ");
 		$db->delete("quests", "gamets>{$finalParsedData[2]}  ");
+		$db->delete("speech", "gamets>{$finalParsedData[2]}  ");
+
 		//die(print_r($finalParsedData,true));
 		$db->update("responselog", "sent=0", "sent=1 and (action='AASPGDialogueHerika2Branch1Topic')");
 		$db->insert(

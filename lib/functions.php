@@ -172,20 +172,6 @@ $FUNCTIONS = [
         ]
     ],
     [
-        "name" => "ReadDiary",
-        "description" => "Get info about past conversations and events",
-        "parameters" => [
-            "type" => "object",
-            "properties" => [
-                "topic" => [
-                    "type" => "string",
-                    "description" => "Can be a location where conversations happened, or a speaker or a listener",
-                ]
-            ],
-            "required" => ["topic"]
-        ]
-    ],
-    [
         "name" => "SetSpeed",
         "description" => "Set {$GLOBALS["HERIKA_NAME"]} speed when moving or travelling",
         "parameters" => [
@@ -194,13 +180,14 @@ $FUNCTIONS = [
                 "speed" => [
                     "type" => "string",
                     "description" => "Speed",
-                    "enum" =>["run", "fastwalk","jog","walk" ]
-                ]     
-                
+                    "enum" => ["run", "fastwalk", "jog", "walk"]
+                ]
+
             ],
             "required" => ["speed"]
         ]
-    ], [
+    ],
+    [
         "name" => "GetTime",
         "description" => "Get Current Date and Time",
         "parameters" => [
@@ -209,12 +196,40 @@ $FUNCTIONS = [
                 "datestring" => [
                     "type" => "string",
                     "description" => "Formmated date and time",
-                ]     
-                
+                ]
+
             ],
             "required" => []
         ]
-    ]
+    ],
+    [
+        "name" => "ReadDiary",
+        "description" => "Get info about past conversations and events",
+        "parameters" => [
+            "type" => "object",
+            "properties" => [
+                "tag" => [
+                    "type" => "string",
+                    "description" => "Tags to search for",
+                ]
+            ],
+            "required" => ["tag"]
+        ]
+    ],
+    [
+        "name" => "setCurrentPlan",
+        "description" => "Set the current plan of action",
+        "parameters" => [
+            "type" => "object",
+            "properties" => [
+                "description" => [
+                    "type" => "string",
+                    "description" => "Short description of current plan talked by the party",
+                ]
+            ],
+            "required" => ["description"]
+        ]
+    ], 
     /*[
         "name" => "GetTopicInfo",
         "description" => "Get information about a topic or character on Herika's long-term memory.",
@@ -232,6 +247,41 @@ $FUNCTIONS = [
 ];
 
 
+$FUNCTIONS_SPECIAL_CONTEXT = [
+
+    [
+        "name" => "WriteIntoDiary",
+        "description" => "Summarize briefly the recent events and dialogues and write them down in Herika's diary.",
+        "parameters" => [
+            "type" => "object",
+            "properties" => [
+                "topic" => [
+                    "type" => "string",
+                    "description" => "Suggested topic name",
+                ],
+                "content" => [
+                    "type" => "string",
+                    "description" => "The summarized content"
+                ],
+                "tags" => [
+                    "type" => "string",
+                    "description" => "Relevant tags for later search"
+                ],
+                "people" => [
+                    "type" => "string",
+                    "description" => "Related People"
+                ],
+                "location" => [
+                    "type" => "string",
+                    "description" => "Location"
+                ]
+
+
+            ],
+            "required" => ["topic", "content", "tags", "people","location"]
+        ]
+    ]
+];
 
 
 ?>
