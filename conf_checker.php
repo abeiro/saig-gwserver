@@ -3,6 +3,7 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+@mkdir("tmp");
 $fileName=__DIR__.DIRECTORY_SEPARATOR."tmp".DIRECTORY_SEPARATOR.uniqid()."conf.check.php";
 
 file_put_contents($fileName,$_POST["text"]);
