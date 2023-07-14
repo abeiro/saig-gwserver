@@ -82,8 +82,10 @@ function cleanReponse($rawResponse)
 function print_array_as_table($data)
 {
     // Start the HTML table
+	
     if (sizeof($data) < 1)
         return;
+	echo "<div class='datatable'>";
     echo "<table border='1' width='100%'>";
 
 
@@ -122,7 +124,7 @@ function print_array_as_table($data)
     }
 
     // End the HTML table
-    echo "</table>";
+    echo "</table></div>";
 }
 
 

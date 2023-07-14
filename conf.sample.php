@@ -40,8 +40,8 @@ $AZURETTS_CONF["validMoods"]=array("whispering","default");	// New, limits moods
 //  MIMIC3 configuration, navigate to the URL below to access the web interface
 $MIMIC3="http://127.0.0.1:59125";               
 $MIMIC3_CONF["voice"]="en_US/ljspeech_low";
-$GLOBALS["MIMIC3_CONF"]["rate"]="1.25";
-$GLOBALS["MIMIC3_CONF"]["volume"]="80";
+$MIMIC3_CONF["rate"]="1.25";
+$MIMIC3_CONF["volume"]="80";
 
 // To use a custom voice which you have created with Elevenlabs go here: https://api.elevenlabs.io/docs#/voices/Get_voices_v1_voices_get
 // Click the "Try it out" button and in the "x-api-key" textbox enter in your API key. 
@@ -68,10 +68,13 @@ $GCP_CONF = [
   ]
 ];
 
+
+$LOCALWHISPER["URL"]="";    // Used for local whisper installations
+
 //Allows you to toggle which providers you use for Text-to-Speech or Speech-to-Text
 //IF YOU DO NOT HEAR HERIKA MAKE SURE TO CHECK YOUR SYSTEM SOUNDS VOLUME
 $STTFUNCTION="azure";								// Valid options are azure or whisper so far
-$TTSFUNCTION="azure";								// Valid options are azure or mimic3 or 11labs  so far
+$TTSFUNCTION="azure";								// Valid options are azure or mimic3 or 11labs or gcp 
 
 //Configuration for changing default language for TTS
 $TTSLANGUAGE_AZURE="en-US";							// en-US, es-ES formats
@@ -81,5 +84,5 @@ $TTSLANGUAGE_WHISPER="en";							// en, es formats
 //Setting it to 100 is a good starting point for experimenting with larger responses.
 $OPENAI_MAX_TOKENS="48";							// Limit size of responses. 
 
-$HTTP_TIMEOUT=30;     // How long we will wait for openai response
-$OPENAI_MAX_TOKENS_MEMORY="1024";     // required to create memories.
+$HTTP_TIMEOUT=30;                       // How long we will wait for openai response
+$OPENAI_MAX_TOKENS_MEMORY="1024";       // required to create memories.

@@ -130,8 +130,8 @@ $FUNCTIONS = [
         ]
     ],
     [
-        "name" => "TravelTo",
-        "description" => "Start travelling to Town or City,  also used to guide {$GLOBALS["PLAYER_NAME"]} to a Town o City. ",
+        "name" => "LeadTheWayTo",
+        "description" => "Guide {$GLOBALS["PLAYER_NAME"]} to a Town o City. ",
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -159,7 +159,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "ReadQuestJournal",
-        "description" => "Get info about current quests or missions",
+        "description" => "Get info about current quests",
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -204,27 +204,27 @@ $FUNCTIONS = [
     ],
     [
         "name" => "ReadDiary",
-        "description" => "Get info about past conversations and events",
+        "description" => "Read {$GLOBALS["HERIKA_NAME"]}'s diary ",
         "parameters" => [
             "type" => "object",
             "properties" => [
-                "tag" => [
+                "topic" => [
                     "type" => "string",
-                    "description" => "Tags to search for",
+                    "description" => "topic to search in full-text query syntax",
                 ]
             ],
-            "required" => ["tag"]
+            "required" => ["topic"]
         ]
     ],
     [
-        "name" => "setCurrentPlan",
-        "description" => "Set the current plan of action",
+        "name" => "setCurrentTask",
+        "description" => "Set the current plan of action or task",
         "parameters" => [
             "type" => "object",
             "properties" => [
                 "description" => [
                     "type" => "string",
-                    "description" => "Short description of current plan talked by the party",
+                    "description" => "Short description of current task talked by the party",
                 ]
             ],
             "required" => ["description"]

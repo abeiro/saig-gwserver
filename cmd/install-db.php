@@ -86,6 +86,17 @@ CREATE TABLE IF NOT EXISTS `diarylog` (
   `tags` text,
   `people` text,
   `localts` bigint NOT NULL,
+  `location` text,
+  `gamets` bigint NOT NULL
+);");
+
+$db->exec("
+CREATE TABLE IF NOT EXISTS `books` (
+  `ts` text NOT NULL,
+  `sess` varchar(1024) ,
+  `title` text,
+  `content` text,
+  `localts` bigint NOT NULL,
   `gamets` bigint NOT NULL
 );");
 
@@ -94,10 +105,13 @@ CREATE TABLE IF NOT EXISTS `currentmission` (
   `ts` text NOT NULL,
   `sess` varchar(1024) ,
   `description` text,
-  `location` bigint NOT NULL,
   `localts` bigint NOT NULL,
   `gamets` bigint NOT NULL
 );");
+
+$db->exec("
+CREATE VIRTUAL TABLE diarylogv2 
+USING FTS5(topic,content,tags,people,location);");
 
 @mkdir(__DIR__ .DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR."soundcache");
 

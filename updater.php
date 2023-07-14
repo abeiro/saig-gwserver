@@ -113,7 +113,12 @@ echo "
 
 
 ";
+
+if ($_POST["doit"]) {
+    echo "<p>REMEMBER TO CHECK OUT conf.sample.php !! MAYBE NEW CONF VARS ARE NEEDED!</p>";
     
+}
+
 } else {
     echo "Failed to open ZIP archive\n";
 }

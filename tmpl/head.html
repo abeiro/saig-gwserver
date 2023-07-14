@@ -6,21 +6,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="css/style.css?v=1.0">
   <title>#TITLE#</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 
-<style>
-pre.foldable {
-  display:none
-}
-</style>
 <script>
 
-function togglePre(element) {
-  if (element.parentElement.lastChild.className=='')
-    element.parentElement.lastChild.className='foldable'
-  else
-    element.parentElement.lastChild.className=''
-}
+  function togglePre(element) {
+    if (element.parentElement.lastChild.className=='')
+      element.parentElement.lastChild.className='foldable'
+    else
+      element.parentElement.lastChild.className=''
+  }
+
+  function toggleDP() {document.getElementsByClassName('debugpane')[0].style.display=document.getElementsByClassName('debugpane')[0].style.display=='block'?'none':'block'}
+
+
 </script>
 <body>
 

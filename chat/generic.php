@@ -16,21 +16,28 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
     $client = OpenAI::client($GLOBALS["OPENAI_API_KEY"]);
 
     $PROMPT_HEAD=($GLOBALS["PROMPT_HEAD"])?$GLOBALS["PROMPT_HEAD"]:"Let\'s roleplay in the Universe of Skyrim. I\'m {$GLOBALS["PLAYER_NAME"]} ";
+    
+    require_once(__DIR__.DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR."command_prompt.php");//$COMMAND_PROMPT_SHORT
+    
+    $PROMPT_RULES= $COMMAND_PROMPT_SHORT;
 
     $starTime=microtime(true);
     
     $historic = $db->lastDataFor("",$lastDataAmount*-1);
+    $contextCurrentPlan[]=  array('role' => 'user', 'content' => 'The Narrator: (' .$db->get_current_task().')');
+
     $head = array();
     $foot = array();
 
-    $head[] = array('role' => 'user', 'content' => '('.$PROMPT_HEAD.$GLOBALS["HERIKA_PERS"]);
+    $head[] = array('role' => 'user', 'content' => '('.$PROMPT_HEAD.$GLOBALS["HERIKA_PERS"].$PROMPT_RULES);
     $prompt[] = array('role' => 'assistant', 'content' => $request);
     $foot[] = array('role' => 'user', 'content' => $GLOBALS["PLAYER_NAME"].':' . $preprompt);
 
+    
     if (!$preprompt)
-        $parms = array_merge($head, ($historic), $prompt);
+        $parms = array_merge($head, $contextCurrentPlan, ($historic),$prompt);
     else
-        $parms = array_merge($head, ($historic), $foot, $prompt);
+        $parms = array_merge($head, $contextCurrentPlan, ($historic),$foot, $prompt);
     //// OPENAI CODE
     $callParms = [
         'model' => 'gpt-3.5-turbo',

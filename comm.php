@@ -212,9 +212,11 @@ try {
 	$finalParsedData[3] = @mb_convert_encoding($finalParsedData[3], 'UTF-8', 'UTF-8');
 	if ($finalParsedData[0] == "init") { // Reset reponses if init sent (Think about this)
 		$db->delete("eventlog", "gamets>{$finalParsedData[2]}  ");
-		$db->delete("quests", "gamets>{$finalParsedData[2]}  ");
+		$db->delete("quests", "1=1");
 		$db->delete("speech", "gamets>{$finalParsedData[2]}  ");
-
+		$db->delete("diarylog", "gamets>{$finalParsedData[2]}  ");
+		$db->delete("diarylogv2", "true");
+		$db->execQuery("insert into diarylogv2 select topic,content,tags,people,location from diarylog");
 		//die(print_r($finalParsedData,true));
 		$db->update("responselog", "sent=0", "sent=1 and (action='AASPGDialogueHerika2Branch1Topic')");
 		$db->insert(
@@ -242,6 +244,7 @@ try {
 		$questParsedData = json_decode($finalParsedData[3], true);
 		//print_r($questParsedData);
 		if (!empty($questParsedData["currentbrief"])) {
+			$db->delete('quests',"id_quest='{$questParsedData["formId"]}' ");
 			$db->insert(
 				'quests',
 				array(
@@ -249,25 +252,25 @@ try {
 					'gamets' => $finalParsedData[2],
 					'name' => $questParsedData["name"],
 					'briefing' => $questParsedData["currentbrief"],
-					'briefing2' => $questParsedData["currentbrief2"],
+					'data' => json_encode($questParsedData["currentbrief2"]),
 					'stage' => $questParsedData["stage"],
 					'giver_actor_id' => $questParsedData["data"]["questgiver"],
 					'id_quest' => $questParsedData["formId"],
-					'data' => json_encode($questParsedData["data"]),
 					'sess' => 'pending',
 					'status' => $questParsedData["status"],
 					'localts' => time()
 				)
 			);
-
-			if ($questParsedData["status"] == "completed") {
-				$db->update("quests", "status='completed'", "id_quest='{$questParsedData["formId"]}'");
-			}
+			
 		}
 
 
 
-	} else if ($finalParsedData[0] == "_speech") {
+	} else if ($finalParsedData[0] == "_questreset") {
+		error_reporting(E_ALL);
+		$db->delete("quests", "1=1");
+
+	}  else if ($finalParsedData[0] == "_speech") {
 		error_reporting(E_ALL);
 		$speech = json_decode($finalParsedData[3], true);
 		//print_r($questParsedData);
@@ -286,7 +289,32 @@ try {
 				)
 			);
 
-	} else { // It's an event. Store it
+	} else if ($finalParsedData[0] == "book") {
+		$db->insert(
+			'books',
+			array(
+				'ts' => $finalParsedData[1],
+				'gamets' => $finalParsedData[2],
+				'title' => $finalParsedData[3],
+				'sess' => 'pending',
+				'localts' => time()
+			)
+		);
+		
+		$db->insert(
+			'eventlog',
+			array(
+				'ts' => $finalParsedData[1],
+				'gamets' => $finalParsedData[2],
+				'type' => $finalParsedData[0],
+				'data' => $finalParsedData[3],
+				'sess' => 'pending',
+				'localts' => time()
+			)
+		);
+		
+		
+	}   else { // It's an event. Store it
 		$db->insert(
 			'eventlog',
 			array(
@@ -337,8 +365,8 @@ if ($finalParsedData[0] == "combatend") {
 	if (stripos($finalParsedData[3], 'note') !== false) // Avoid notes
 		return;
 	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
-	$responseText = requestGeneric($PROMPTS["book"][0], $PROMPTS["book"][1], 'AASPGQuestDialogue2Topic1B1Topic', 1);
-	parseResponse($responseText);
+	//$responseText = requestGeneric($PROMPTS["book"][0], $PROMPTS["book"][1], 'AASPGQuestDialogue2Topic1B1Topic', 1);
+	//parseResponse($responseText);
 
 
 } else if ($finalParsedData[0] == "quest") {
@@ -367,7 +395,7 @@ if ($finalParsedData[0] == "combatend") {
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
 	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
-	$responseText = requestGeneric($PROMPTS["bored"][rand(1, 12)], $PROMPTS["bored"][0], 'AASPGQuestDialogue2Topic1B1Topic', 10);
+	$responseText = requestGeneric($PROMPTS["bored"][rand(1, sizeof($PROMPTS["bored"])-1)], $PROMPTS["bored"][0], 'AASPGQuestDialogue2Topic1B1Topic', 10);
 	parseResponse($responseText);
 
 
@@ -408,6 +436,19 @@ if ($finalParsedData[0] == "combatend") {
 	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
 	$responseText = requestGeneric($PROMPTS["lockpicked"][0], $PROMPTS["lockpicked"][1], 'AASPGQuestDialogue2Topic1B1Topic', 5);
 	parseResponse($responseText, "whispering");
-}
+
+	
+} else if ($finalParsedData[0] == "force_current_task") {
+	$db->insert(
+			'currentmission',
+			array(
+				'ts' => $finalParsedData[1],
+				'gamets' => $finalParsedData[2],
+				'description' => SQLite3::escapeString($finalParsedData[3]),
+				'sess' => 'pending',
+				'localts' => time()
+			)
+	);
+} 
 
 ?>

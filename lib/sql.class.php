@@ -45,6 +45,12 @@ class sql
     self::$link->exec("UPDATE  $table set $set WHERE $where");
   }
 
+  function execQuery($sqlquery)
+  {
+    self::$link->exec($sqlquery);
+  }
+  
+  
   function fetchAll($q)
   {
 
@@ -76,8 +82,14 @@ class sql
   function lastDataFor($actor, $lastNelements = -10)
   {
     $lastDialogFull = array();
-    $results = self::$link->query("select  case when type like 'info%' or type like 'death%' or  type like 'funcret%' or type like 'location%' or data like '%background chat%' then 'The Narrator:' else '' end||a.data  as data FROM  eventlog a WHERE data like '%$actor%' 
-    and type<>'combatend'  and type<>'book'  
+    $results = self::$link->query("select  
+    case 
+      when type like 'info%' or type like 'death%' or  type like 'funcret%' or type like 'location%' or data like '%background chat%' then 'The Narrator:'
+      when type='book' then 'The Narrator: ({$GLOBALS["PLAYER_NAME"]} took the book ' 
+      else '' 
+    end||a.data  as data 
+    FROM  eventlog a WHERE data like '%$actor%' 
+    and type<>'combatend'  
     and type<>'bored' and type<>'init' and type<>'lockpicked' and type<>'infonpc' and type<>'infoloc' and type<>'info' and type<>'funcret' 
     and type<>'funccall'  order by gamets desc,ts desc LIMIT 0,50");
     $lastData = "";
@@ -117,18 +129,6 @@ class sql
     $lastDialogFullReversed = array_reverse($lastDialogFull);
     $lastDialog = array_slice($lastDialogFullReversed, $lastNelements);
     $last_location = null;
-
-    // Remove Context Location part when repeated
-    /*foreach ($lastDialog as $k => $message) {
-      preg_match('/\(Context location: (.*)\)/', $message['content'], $matches);
-      $current_location = isset($matches[1]) ? $matches[1] : null;
-      if ($current_location === $last_location) {
-        $message['content'] = preg_replace('/\(Context location: (.*)\)/', '', $message['content']);
-      } else {
-        $last_location = $current_location;
-      }
-      $lastDialog[$k]["content"] = $message['content'];
-    }*/
 
 
     return $lastDialog;
@@ -178,9 +178,9 @@ class sql
 
   function questJournal($quest)
   {
-
+    global $db;
     if (empty($quest)) {
-      $lastDialogFull = array();
+      /*$lastDialogFull = array();
       $results = self::$link->query("SElECT  distinct name,id_quest,briefing,giver_actor_id  
             FROM quests where coalesce(status,'pending')<>'completed' and stage<200 order by id_quest");
       if (!$results)
@@ -193,11 +193,31 @@ class sql
         $data[] = "no active quests";
       
       return json_encode($data);
-
+      */
+      $results = $db->fetchAll("SElECT name,id_quest,briefing,'pending' as status FROM quests");
+      $finalRow=[];
+      foreach ($results as $row) {
+          if (isset($finalRow[$row["id_quest"]]))
+              continue;
+          else
+              $finalRow[$row["id_quest"]]=$row;
+      }
+      
+      if (sizeof($finalRow)==0)
+          $data[] = "no active quests";
+      else
+          $data=array_values($finalRow);
+      
+      $extraData=$db->get_current_task();
+      
+      $data[]=["side note"=>"$extraData"];
+      
+      return json_encode($data);
+      
     } else {
       $lastDialogFull = array();
-      $results = self::$link->query("SElECT  name,id_quest,briefing as stage_briefing,stage,'yes' as stage_completed,coalesce(status,'pending') as quest_status,data as rawdata
-      FROM quests where lower(id_quest)=lower('$quest') or lower(name)=lower('$quest') order by stage");
+      $results = self::$link->query("SElECT  name,id_quest,briefing,data
+      FROM quests where lower(id_quest)=lower('$quest') or lower(name)=lower('$quest') ");
       $lastOne = -1;
       $data = array();
       if (!$results) {
@@ -255,15 +275,35 @@ class sql
  function diaryLog($topic)
   {
 
+      /*
       $results = self::$link->query("SElECT  topic,content,tags,people  FROM diarylog
       where (tags like '%$topic%' or topic like '%$topic%' or people like '%$topic%') order by gamets asc");
-      if (!$results)
-        return  json_encode([]);
+      */
+      $topicTok=explode(" ",strtr($topic,array("'"=>"")));
+      $topicFmt=implode(" OR ",$topicTok);
+      $results = self::$link->query(SQLite3::escapeString("SElECT  topic,content,tags,people  FROM diarylogv2
+      where (tags MATCH \"$topicFmt\" or topic MATCH \"$topicFmt\" or content MATCH \"$topicFmt\" or people MATCH \"$topicFmt\") ORDER BY rank"));
+      
+      
+      if (!$results) {  // No match, will return a list of current memories
+          $results = self::$link->query(SQLite3::escapeString("SElECT  topic,tags  FROM diarylogv2 order by gamets asc"));
+          
+          if (!$results) 
+            return  json_encode([]);
+        
+          $data=[];
 
-      $data=[];
-
-      while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
-        $data[] = $row;
+          while ($row = $results->fetchArray(SQLITE3_ASSOC)) 
+            $data[] = $row;
+     
+      } else {       // Return best matching memory
+   
+        $data=[];
+        while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+          $data[] = $row;
+          break;    // Only space for one memory
+        }
+        
       }
 
       return json_encode($data);
@@ -271,20 +311,28 @@ class sql
  }
 
 
- function get_current_mission()
+ function get_current_task()
   {
 
       $results = self::$link->query("SElECT  description  FROM currentmission order by gamets desc");
+      if (!$results)
+        return  json_encode([]);
+  
+      $data="";
 
-
-      $data=[];
-
+      $n=0;
       while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
-        $data[] = $row;
-        break;
+        
+        if ($n==0)
+          $data="Current task: {$row["description"]}.";
+        else if ($n==1)
+          $data.="Previous task: {$row["description"]}.";
+        else
+          break;
+        $n++;
       }
 
-      return json_encode(current($data));
+      return $data;
 
  }
 

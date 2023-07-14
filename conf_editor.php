@@ -7,7 +7,7 @@ ob_start();
 $url = 'conf_editor.php';
 $file = 'conf.php';
 $TITLE="Config editor";
-require "tmpl/head.html";
+echo file_get_contents("tmpl".DIRECTORY_SEPARATOR."head.html");
 
 // check if form has been submitted
 if (isset($_POST['text'])&& $_POST['save']) {
@@ -36,15 +36,21 @@ if ($_POST['check']) {
 }
 
 ?>
+<h1>Server configuration</h1>
+<p>Push check button first to check syntax errors</p>
 <!-- HTML form -->
-<form action="" method="post" name="mainC">
+<form action="" method="post" name="mainC" class="confeditor">
 <div>
-<textarea name="text" style="width:90%;min-height:300px"><?php echo htmlspecialchars($text); ?></textarea>
+<textarea name="text" style="width:90%;min-height:300px" class="numbered"><?php echo htmlspecialchars($text); ?></textarea>
 </div>
-<input type="submit" name="save" value="Save"/>
+<br/>
+<input type="button" name="save" value="Save" onclick='document.forms[0].target="";document.forms[0].action="conf_editor.php";document.forms[0].submit()'/>
 <input type="button" value="Back" onclick="location.href='index.php'"/>
-<input type="submit" name="check" value="Check" />
+<input type="button" name="check" value="Check"  onclick='document.forms[0].target="checker";document.forms[0].action="conf_checker.php";document.forms[0].submit()'/>
 </form>
+<br/>
+<iframe name="checker" border="1"  style="width:100%;min-height:200px;" scrolling="no"/>
+
 
 <?php
 $buffer=ob_get_contents();

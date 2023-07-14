@@ -1,10 +1,13 @@
-
 @charset "utf-8";
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Fasthand&family=Germania+One&family=Spline+Sans+Mono:wght@300&display=swap');
 /*					
 	Author		CrystalCommerce.com // Ross Dallaire
     https://gist.githubusercontent.com/rdallaire/3902324/raw/6c9afaea533d48bee489b903854cdc6493db82de/CC%2520Starter%2520CSS	
 	Colors
 */
+
+
+
 
 /* RESET */
 html, body, div, span, object, iframe,
@@ -146,8 +149,8 @@ a.buttonify,span.buttonify {
 }
   
 div.menupane {
-    margin-bottom:10px;
-    
+    min-height: 38px;
+  
 }
 
 div.debugpane {
@@ -169,3 +172,113 @@ td {
     padding:1px;
   
 }
+
+div.datatable {
+	max-height: 700px;
+    overflow: scroll;
+	font-family: "Spline Sans Mono";
+	font-weight:bold;
+	border:1px solid lightgray;
+}
+
+h1 {
+    font-family: 'Germania One';
+    font-size: 32px;
+}
+
+body > div:nth-child(3) > p {
+	
+	font-family: 'Germania One';
+    font-size: 22px;
+	margin-top:10px;
+	
+}
+
+h1 {
+  font-family: 'Germania One';
+  font-size:26px;
+}
+pre.foldable {
+  display:none
+}
+
+/* menu */
+
+#menu ul {
+ list-style:none;
+ margin:0;
+ padding:0;
+}
+
+/* items del menu */
+
+#menu ul li {
+ background-color:#2e518b;
+}
+
+/* enlaces del menu */
+
+#menu ul a {
+ display:block;
+ color:#fff;
+ text-decoration:none;
+ font-weight:400;
+ font-size:22px;
+ padding:10px;
+ font-family: 'Germania One';
+ letter-spacing:1px;
+}
+
+/* items del menu */
+
+#menu ul li {
+ position:relative;
+ float:left;
+ margin:0;
+ padding:0;
+}
+
+/* efecto al pasar el ratón por los items del menu */
+
+#menu ul li:hover {
+ background:#5b78a7;
+}
+
+#menu ul ul {
+ display:none;
+ position:absolute;
+ top:100%;
+ left:0;
+ background:#eee;
+ padding:0;
+}
+
+#menu ul ul li {
+ float:none;
+ width:150px
+}
+
+#menu ul ul a {
+ line-height:120%;
+ padding:10px 15px;
+}
+
+#menu ul li:hover > ul {
+ display:block;
+}
+
+.confeditor {
+	
+	
+	
+}
+
+.confeditor textarea{
+	font-family: monospace;
+    font-size: 11px;
+}
+
+
+
+
+

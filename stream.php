@@ -161,7 +161,7 @@ if ($finalParsedData[0]=="inputtext_s") {
 		$forceMood="whispering";
 }
 $preprompt=preg_replace("/^[^:]*:/", "", $finalParsedData[3]);
-$lastNDataForContext=10;
+$lastNDataForContext=(isset($GLOBALS["CONTEXT_HISTORY"])) ? ($GLOBALS["CONTEXT_HISTORY"]) : "25";
 $contextData = $db->lastDataFor("",$lastNDataForContext*-1);
 $head = array();
 $foot = array();
