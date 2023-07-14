@@ -33,12 +33,22 @@ function tts($textString, $mood = 'default', $stringforhash)
   $languageCode = $GLOBALS['GCP_CONF']['voice']['languageCode'];
 
   $input = new SynthesisInput();
-  $input->setSsml('<speak>'.
-      (!in_array($languageCode, ['en-US-Studio-O', 'en-US-Studio-M']) ?
-      '<prosody rate="' . $GLOBALS['GCP_CONF']['ssml']['rate'] . '" pitch="' . $GLOBALS['GCP_CONF']['ssml']['pitch'] . '">' : '').
-        $textString .
-      (!in_array($languageCode, ['en-US-Studio-O', 'en-US-Studio-M']) ? '</prosody>' : '').
-      '<break time="500ms"/></speak>');
+      if(!in_array($voiceName, ['en-US-Studio-O', 'en-US-Studio-M']))
+      {
+        $input->setSsml('<speak>'
+            . '<prosody rate="' . $GLOBALS['GCP_CONF']['ssml']['rate']
+            . '" pitch="' . $GLOBALS['GCP_CONF']['ssml']['pitch'] . '">'
+            . $textString
+            . '</prosody>' . '<break time="500ms"/>'
+            . '</speak>');
+      }
+      else
+      {
+        $input->setSsml('<speak>'
+            . $textString
+            . '<break time="500ms"/>'
+            . '</speak>');
+      }
 
   $voice = new VoiceSelectionParams();
   $voice->setLanguageCode($languageCode);
