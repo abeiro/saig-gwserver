@@ -10,7 +10,7 @@ $TITLE="Config editor";
 echo file_get_contents("tmpl".DIRECTORY_SEPARATOR."head.html");
 
 // check if form has been submitted
-if (isset($_POST['text'])&& $_POST['save']) {
+if (isset($_POST['text'])) {
     // save the text contents
     file_put_contents($file, $_POST['text']);
 
@@ -20,20 +20,6 @@ if (isset($_POST['text'])&& $_POST['save']) {
     exit();
 }
 
-if (isset($_POST['text']) && $_POST['check']) {
-  
-    highlight_string("{$_POST['text']}");    
-  
-}
-
-
-
-// read the textfile
-if ($_POST['check']) {
-    $text = ($_POST['text']);
-} else {
-    $text = file_get_contents($file);
-}
 
 ?>
 <h1>Server configuration</h1>
