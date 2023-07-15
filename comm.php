@@ -214,7 +214,9 @@ try {
 		$db->delete("eventlog", "gamets>{$finalParsedData[2]}  ");
 		$db->delete("quests", "1=1");
 		$db->delete("speech", "gamets>{$finalParsedData[2]}  ");
+		$db->delete("currentmission", "gamets>{$finalParsedData[2]}  ");
 		$db->delete("diarylog", "gamets>{$finalParsedData[2]}  ");
+
 		$db->delete("diarylogv2", "true");
 		$db->execQuery("insert into diarylogv2 select topic,content,tags,people,location from diarylog");
 		//die(print_r($finalParsedData,true));
