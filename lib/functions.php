@@ -218,7 +218,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "setCurrentTask",
-        "description" => "Set the current plan of action or task",
+        "description" => "Set the current plan of action or task or quest",
         "parameters" => [
             "type" => "object",
             "properties" => [
