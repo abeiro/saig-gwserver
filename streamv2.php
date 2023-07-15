@@ -458,6 +458,12 @@ if ($finalParsedData[0] == "funcret") {
 			//$useFunctionsAgain=true;
 
 
+		} } else if ($returnFunction[1] == "CheckInventory") {
+			//$useFunctionsAgain=true;
+			$argName = "target";
+			//$useFunctionsAgain=true;
+
+
 		} else {
 			$argName = "target";
 
