@@ -338,6 +338,7 @@ if ($finalParsedData[0] == "funcret") { // Overwrite funrect with info from data
 	} else if ($returnFunction[1] == "setCurrentTask") {
 		
 		$returnFunction[3] .= "ok"; // This is always ok
+		$finalParsedData[3].="done";
 		$db->insert(
 			'currentmission',
 			array(
