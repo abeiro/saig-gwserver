@@ -21,6 +21,15 @@ if (isset($_POST['text'])) {
 }
 
 
+
+
+// read the textfile
+if ($_POST['text']) {
+    $text = ($_POST['text']);
+} else {
+    $text = file_get_contents($file);
+}
+
 ?>
 <h1>Server configuration</h1>
 <p>Push check button first to check syntax errors</p>
