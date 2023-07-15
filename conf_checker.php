@@ -75,7 +75,7 @@ if (!$STTFUNCTION) {
     echo "Using  STT service <strong>$STTFUNCTION</strong> <br/>";
 
 if ($TTSFUNCTION=="azure")
-    if (isset($AZURE_API_KEY)) {
+    if (!isset($AZURE_API_KEY)) {
         echo "Error: Azure is in use but \$AZURE_API_KEY not found <br/>";
         $errorFlag=true;
     }
