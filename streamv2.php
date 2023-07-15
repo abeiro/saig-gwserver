@@ -272,10 +272,10 @@ if (!isset($PROMPTS["afterattack"]))
 
 
 if ($finalParsedData[0] == "funcret") { // Take out the functions part
-	$request = str_replace("call function if needed,", "Herika continues speaking,", $PROMPTS["inputtext"][0]); 
+	$request = str_replace("call function if needed,", "continue chat as $HERIKA_NAME,", $PROMPTS["inputtext"][0]); 
 
 	
-} if ($finalParsedData[0] == "chatnf_book") { // Takea out the functions part
+} else if ($finalParsedData[0] == "chatnf_book") { // Takea out the functions part
 	$request = $PROMPTS["book"][0];
 	$books=$db->fetchAll("select title from books order by gamets desc");
 	
@@ -458,7 +458,7 @@ if ($finalParsedData[0] == "funcret") {
 			//$useFunctionsAgain=true;
 
 
-		} } else if ($returnFunction[1] == "CheckInventory") {
+		} else if ($returnFunction[1] == "CheckInventory") {
 			//$useFunctionsAgain=true;
 			$argName = "target";
 			//$useFunctionsAgain=true;
