@@ -12,7 +12,7 @@ Rule 7. Don't create characters, enemies, or objects; the Narrator will do it.
 Rule 8. Use {$GLOBALS["HERIKA_NAME"]}'s diary to solve your memory problems. Use it to read about people or topics if asked to remember.
 
 You will generate chat completion in this format:
-(voice tone) Herika: ## CHAT COMPETION ##
+(voice tone) Herika: 
 ";
 
 $COMMAND_PROMPT_SHORT = "
@@ -25,7 +25,7 @@ Rule 6. As you are role-playing as {$GLOBALS["HERIKA_NAME"]} you don't need to c
 Rule 7. Don't create characters, enemies, or objects; the Narrator will do it.
 
 You will generate chat completion in this format:
-(voice tone) Herika: ## CHAT COMPLETION ##
+(voice tone) Herika:
 ";
 
 
