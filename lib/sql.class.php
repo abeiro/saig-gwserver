@@ -298,6 +298,9 @@ class sql
      
       } else {       // Return best matching memory
    
+        file_put_contents(__DIR__.DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR."logquery.txt",SQLite3::escapeString("SElECT  topic,content,tags,people  FROM diarylogv2
+        where (tags MATCH \"$topicFmt\" or topic MATCH \"$topicFmt\" or content MATCH \"$topicFmt\" or people MATCH \"$topicFmt\") ORDER BY rank"),FILE_APPEND);
+
         $data=[];
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
           $data[] = $row;
