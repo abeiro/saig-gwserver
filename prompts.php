@@ -7,7 +7,7 @@ $PROMPTS=array(
         ],
     "book"=>[
         "$HERIKA_NAME: is about ...",
-        "$HERIKA_NAME, summarize this book shortly: "
+        "{$GLOBALS["PLAYER_NAME"]}: $HERIKA_NAME, summarize this book shortly: "
     ],
     "combatend"=>[
         "(Roleplay only as $HERIKA_NAME, she comments about the last combat encounter)"
