@@ -72,7 +72,7 @@ if ($_POST["doit"]) {
 				'gamets' => 0,
 				'topic' => SQLite3::escapeString("$HERIKA_NAME's background story"),
 				'content' => SQLite3::escapeString($_POST["bgstory"]),
-				'tags' => SQLite3::escapeString("$HERIKA_NAME, birth, story, background, past"),
+				'tags' => SQLite3::escapeString("$HERIKA_NAME, birth, story, background, past, birthplace, origins, childhood"),
 				'people' => SQLite3::escapeString($HERIKA_NAME),
 				'location' => "",
 				'sess' => 'pending',
@@ -102,7 +102,7 @@ echo "
 $rawResponse
 </textarea>
 <p>Prompt</p>
-<input type='text' value='".(($_POST["intro"])?:"Generate a background story for $HERIKA_NAME, in first person, and how she ended in Whiterun, as she would write it into her diary")."' name='intro' size='200'/>
+<input type='text' value='".(($_POST["intro"])?:"Generate a background story for $HERIKA_NAME, telling birthplace, childhood, family , writen in first person, and how she ended in Whiterun, as she would write it into her diary in a summarized way")."' name='intro' size='200'/>
 <br/>
 <p>Token limit</p>
 <input type='range' min='100' max='1024' value='".(($_POST["OPENAI_MAX_TOKENS_MEMORY"])?:200)."'  name='OPENAI_MAX_TOKENS_MEMORY' oninput='this.nextElementSibling.value = this.value'>
