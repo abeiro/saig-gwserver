@@ -306,6 +306,18 @@ class sql
         
       }
 
+      if (sizeof($data)==0) { // No match, will return a list of current memories. Revise limits
+        $results = self::$link->query(SQLite3::escapeString("SElECT  topic,tags  FROM diarylogv2 order by gamets asc"));
+          
+        if (!$results) 
+          return  json_encode([]);
+      
+        $data=[];
+
+        while ($row = $results->fetchArray(SQLITE3_ASSOC)) 
+          $data[] = $row;
+
+      }
       return json_encode($data);
 
  }
