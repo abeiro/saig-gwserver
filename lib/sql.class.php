@@ -324,9 +324,9 @@ class sql
       while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
         
         if ($n==0)
-          $data="Current task: {$row["description"]}.";
+          $data="Current task/quest/plan: {$row["description"]}.";
         else if ($n==1)
-          $data.="Previous task: {$row["description"]}.";
+          $data.="Previous task/quest/plan: {$row["description"]}.";
         else
           break;
         $n++;

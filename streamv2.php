@@ -431,8 +431,9 @@ if ($finalParsedData[0] == "funcret") {
 
 		} else if ($returnFunction[1] == "ReadQuestJournal") {
 			//$useFunctionsAgain=true;
+			$request="(use function setCurrentTask to update current ques if needed) $request";
 			$argName = "id_quest";
-			//$useFunctionsAgain=true;
+			$useFunctionsAgain=true;
 
 		} else if ($returnFunction[1] == "ReadDiary") {
 			//$useFunctionsAgain=true;
