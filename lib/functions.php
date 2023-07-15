@@ -204,7 +204,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "ReadDiary",
-        "description" => "Read {$GLOBALS["HERIKA_NAME"]}'s diary ",
+        "description" => "Read {$GLOBALS["HERIKA_NAME"]}'s diary to make her something",
         "parameters" => [
             "type" => "object",
             "properties" => [
