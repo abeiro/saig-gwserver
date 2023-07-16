@@ -272,8 +272,8 @@ if (!isset($PROMPTS["afterattack"]))
 
 
 if ($finalParsedData[0] == "funcret") { // Take out the functions part
-	$request = str_replace("call function if needed,", "continue chat as $HERIKA_NAME,", $PROMPTS["inputtext"][0]); 
-
+	//$request = str_replace("call function if needed,", "continue chat as $HERIKA_NAME,", $PROMPTS["inputtext"][0]); 
+	$request =$PROMPTS["afterfunc"][0];
 	
 } else if ($finalParsedData[0] == "chatnf_book") { // Takea out the functions part
 	$request = $PROMPTS["book"][0];

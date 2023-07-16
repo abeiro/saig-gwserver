@@ -11,9 +11,9 @@ $PROMPTS=array(
     ],
     "combatend"=>[
         "(Roleplay only as $HERIKA_NAME, she comments about the last combat encounter)  $HERIKA_NAME:",
-        "(Roleplay only as $HERIKA_NAME, she laughs at {$GLOBALS["PLAYER_NAME"]} combat style)  $HERIKA_NAME:",
+        "(Roleplay only as $HERIKA_NAME, she laughs at {$GLOBALS["PLAYER_NAME"]}'s combat style)  $HERIKA_NAME:",
         "(Roleplay only as $HERIKA_NAME, she comments about  {$GLOBALS["PLAYER_NAME"]} weapons)  $HERIKA_NAME:",
-        "(Roleplay only as $HERIKA_NAME, she admires  {$GLOBALS["PLAYER_NAME"]} combat style)  $HERIKA_NAME:",
+        "(Roleplay only as $HERIKA_NAME, she admires  {$GLOBALS["PLAYER_NAME"]}'s combat style)  $HERIKA_NAME:",
         "(Roleplay only as $HERIKA_NAME, she make a short poem about last kill)  $HERIKA_NAME:",
         "extra"=>["mood"=>"whispering","force_tokens_max"=>"50","dontuse"=>false]
 
@@ -58,7 +58,10 @@ $PROMPTS=array(
         "(call function if needed, Roleplay only as $HERIKA_NAME) $HERIKA_NAME: ",
         "extra"=>["mood"=>"whispering"]
     ],
-
+    "afterfunc"=>[
+        "(continue speaking and roleplaying as $HERIKA_NAME) $HERIKA_NAME: ",
+        "extra"=>[]
+    ],
     "lockpicked"=>[
         "(Comment about item lockpicked) $HERIKA_NAME: ",
         "({$GLOBALS["PLAYER_NAME"]} has unlocked {$finalParsedData[3]})"
