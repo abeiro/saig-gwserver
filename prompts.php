@@ -10,7 +10,13 @@ $PROMPTS=array(
         "{$GLOBALS["PLAYER_NAME"]}: $HERIKA_NAME, summarize this book shortly: "
     ],
     "combatend"=>[
-        "(Roleplay only as $HERIKA_NAME, she comments about the last combat encounter)"
+        "(Roleplay only as $HERIKA_NAME, she comments about the last combat encounter)  $HERIKA_NAME:",
+        "(Roleplay only as $HERIKA_NAME, she laughs at {$GLOBALS["PLAYER_NAME"]} combat style)  $HERIKA_NAME:",
+        "(Roleplay only as $HERIKA_NAME, she comments about  {$GLOBALS["PLAYER_NAME"]} weapons)  $HERIKA_NAME:",
+        "(Roleplay only as $HERIKA_NAME, she admires  {$GLOBALS["PLAYER_NAME"]} combat style)  $HERIKA_NAME:",
+        "(Roleplay only as $HERIKA_NAME, she make a short poem about last kill)  $HERIKA_NAME:",
+        "extra"=>["mood"=>"whispering","force_tokens_max"=>"50","dontuse"=>false]
+
     ],
     "quest"=>[
         "(Chat as $HERIKA_NAME)",

@@ -97,13 +97,13 @@ echo "
         <li><a href='#'>Data Tables</a>
             <ul>
                 <li><a href='index.php?table=response'  title=''>Responses</a> </li>
-                <li><a href='index.php?table=event'  >Events</a></li>
+                <li><a href='index.php?table=eventlog'  >Events</a></li>
                 <li><a href='index.php?table=log'  >Log</a></li>
                 <li><a href='index.php?table=quests'  >Quest journal</a></li>
                 <li><a href='index.php?table=currentmission'  >Current mission</a></li>
                 <li><a href='index.php?table=diarylog'  >Diary</a></li>
                 <li><a href='index.php?table=books'  >Books</a></li>
-                <li><a href='index.php?table=event&autorefresh=true'  >Monitor events</a></li>
+                <li><a href='index.php?table=eventlog&autorefresh=true'  >Monitor events</a></li>
             </ul>
         </li>
         <li><a href='#'>Operations</a>
@@ -179,13 +179,13 @@ echo "
 </div>
 ";
 
-if ($_GET["table"] == "response") {
+if ($_GET["table"] == "responselog") {
     $results = $db->fetchAll("select  A.*,ROWID FROM responselog a order by ROWID asc");
     echo "<p>Response queue</p>";
     print_array_as_table($results);
 }
 
-if ($_GET["table"] == "event") {
+if ($_GET["table"] == "eventlog") {
     $results = $db->fetchAll("select  A.*,ROWID FROM eventlog a order by gamets desc,ts  desc,localts desc");
     echo "<p>Event log</p>";
     print_array_as_table($results);

@@ -345,7 +345,19 @@ if ($finalParsedData[0] == "combatend") {
 	require_once("chat/generic.php");
 	$GLOBALS["DEBUG_MODE"] = false;
 	require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
-	$responseText = requestGeneric($PROMPTS["combatend"][0]);
+
+	if (isset($PROMPTS[$finalParsedData[0]]["extra"]["mood"]))
+		$GLOBALS["FORCE_MOOD"] = $PROMPTS[$finalParsedData[0]]["extra"]["mood"];
+	if (isset($PROMPTS[$finalParsedData[0]]["extra"]["force_tokens_max"]))
+		$GLOBALS["OPENAI_MAX_TOKENS"] = $PROMPTS[$finalParsedData[0]]["extra"]["force_tokens_max"];
+	if (isset($PROMPTS[$finalParsedData[0]]["extra"]["transformer"]))
+		$GLOBALS["TRANSFORMER_FUNCTION"] = $PROMPTS[$finalParsedData[0]]["extra"]["transformer"];
+	if (isset($PROMPTS[$finalParsedData[0]]["extra"]["dontuse"]))
+		if (($PROMPTS[$finalParsedData[0]]["extra"]["dontuse"]))
+			return "";
+
+	$responseText = requestGeneric(
+		($GLOBALS["FORCE_MOOD"]?"({$GLOBALS["FORCE_MOOD"]})":"").$PROMPTS["combatend"][rand(0,sizeof($PROMPTS["combatend"])-1)]);
 	parseResponse($responseText);
 
 } else if ($finalParsedData[0] == "location") { // Locations might be cached	// Disabled
