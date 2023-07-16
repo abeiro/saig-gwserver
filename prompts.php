@@ -59,7 +59,7 @@ $PROMPTS=array(
         "extra"=>["mood"=>"whispering"]
     ],
     "afterfunc"=>[
-        "(continue speaking and roleplaying as $HERIKA_NAME) $HERIKA_NAME: ",
+        "(Keep the dialogue going roleplaying as $HERIKA_NAME) $HERIKA_NAME: ",
         "extra"=>[]
     ],
     "lockpicked"=>[
