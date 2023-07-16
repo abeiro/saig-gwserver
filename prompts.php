@@ -6,7 +6,7 @@ $PROMPTS=array(
             "{$finalParsedData[3]} What do you know about this place?"  //prompt
         ],
     "book"=>[
-        "$HERIKA_NAME: is about ...",
+        "(note that despite her poor memory, $HERIKA_NAME is capable of remembering entire books) $HERIKA_NAME: is about ...",
         "{$GLOBALS["PLAYER_NAME"]}: $HERIKA_NAME, summarize this book shortly: "
     ],
     "combatend"=>[
