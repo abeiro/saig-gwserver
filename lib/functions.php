@@ -1,6 +1,6 @@
 <?php
 
-// FUnctions to be provided to CHATGPT
+// Functions to be provided to OpenAI
 
 $FUNCTIONS = [
     [
@@ -40,6 +40,7 @@ $FUNCTIONS = [
                 "target" => [
                     "type" => "string",
                     "description" => "Visible Target NPC, Actor, or being, or building.",
+                    "enum" => $FUNCTION_PARM
                 ]
             ],
             "required" => ["target"],
@@ -131,13 +132,14 @@ $FUNCTIONS = [
     ],
     [
         "name" => "LeadTheWayTo",
-        "description" => "Guide {$GLOBALS["PLAYER_NAME"]} to a Town o City. ",
+        "description" => "Only use if {$GLOBALS["PLAYER_NAME"]} explicitly orders it. Guide {$GLOBALS["PLAYER_NAME"]} to a Town o City. ",
         "parameters" => [
             "type" => "object",
             "properties" => [
                 "location" => [
                     "type" => "string",
-                    "description" => "Town or City to travel to",
+                    "description" => "Town or City to travel to, only if {$GLOBALS["PLAYER_NAME"]} explicitly orders it"
+                    
                 ]
             ],
             "required" => ["location"]
@@ -159,7 +161,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "ReadQuestJournal",
-        "description" => "Get info about current quests",
+        "description" => "Only use if {$GLOBALS["PLAYER_NAME"]} explicitly ask for a quest. Get info about current quests",
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -188,14 +190,14 @@ $FUNCTIONS = [
         ]
     ],
     [
-        "name" => "GetTime",
+        "name" => "GetDateTime",
         "description" => "Get Current Date and Time",
         "parameters" => [
             "type" => "object",
             "properties" => [
                 "datestring" => [
                     "type" => "string",
-                    "description" => "Formmated date and time",
+                    "description" => "Formatted date and time",
                 ]
 
             ],
@@ -203,8 +205,8 @@ $FUNCTIONS = [
         ]
     ],
     [
-        "name" => "ReadDiary",
-        "description" => "Read {$GLOBALS["HERIKA_NAME"]}'s diary to make her something",
+        "name" => "ReadDiaryPage",
+        "description" => "Read {$GLOBALS["HERIKA_NAME"]}'s diary to access a specific topic",
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -217,7 +219,21 @@ $FUNCTIONS = [
         ]
     ],
     [
-        "name" => "setCurrentTask",
+        "name" => "SearchDiary",
+        "description" => "Read {$GLOBALS["HERIKA_NAME"]}'s diary to make her remember something. Search in diary index",
+        "parameters" => [
+            "type" => "object",
+            "properties" => [
+                "keyword" => [
+                    "type" => "string",
+                    "description" => "keyword to search in full-text query syntax",
+                ]
+            ],
+            "required" => [""]
+        ]
+    ],
+    [
+        "name" => "SetCurrentTask",
         "description" => "Set the current plan of action or task or quest",
         "parameters" => [
             "type" => "object",

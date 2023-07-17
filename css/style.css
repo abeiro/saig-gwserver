@@ -210,6 +210,10 @@ pre.foldable {
  padding:0;
 }
 
+#menu{
+	z-index:100
+
+}
 /* items del menu */
 
 #menu ul li {
@@ -265,6 +269,7 @@ pre.foldable {
 
 #menu ul li:hover > ul {
  display:block;
+ z-index:101;
 }
 
 .confeditor {

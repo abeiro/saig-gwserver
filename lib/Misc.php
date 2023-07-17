@@ -217,7 +217,7 @@ function parseResponseV2($responseText, $forceMood = "", $topicQueue)
 						'localts' => time(),
 						'sent' => 0,
 						'text' => trim(preg_replace('/\s\s+/', ' ', SQLite3::escapeString($responseTextUnmooded))),
-						'actor' => "Player",
+						'actor' => "Herika",
 						'action' => $topicQueue,
 						'tag' => $tag
 					)
@@ -226,7 +226,7 @@ function parseResponseV2($responseText, $forceMood = "", $topicQueue)
 					'localts' => time(),
 					'sent' => 0,
 					'text' => trim(preg_replace('/\s\s+/', ' ', $responseTextUnmooded)),
-					'actor' => "Player",
+					'actor' => "Herika",
 					'action' => $topicQueue,
 					'tag' => $tag
 				);

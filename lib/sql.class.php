@@ -176,6 +176,51 @@ class sql
 
   }
 
+  function posibleLocationsToGo()
+  {
+    $lastDialogFull = array();
+    $results = self::$link->query("select  a.data  as data  FROM  eventlog a 
+    WHERE type in ('infoloc')  order by gamets desc,ts desc LIMIT 0,50");
+    $lastData = "";
+    $retData=[];
+    while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+    //$row = $results->fetchArray();
+    
+      $re = '/(to go:)(.+),,/';
+
+      preg_match($re, $row["data"], $matches, PREG_OFFSET_CAPTURE, 0);
+      if (isset($matches[2])) {
+          $retData=explode(",",$matches[2][0]);
+      };
+      break;
+    }
+    
+     $results = self::$link->query("select  a.data  as data  FROM  eventlog a 
+    WHERE type in ('infonpc')  order by gamets desc,ts desc LIMIT 0,50");
+    $lastData = "";
+    $matches=[];
+    while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+    //$row = $results->fetchArray();
+    
+      $pattern = "/Herika can see this beings in range:(.*)/";
+      preg_match_all($pattern,  $row["data"], $matches);
+
+      if (isset($matches[1][0]))
+        $retData= array_merge($retData,explode(",",$matches[1][0]));
+
+      //print_r($matches);
+      break;
+    }
+    
+    foreach ($result as $k=>$v) {
+      if (strlen($v)<2)
+        unset($result[$k]);
+      
+    }
+    
+    return $result;
+  }
+    
   function questJournal($quest)
   {
     global $db;
@@ -298,7 +343,7 @@ class sql
      
       } else {       // Return best matching memory
    
-        file_put_contents(__DIR__.DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR."logquery.txt",SQLite3::escapeString("SElECT  topic,content,tags,people  FROM diarylogv2
+        file_put_contents(__DIR__.DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR."logquery.txt",SQLite3::escapeString("\nSElECT  topic,content,tags,people  FROM diarylogv2
         where (tags MATCH \"$topicFmt\" or topic MATCH \"$topicFmt\" or content MATCH \"$topicFmt\" or people MATCH \"$topicFmt\") ORDER BY rank"),FILE_APPEND);
 
         $data=[];
@@ -310,17 +355,48 @@ class sql
       }
 
       if (sizeof($data)==0) { // No match, will return a list of current memories. Revise limits
-        $results = self::$link->query(SQLite3::escapeString("SElECT  topic,tags  FROM diarylogv2 order by gamets asc"));
-          
-        if (!$results) 
-          return  json_encode([]);
+        
+        $results = self::$link->query(SQLite3::escapeString("SElECT  topic  FROM diarylogv2 order by rowid asc"));
       
         $data=[];
 
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) 
           $data[] = $row;
 
+        return json_encode(["return value"=>"Page not found","available pages"=>$data]);  
       }
+      
+      return json_encode($data);  
+      
+
+ }
+ 
+ 
+ function diaryLogIndex($topic)
+  {
+
+     //$results = self::$link->query('SElECT  topic,tags  FROM diarylogv2 where tags  MATCH NEAR(\'one two\' \'three four\', 10) order by rank');
+     $preData=  self::fetchAll("SElECT  topic,tags,people  FROM diarylogv2 where tags  MATCH 'NEAR(\"$topic\")' or topic  MATCH 'NEAR(\"$topic\")' or people  MATCH 'NEAR(\"$topic\")'  order by rank");
+     //$preData=  self::fetchAll("SElECT  topic,tags,people  FROM diarylogv2 where tags  MATCH \"$topic\" order by rank");
+     if (sizeof($preData)==0) {
+       $preData=  self::fetchAll("SElECT  topic,tags,people  FROM diarylogv2 where tags  like '%$topic%'  or topic  like '%$topic%' or people  like '%$topic%'");
+            if (sizeof($preData)==0) {
+        $results = self::$link->query(SQLite3::escapeString("SElECT  topic,tags,people  FROM diarylogv2 order by rowid asc"));
+        $data=[];
+
+        while ($row = $results->fetchArray(SQLITE3_ASSOC)) 
+          $data[] = $row;
+            } else {
+              $data=$preData;
+            }
+       
+     } else {
+       
+       $data=$preData;
+       
+     }
+
+      
       return json_encode($data);
 
  }

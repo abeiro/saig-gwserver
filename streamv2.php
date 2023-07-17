@@ -222,7 +222,12 @@ require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
 $PROMPT_HEAD = ($GLOBALS["PROMPT_HEAD"]) ? $GLOBALS["PROMPT_HEAD"] : "Let\'s roleplay in the Universe of Skyrim. I\'m {$GLOBALS["PLAYER_NAME"]} ";
 
 
-//COMMAND Follow(NPC name): To Instruct Herika to start following the specified target, dont use if wanna engage. DONT FOLLOW {$GLOBALS["PLAYER_NAME"]}
+/* Info gathering to mangle function definitions */
+
+$FUNCTION_PARM=$db->posibleLocationsToGo();		// To avoid moving to non existant tartger, lets limit available targets to the real ones in function definition
+if (!isset($FUNCTION_PARM))
+	$FUNCTION_PARM=[];
+
 require_once(__DIR__.DIRECTORY_SEPARATOR."command_prompt.php");
 require_once(__DIR__.DIRECTORY_SEPARATOR . "lib" . DIRECTORY_SEPARATOR . "functions.php");
 
@@ -321,21 +326,27 @@ if ($finalParsedData[0] == "funcret") { // Overwrite funrect with info from data
 		);
 		
 		
-	} else if ($returnFunction[1] == "ReadDiary") {
+	} else if ($returnFunction[1] == "SearchDiary") {
+		
+		$returnFunction[3] = $db->diaryLogIndex($returnFunction[2]); // Overwrite funrect content with info from database
+		$finalParsedData[3] .= $returnFunction[3];
+		
+		
+	}  else if ($returnFunction[1] == "ReadDiaryPage") {
 		
 		$returnFunction[3] = $db->diaryLog($returnFunction[2]); // Overwrite funrect content with info from database
 		$finalParsedData[3] .= $returnFunction[3];
+		
 		
 		$GLOBALS["CONTEXT_HISTORY"] = 5; 			// Because probably we will push a lot of data here
 		
 		if (strlen($returnFunction[3])<16)			// No data found
 			$GLOBALS["OPENAI_MAX_TOKENS"]="100";	// She will invent.
 		else
-			$GLOBALS["OPENAI_MAX_TOKENS"]="200";	// Because probably we want a detailed reponse base on diary.
-			
+			$GLOBALS["OPENAI_MAX_TOKENS"]="150";	// Because probably we want a detailed reponse base on diary.
 		
 		
-	} else if ($returnFunction[1] == "setCurrentTask") {
+	} else if ($returnFunction[1] == "SetCurrentTask") {
 		
 		$returnFunction[3] .= "ok"; // This is always ok
 		$finalParsedData[3].="done";
@@ -431,14 +442,20 @@ if ($finalParsedData[0] == "funcret") {
 
 		} else if ($returnFunction[1] == "ReadQuestJournal") {
 			//$useFunctionsAgain=true;
-			$request="(use function setCurrentTask to update current quest if needed) $request";
+			$request="(use function SetCurrentTask to update current quest if needed) $request";
 			$argName = "id_quest";
 			$useFunctionsAgain=true;
 
-		} else if ($returnFunction[1] == "ReadDiary") {
+		} else if ($returnFunction[1] == "ReadDiaryPage") {
 			//$useFunctionsAgain=true;
 			$argName = "topic";
+
+
+		} else if ($returnFunction[1] == "SearchDiary") {
 			//$useFunctionsAgain=true;
+			$request="(use function ReadDiaryPage to acccess the specific topic) $request";
+			$argName = "keyword";
+			$useFunctionsAgain=true;
 
 
 		} else if ($returnFunction[1] == "GetTime") {
@@ -453,7 +470,7 @@ if ($finalParsedData[0] == "funcret") {
 			//$useFunctionsAgain=true;
 
 
-		} else if ($returnFunction[1] == "setCurrentTask") {
+		} else if ($returnFunction[1] == "SetCurrentTask") {
 			//$useFunctionsAgain=true;
 			$argName = "description";
 			//$useFunctionsAgain=true;

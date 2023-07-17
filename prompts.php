@@ -42,7 +42,7 @@ $PROMPTS=array(
         "(Roleplay only as $HERIKA_NAME, casual comment starting with: I once had to) $HERIKA_NAME: ... ",
         "(Roleplay only as $HERIKA_NAME, casual comment starting with: Did you hear about what happened in) $HERIKA_NAME: ... ",
         "(Roleplay only as $HERIKA_NAME, casual comment starting with: A wise Akaviri man once told me) $$HERIKA_NAME: ... ",
-        "(Roleplay only as $HERIKA_NAME, casual comment about current relationship status with {$GLOBALS["PLAYER_NAME"]}) $HERIKA_NAME: ... "
+        "(Roleplay only as $HERIKA_NAME, casual comment about current relationship/friendship status with {$GLOBALS["PLAYER_NAME"]}) $HERIKA_NAME: ... "
     ],
 
     "goodmorning"=>[
@@ -51,15 +51,15 @@ $PROMPTS=array(
     ],
 
     "inputtext"=>[
-        "(call function if needed,put voice tone in parenthesys,valid voice tones:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ") (Roleplay only as $HERIKA_NAME) $HERIKA_NAME:" // Prompt is implicit
+        "(call functions if needed, put voice tone in parenthesys,valid voice tones:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ") (Roleplay only as $HERIKA_NAME) $HERIKA_NAME:" // Prompt is implicit
 
     ],
     "inputtext_s"=>[
-        "(call function if needed, Roleplay only as $HERIKA_NAME) $HERIKA_NAME: ",
+        "(call functions if needed, Roleplay only as $HERIKA_NAME) $HERIKA_NAME: ",
         "extra"=>["mood"=>"whispering"]
     ],
     "afterfunc"=>[
-        "(Keep the dialogue going roleplaying as $HERIKA_NAME) $HERIKA_NAME: ",
+        "($HERIKA_NAME keeps talking, confirming last function call, only roleplay as $HERIKA_NAME) $HERIKA_NAME: ...",
         "extra"=>[]
     ],
     "lockpicked"=>[
@@ -71,7 +71,8 @@ $PROMPTS=array(
     ],
     // Like inputtext, but without the functions calls part. It's likely to be used in papyrus scripts
     "chatnf"=>[ 
-        "(put mood in parenthesys,valid moods:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ") $HERIKA_NAME:" // Prompt is implicit
+         "(put voice tone in parenthesys,valid voice tones:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ") (Roleplay only as $HERIKA_NAME) $HERIKA_NAME:" // Prompt is implicit
+        
     ],
     "diary"=>[ 
         "(Use function to Write into diary) $HERIKA_NAME:" ,

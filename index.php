@@ -52,9 +52,9 @@ if ($_GET["reinstall"]) {
 if ($_POST["prompt"]) {
     require_once("chat/generic.php");
     $GLOBALS["DEBUG_MODE"]=true;
-    //$responseText=requestGeneric($_POST["prompt"],$_POST["preprompt"], $_POST["queue"],10);
-   	$res=parseResponseV2($_POST["preprompt"],"",$_POST["queue"]);
-    
+    $responseText=requestGeneric($_POST["prompt"],$_POST["preprompt"], $_POST["queue"],10);
+   	$res=parseResponseV2($responseText,"",$_POST["queue"]);
+    //die($res);
     header("Location: index.php?table=response");
 }
 
@@ -96,7 +96,7 @@ echo "
     <ul>
         <li><a href='#'>Data Tables</a>
             <ul>
-                <li><a href='index.php?table=response'  title=''>Responses</a> </li>
+                <li><a href='index.php?table=responselog'  title=''>Responses</a> </li>
                 <li><a href='index.php?table=eventlog'  >Events</a></li>
                 <li><a href='index.php?table=log'  >Log</a></li>
                 <li><a href='index.php?table=quests'  >Quest journal</a></li>
