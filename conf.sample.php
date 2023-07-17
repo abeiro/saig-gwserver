@@ -86,3 +86,5 @@ $OPENAI_MAX_TOKENS="48";							// Limit size of responses.
 
 $HTTP_TIMEOUT=30;                       // How long we will wait for openai response
 $OPENAI_MAX_TOKENS_MEMORY="1024";       // required to create memories.
+
+?>
