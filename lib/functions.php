@@ -205,20 +205,6 @@ $FUNCTIONS = [
         ]
     ],
     [
-        "name" => "ReadDiaryPage",
-        "description" => "Read {$GLOBALS["HERIKA_NAME"]}'s diary to access a specific topic",
-        "parameters" => [
-            "type" => "object",
-            "properties" => [
-                "topic" => [
-                    "type" => "string",
-                    "description" => "topic to search in full-text query syntax",
-                ]
-            ],
-            "required" => ["topic"]
-        ]
-    ],
-    [
         "name" => "SearchDiary",
         "description" => "Read {$GLOBALS["HERIKA_NAME"]}'s diary to make her remember something. Search in diary index",
         "parameters" => [
@@ -300,4 +286,19 @@ $FUNCTIONS_SPECIAL_CONTEXT = [
 ];
 
 
+$FUNCTIONS_GHOSTED =  [
+        "name" => "ReadDiaryPage",
+        "description" => "Read {$GLOBALS["HERIKA_NAME"]}'s diary to access a specific topic",
+        "parameters" => [
+            "type" => "object",
+            "properties" => [
+                "topic" => [
+                    "type" => "string",
+                    "description" => "topic to search in full-text query syntax",
+                ]
+            ],
+            "required" => ["topic"]
+        ]
+    ]
+    ;
 ?>

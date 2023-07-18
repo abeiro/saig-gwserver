@@ -1,7 +1,7 @@
 <?php
 
 $HERIKA_PERS.="
-{$GLOBALS["HERIKA_NAME"]} has memory problems, needs to read a diary to remember things. ";
+{$GLOBALS["HERIKA_NAME"]} has memory problems, needs to read her diary to remember things. ";
 
 $COMMAND_PROMPT = "
 The following rules apply to this roleplay game

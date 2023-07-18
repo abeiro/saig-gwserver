@@ -15,7 +15,7 @@ $PROMPTS=array(
         "(Roleplay only as $HERIKA_NAME, she comments about  {$GLOBALS["PLAYER_NAME"]} weapons)  $HERIKA_NAME:",
         "(Roleplay only as $HERIKA_NAME, she admires  {$GLOBALS["PLAYER_NAME"]}'s combat style)  $HERIKA_NAME:",
         "(Roleplay only as $HERIKA_NAME, she make a short poem about last kill)  $HERIKA_NAME:",
-        "extra"=>["mood"=>"whispering","force_tokens_max"=>"50","dontuse"=>false]
+        "extra"=>["mood"=>"whispering","force_tokens_max"=>"50","dontuse"=>(time()%5==0)]   //20% chance
 
     ],
     "quest"=>[

@@ -456,7 +456,8 @@ if ($finalParsedData[0] == "funcret") {
 			$request="(use function ReadDiaryPage to acccess the specific topic) $request";
 			$argName = "keyword";
 			$useFunctionsAgain=true;
-
+			$GLOBALS["FUNCTIONS"][]=$GLOBALS["FUNCTIONS_GHOSTED"];// We provide here the ReadDiaryPage function
+			
 
 		} else if ($returnFunction[1] == "GetTime") {
 			//$useFunctionsAgain=true;
