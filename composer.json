@@ -1,6 +1,6 @@
 {
     "require": {
-        "openai-php/client": "^0.4.2",
+        "openai-php/client": "^0.6.4",
         "symfony/http-client": "^6.2",
         "nyholm/psr7": "^1.6",
         "guzzlehttp/guzzle": "^7.5",

@@ -123,7 +123,7 @@ function parseResponse($responseText, $forceMood = "")
 				'log',
 				array(
 					'localts' => time(),
-					'prompt' => nl2br(SQLite3::escapeString(print_r($GLOBALS["DEBUG_DATA"], true))),
+					'prompt' => nl2br(SQLite3::escapeString(json_encode($GLOBALS["DEBUG_DATA"], JSON_PRETTY_PRINT))),
 					'response' => (SQLite3::escapeString(print_r($rawResponse, true) . $responseTextUnmooded)),
 					'url' => nl2br(SQLite3::escapeString(print_r(base64_decode(stripslashes($_GET["DATA"])), true) . " in " . (time() - $startTime) . " secs "))
 
@@ -136,7 +136,7 @@ function parseResponse($responseText, $forceMood = "")
 				'log',
 				array(
 					'localts' => time(),
-					'prompt' => nl2br(SQLite3::escapeString(print_r($parms, true))),
+					'prompt' => nl2br(SQLite3::escapeString(json_encode($parms, JSON_PRETTY_PRINT))),
 					'response' => (SQLite3::escapeString(print_r($rawResponse, true))),
 					'url' => nl2br(SQLite3::escapeString(print_r(base64_decode(stripslashes($_GET["DATA"])), true) . " in " . (time() - $startTime) . " secs with ERROR STATE"))
 

@@ -116,7 +116,7 @@ function print_array_as_table($data)
 				echo "<td  style='color:blue;background-color:{$colors[$colorIndex]}'>" . $cell . "</td>";
 			else if (strpos($cell, 'obtains a quest') !== false)
 				echo "<td  style='font-weight:bold;background-color:{$colors[$colorIndex]}'>" . $cell . "</td>";
-			else if (strpos($cell, '$HERIKA_NAME:') !== false)
+			else if (strpos($cell, "{$GLOBALS["HERIKA_NAME"]}:") !== false)
 				echo "<td  style='color:green;background-color:{$colors[$colorIndex]}'>" . $cell . "</td>";
 			else if ($n == "rowid") {
 				echo "<td  style='background-color:{$colors[$colorIndex]}'><a href='cmd/deleteRow.php?table={$_GET["table"]}&rowid=$cell'>" . $cell . "</a></td>";

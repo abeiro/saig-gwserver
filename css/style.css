@@ -283,7 +283,9 @@ pre.foldable {
     font-size: 11px;
 }
 
-
+div.datatable pre {
+	line-height: 10px;
+}
 
 
 

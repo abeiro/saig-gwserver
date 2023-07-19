@@ -29,18 +29,35 @@ if ($_GET["reset"]) {
 if ($_GET["sendclean"]) {
        $db->update("responselog", "sent=0", "sent=1 ");
 
+}
+
+if ($_GET["cleanlog"]) {
+    $db->delete("log","true");
 
 }
 
-if ($_GET["export"]) {
+if ($_GET["export"] && $_GET["export"]=="log") {
     while(@ob_end_clean());
-    $data=$db->fetchAll("select case when type='book' then 'The party find a book: '||data else data end as data  from eventlog a where type<>'combatend' and type<>'location' and type<>'quest' order by ts desc");
-    header('Content-type: text/plain');
     
-    foreach (array_reverse($data) as $row) {
-        echo $row["data"]."\r\n";
+    header("Content-Type: text/csv");
+    header("Content-Disposition: attachment; filename=log.csv");
+    
+    $data=$db->fetchAll("select response,url,prompt,rowid from log order by rowid desc");
+    $n=0;
+    foreach ($data as $row) {
+        if ($n==0) {
+               echo "'".implode("'\t'",array_keys($row))."'\n";
+               $n++;
+        }
+        $rowCleaned=[];
+        foreach ($row as $cellname=>$cell) {
+            if ($cellname=="prompt")
+                $cell=base64_encode(br2nl($cell));
+            $rowCleaned[]=strtr($cell,array("\n"=>" ","\r"=>" ","'"=>"\""));
+        }
+        
+        echo "'".implode("'\t'",($rowCleaned))."'\n";
     }
-    ob_end_clean();
     die();
 }
 
@@ -112,6 +129,8 @@ echo "
                 <li><a href='index.php?sendclean=true&table=response' title='Marks unsent responses from queue What do you think about?'   onclick=\"return confirm('Sure?')\">Reset sent</a></li>
                 <li><a href='index.php?reset=true&table=event'  title='Delete all events.'  onclick=\"return confirm('Sure?')\">Reset events</a></li>
                 <li><a href='index.php?reinstall=true'  title='Drop all tables and then create them'  onclick=\"return confirm('Sure?')\">Reinstall</a></li>
+                <li><a href='index.php?cleanlog=true'  title='Clean log table'  onclick=\"return confirm('Sure?')\">Clean Log</a></li>
+                <li><a href='index.php?export=log'  title='Export Log (debugging purposes)' target='_blank' >Export Log</a></li>
             </ul>
         </li>
 

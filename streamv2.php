@@ -69,11 +69,16 @@ function returnLines($lines)
 		if ($FORCED_STOP)
 			return;
 		// Remove actions
+		
 		$pattern = '/<[^>]+>/';
-		$output = preg_replace($pattern, '', $sentence);
+		$output = str_replace("#CHAT#","",preg_replace($pattern, '', $sentence));
 
+		// This should be reworked
 		$sentence = preg_replace('/[[:^print:]]/', '', $output); // Remove non ASCII chracters
-		$sentence=$output;
+		
+		
+		//$sentence=$output;
+		
 		$output = preg_replace('/\*([^*]+)\*/', '', $sentence); // Remove text bewteen * *
 
 		$sentence = preg_replace('/"/', '', $output); // Remove "
@@ -176,7 +181,7 @@ function returnLines($lines)
 			'log',
 			array(
 				'localts' => time(),
-				'prompt' => nl2br(SQLite3::escapeString(print_r($GLOBALS["DEBUG_DATA"], true))),
+				'prompt' => nl2br(SQLite3::escapeString(json_encode($GLOBALS["DEBUG_DATA"], JSON_PRETTY_PRINT))),
 				'response' => (SQLite3::escapeString($responseTextUnmooded)),
 				'url' => nl2br(SQLite3::escapeString(print_r(base64_decode(stripslashes($_GET["DATA"])), true) . " in " . (time() - $startTime) . " secs "))
 
@@ -224,9 +229,18 @@ $PROMPT_HEAD = ($GLOBALS["PROMPT_HEAD"]) ? $GLOBALS["PROMPT_HEAD"] : "Let\'s rol
 
 /* Info gathering to mangle function definitions */
 
-$FUNCTION_PARM=$db->posibleLocationsToGo();		// To avoid moving to non existant tartger, lets limit available targets to the real ones in function definition
-if (!isset($FUNCTION_PARM))
-	$FUNCTION_PARM=[];
+$FUNCTION_PARM_MOVETO=$db->posibleLocationsToGo();		// To avoid moving to non existant target, lets limit available targets to the real ones in function definition
+if (!isset($FUNCTION_PARM_MOVETO))
+	$FUNCTION_PARM_MOVETO=[];
+$FUNCTION_PARM_MOVETO[]=$GLOBALS["PLAYER_NAME"];
+
+
+$FUNCTION_PARM_INSPECT=$db->posibleInspectTargets();		// To avoid moving to non existant target, lets limit available targets to the real ones in function definition
+if (!isset($FUNCTION_PARM_INSPECT))
+	$FUNCTION_PARM_INSPECT=[];
+$FUNCTION_PARM_INSPECT[]=$GLOBALS["PLAYER_NAME"];
+
+
 
 require_once(__DIR__.DIRECTORY_SEPARATOR."command_prompt.php");
 require_once(__DIR__.DIRECTORY_SEPARATOR . "lib" . DIRECTORY_SEPARATOR . "functions.php");
@@ -430,10 +444,15 @@ if ($finalParsedData[0] == "funcret") {
 			//
 		} else if ($returnFunction[1] == "LeadTheWayTo") {
 			$argName = "location";
+			$GLOBALS["OPENAI_MAX_TOKENS"]="40";	// Force a short response, as IA here tends to simulate the whole travel
 
 		} else if ($returnFunction[1] == "MoveTo") {
-			if (strpos($finalParsedData[3], "LeadTheWayTo") !== false) // PatchHack. If Moving returning Shoud use TravelTo, enable functions again
+			if (strpos($finalParsedData[3], "LeadTheWayTo") !== false) {// PatchHack. If Moving returning Shoud use TravelTo, enable functions again
 				$useFunctionsAgain = true;
+				$request="(use function LeadTheWayTo to travel) $request";
+			}
+			$argName = "target";
+
 
 		} else if ($returnFunction[1] == "Attack") {
 			//$useFunctionsAgain=true;
@@ -615,7 +634,7 @@ if ($handle === false) {
 		'log',
 		array(
 			'localts' => time(),
-			'prompt' => nl2br(SQLite3::escapeString(print_r($GLOBALS["DEBUG_DATA"], true))),
+			'prompt' => nl2br(SQLite3::escapeString(json_encode($GLOBALS["DEBUG_DATA"], JSON_PRETTY_PRINT))),
 			'response' => (SQLite3::escapeString(print_r(error_get_last(), true))),
 			'url' => nl2br(SQLite3::escapeString(print_r(base64_decode(stripslashes($_GET["DATA"])), true) . " in " . (time() - $startTime) . " secs "))
 
@@ -783,7 +802,7 @@ if (sizeof($talkedSoFar) == 0) {
 			'log',
 			array(
 				'localts' => time(),
-				'prompt' => nl2br(SQLite3::escapeString(print_r($GLOBALS["DEBUG_DATA"], true))),
+				'prompt' => nl2br(SQLite3::escapeString(json_encode($GLOBALS["DEBUG_DATA"], JSON_PRETTY_PRINT))),
 				'response' => SQLite3::escapeString(print_r($alreadysent, true)),
 				'url' => nl2br(SQLite3::escapeString(print_r(base64_decode(stripslashes($_GET["DATA"])), true) . " in " . (time() - $startTime) . " secs "))
 
@@ -800,7 +819,7 @@ if (sizeof($talkedSoFar) == 0) {
 			'log',
 			array(
 				'localts' => time(),
-				'prompt' => nl2br(SQLite3::escapeString(print_r($GLOBALS["DEBUG_DATA"], true))),
+				'prompt' => nl2br(SQLite3::escapeString(json_encode($GLOBALS["DEBUG_DATA"], JSON_PRETTY_PRINT))),
 				'response' => SQLite3::escapeString(print_r($alreadysent, true)),
 				'url' => nl2br(SQLite3::escapeString(print_r(base64_decode(stripslashes($_GET["DATA"])), true) . " in " . (time() - $startTime) . " secs "))
 

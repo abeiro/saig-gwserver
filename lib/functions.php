@@ -12,6 +12,8 @@ $FUNCTIONS = [
                 "target" => [
                     "type" => "string",
                     "description" => "Target NPC, Actor, or being",
+                    "enum" => $FUNCTION_PARM_INSPECT
+
                 ]
             ],
             "required" => ["target"],
@@ -40,7 +42,7 @@ $FUNCTIONS = [
                 "target" => [
                     "type" => "string",
                     "description" => "Visible Target NPC, Actor, or being, or building.",
-                    "enum" => $FUNCTION_PARM
+                    "enum" => $FUNCTION_PARM_MOVETO
                 ]
             ],
             "required" => ["target"],

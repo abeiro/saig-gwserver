@@ -195,6 +195,8 @@ class sql
       break;
     }
     
+    //print_r($matches);
+    
      $results = self::$link->query("select  a.data  as data  FROM  eventlog a 
     WHERE type in ('infonpc')  order by gamets desc,ts desc LIMIT 0,50");
     $lastData = "";
@@ -212,15 +214,54 @@ class sql
       break;
     }
     
-    foreach ($result as $k=>$v) {
+    foreach ($retData as $k=>$v) {
       if (strlen($v)<2)
-        unset($result[$k]);
+        unset($retData[$k]);
+      else {
+        $retData[$k]= preg_replace("/\([^)]+\)/", '', $v);
+        //$retData[$k]=$v;
+
+      }
       
     }
-    
-    return $result;
+    //return ["Goldenglow Estate","Faldar's Tooth","Goldenglow Estate Sewer","Pit Wolf(dead)","Pit Wolf(dead)","Herika"];
+    return array_values($retData);
   }
     
+  function posibleInspectTargets()
+  {
+     $results = self::$link->query("select  a.data  as data  FROM  eventlog a 
+    WHERE type in ('infonpc')  order by gamets desc,ts desc LIMIT 0,50");
+    $lastData = "";
+    $matches=[];
+    while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
+    //$row = $results->fetchArray();
+    
+      $pattern = "/Herika can see this beings in range:(.*)/";
+      preg_match_all($pattern,  $row["data"], $matches);
+
+      if (isset($matches[1][0]))
+        $retData= explode(",",$matches[1][0]);
+
+      
+      break;
+    }
+    
+    foreach ($retData as $k=>$v) {
+      if (strlen($v)<2)
+        unset($retData[$k]);
+      else {
+        $retData[$k]= preg_replace("/\([^)]+\)/", '', $v);
+        //$retData[$k]=$v;
+
+      }
+      
+    }
+    if (!is_array($retData))
+      $retData=[];
+    return array_values($retData);
+  }
+  
   function questJournal($quest)
   {
     global $db;
@@ -340,6 +381,9 @@ class sql
 
           while ($row = $results->fetchArray(SQLITE3_ASSOC)) 
             $data[] = $row;
+        
+          return json_encode(["return value"=>"Topic not found","similar topics"=>$data]);  
+
      
       } else {       // Return best matching memory
    
@@ -363,7 +407,7 @@ class sql
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) 
           $data[] = $row;
 
-        return json_encode(["return value"=>"Page not found","available pages"=>$data]);  
+        return json_encode(["return value"=>"Topic not found","available topics"=>$data]);  
       }
       
       return json_encode($data);  
