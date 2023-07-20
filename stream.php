@@ -159,7 +159,15 @@ $request=$PROMPTS[$finalParsedData[0]][0];
 
 if ($finalParsedData[0]=="inputtext_s") {
 		$forceMood="whispering";
-}
+
+	
+} else if ($finalParsedData[0] == "chatnf_book") { // new read book event
+	$request = $PROMPTS["book"][0];
+	$books=$db->fetchAll("select title from books order by gamets desc");
+	
+	$finalParsedData[3]=$PROMPTS["book"][1]." ".$books[0]["title"];
+} 
+
 $preprompt=preg_replace("/^[^:]*:/", "", $finalParsedData[3]);
 $lastNDataForContext=(isset($GLOBALS["CONTEXT_HISTORY"])) ? ($GLOBALS["CONTEXT_HISTORY"]) : "25";
 $contextData = $db->lastDataFor("",$lastNDataForContext*-1);
