@@ -2,10 +2,36 @@
 
 // Functions to be provided to OpenAI
 
+
+$F_TRANSLATIONS["Inspect"]="Look at or Inspects NPC, Actor, or being";
+$F_TRANSLATIONS["InspectSurroundings"]="Looks for beings nearby";
+$F_TRANSLATIONS["MoveTo"]= "Walk to a visible building or visible actor, also used to guide {$GLOBALS["PLAYER_NAME"]} to a actor or building.";
+$F_TRANSLATIONS["OpenInventory"]="Initiates trading or exchange items with {$GLOBALS["PLAYER_NAME"]}";
+$F_TRANSLATIONS["Attack"]="Attacks actor, npc or being. but always avoid the deaths of innocent actors.";
+$F_TRANSLATIONS["Follow"]="Moves to and follow a NPC, an actor or being";
+$F_TRANSLATIONS["CheckInventory"]="Search in {$GLOBALS["HERIKA_NAME"]}\'s inventory, backpack or pocket";
+$F_TRANSLATIONS["SheatheWeapon"]="Sheates current weapon";
+$F_TRANSLATIONS["Relax"]="Makes{$GLOBALS["HERIKA_NAME"]} to stop current action and relax herself";
+$F_TRANSLATIONS["LeadTheWayTo"]="Only use if {$GLOBALS["PLAYER_NAME"]} explicitly orders it. Guide {$GLOBALS["PLAYER_NAME"]} to a Town o City. ";
+$F_TRANSLATIONS["TakeASeat"]="{$GLOBALS["HERIKA_NAME"]} seats in nearby chair or furniture ";
+$F_TRANSLATIONS["ReadQuestJournal"]="Only use if {$GLOBALS["PLAYER_NAME"]} explicitly ask for a quest. Get info about current quests";
+$F_TRANSLATIONS["SetSpeed"]="Set {$GLOBALS["HERIKA_NAME"]} speed when moving or travelling";
+$F_TRANSLATIONS["GetDateTime"]="Get Current Date and Time";
+$F_TRANSLATIONS["SearchDiary"]="Read {$GLOBALS["HERIKA_NAME"]}'s diary to make her remember something. Search in diary index";
+$F_TRANSLATIONS["SetCurrentTask"]="Set the current plan of action or task or quest";
+$F_TRANSLATIONS["WriteIntoDiary"]="Summarize briefly the recent events and dialogues and write them down in Herika's diary.";
+$F_TRANSLATIONS["ReadDiaryPage"]="Read {$GLOBALS["HERIKA_NAME"]}'s diary to access a specific topic";
+
+if (isset($GLOBALS["CORE_LANG"]))
+	if (file_exists(__DIR__.DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR."lang".DIRECTORY_SEPARATOR.$GLOBALS["CORE_LANG"].DIRECTORY_SEPARATOR."functions.php")) 
+		require_once(__DIR__.DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR."lang".DIRECTORY_SEPARATOR.$GLOBALS["CORE_LANG"].DIRECTORY_SEPARATOR."functions.php");
+    
+    
+    
 $FUNCTIONS = [
     [
         "name" => "Inspect",
-        "description" => "Look at or Inspects NPC, Actor, or being",
+        "description" => $F_TRANSLATIONS["Inspect"],
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -21,7 +47,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "InspectSurroundings",
-        "description" => "Looks for beings nearby",
+        "description" => $F_TRANSLATIONS["InspectSurroundings"],
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -35,7 +61,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "MoveTo",
-        "description" => "Walk to a visible building or visible actor, also used to guide {$GLOBALS["PLAYER_NAME"]} to a actor or building.",
+        "description" => $F_TRANSLATIONS["MoveTo"],
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -50,7 +76,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "OpenInventory",
-        "description" => "Initiates trading or exchange items with {$GLOBALS["PLAYER_NAME"]}",
+        "description" => $F_TRANSLATIONS["OpenInventory"],
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -64,7 +90,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "Attack",
-        "description" => "Attacks actor, npc or being. but always avoid the deaths of innocent actors.",
+        "description" => $F_TRANSLATIONS["Attack"],
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -78,7 +104,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "Follow",
-        "description" => "Moves to and follow a NPC, an actor or being",
+        "description" => $F_TRANSLATIONS["Follow"],
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -92,7 +118,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "CheckInventory",
-        "description" => "Search in {$GLOBALS["HERIKA_NAME"]}\'s inventory, backpack or pocket",
+        "description" => $F_TRANSLATIONS["CheckInventory"],
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -106,7 +132,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "SheatheWeapon",
-        "description" => "Sheates current weapon",
+        "description" => $F_TRANSLATIONS["SheatheWeapon"],
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -120,7 +146,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "Relax",
-        "description" => "Makes{$GLOBALS["HERIKA_NAME"]} to stop current action and relax herself",
+        "description" => $F_TRANSLATIONS["Relax"],
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -134,7 +160,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "LeadTheWayTo",
-        "description" => "Only use if {$GLOBALS["PLAYER_NAME"]} explicitly orders it. Guide {$GLOBALS["PLAYER_NAME"]} to a Town o City. ",
+        "description" => $F_TRANSLATIONS["LeadTheWayTo"],
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -149,7 +175,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "TakeASeat",
-        "description" => "{$GLOBALS["HERIKA_NAME"]} seats in nearby chair or furniture ",
+        "description" => $F_TRANSLATIONS["TakeASeat"],
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -163,7 +189,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "ReadQuestJournal",
-        "description" => "Only use if {$GLOBALS["PLAYER_NAME"]} explicitly ask for a quest. Get info about current quests",
+        "description" => $F_TRANSLATIONS["ReadQuestJournal"],
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -177,7 +203,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "SetSpeed",
-        "description" => "Set {$GLOBALS["HERIKA_NAME"]} speed when moving or travelling",
+        "description" => $F_TRANSLATIONS["SetSpeed"],
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -193,7 +219,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "GetDateTime",
-        "description" => "Get Current Date and Time",
+        "description" => $F_TRANSLATIONS["GetDateTime"],
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -208,7 +234,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "SearchDiary",
-        "description" => "Read {$GLOBALS["HERIKA_NAME"]}'s diary to make her remember something. Search in diary index",
+        "description" => $F_TRANSLATIONS["SearchDiary"],
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -222,7 +248,7 @@ $FUNCTIONS = [
     ],
     [
         "name" => "SetCurrentTask",
-        "description" => "Set the current plan of action or task or quest",
+        "description" => $F_TRANSLATIONS["SetCurrentTask"],
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -255,7 +281,7 @@ $FUNCTIONS_SPECIAL_CONTEXT = [
 
     [
         "name" => "WriteIntoDiary",
-        "description" => "Summarize briefly the recent events and dialogues and write them down in Herika's diary.",
+        "description" => $F_TRANSLATIONS["WriteIntoDiary"],
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -290,7 +316,7 @@ $FUNCTIONS_SPECIAL_CONTEXT = [
 
 $FUNCTIONS_GHOSTED =  [
         "name" => "ReadDiaryPage",
-        "description" => "Read {$GLOBALS["HERIKA_NAME"]}'s diary to access a specific topic",
+        "description" => $F_TRANSLATIONS["ReadDiaryPage"],
         "parameters" => [
             "type" => "object",
             "properties" => [
@@ -303,4 +329,7 @@ $FUNCTIONS_GHOSTED =  [
         ]
     ]
     ;
+
+    
+    
 ?>

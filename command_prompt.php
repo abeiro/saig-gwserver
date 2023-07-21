@@ -1,7 +1,6 @@
 <?php
 
-$HERIKA_PERS.="
-{$GLOBALS["HERIKA_NAME"]} has memory problems, needs to read her diary to remember things. ";
+$HERIKA_PERS.="{$GLOBALS["HERIKA_NAME"]} has memory problems, needs to read her diary to remember things. ";
 
 $COMMAND_PROMPT = "
 The following rules apply to this roleplay game
@@ -30,10 +29,19 @@ Rule 7. Don't create characters, enemies, or objects; the Narrator will do it.
 
 ";
 
+$DIALOGUE_TARGET="(Talking to {$GLOBALS["HERIKA_NAME"]})";
 
 $RESPONSE_OK_NOTED="Ok, noted.";
 
 $ERROR_OPENAI="Didn't hear you, can you repeat?";								// Say something logical, as this response will be pushed in next call.
-$ERROR_OPENAI_REQLIMIT="Be quiet, I'm having a flashback, give me a minute";	// Say something logical, as this response will be pushed in next call. 
+$ERROR_OPENAI_REQLIMIT="Be quiet, I'm having a flashback, give me a minute";	// Say something logical, as this response will be pushed in next call.
+$ERROR_OPENAI_POLICY="I can't think clearly now...";							// Say something logical, as this response will be pushed in next call. 
+
+
+if (isset($GLOBALS["CORE_LANG"]))
+	if (file_exists(__DIR__.DIRECTORY_SEPARATOR."lang".DIRECTORY_SEPARATOR.$GLOBALS["CORE_LANG"].DIRECTORY_SEPARATOR."command_prompt.php")) 
+		require_once(__DIR__.DIRECTORY_SEPARATOR."lang".DIRECTORY_SEPARATOR.$GLOBALS["CORE_LANG"].DIRECTORY_SEPARATOR."command_prompt.php");
+	
+
 
 ?>

@@ -74,10 +74,10 @@ function returnLines($lines)
 		$output = str_replace("#CHAT#","",preg_replace($pattern, '', $sentence));
 
 		// This should be reworked
-		$sentence = preg_replace('/[[:^print:]]/', '', $output); // Remove non ASCII chracters
+		//$sentence = preg_replace('/[[:^print:]]/', '', $output); // Remove non ASCII chracters
 		
 		
-		//$sentence=$output;
+		$sentence=$output;
 		
 		$output = preg_replace('/\*([^*]+)\*/', '', $sentence); // Remove text bewteen * *
 
@@ -96,7 +96,7 @@ function returnLines($lines)
 		$scoring = checkOAIComplains($responseTextUnmooded);
 
 		if ($scoring >= 3) { // Catch OpenAI brekaing policies stuff
-			$responseTextUnmooded = "I can't think clearly now..."; // Key phrase to indicate OpenAI triggered warning
+			$responseTextUnmooded = $ERROR_OPENAI_POLICY; // Key phrase to indicate OpenAI triggered warning
 			$FORCED_STOP = true;
 		} else {
 			if (isset($TRANSFORMER_FUNCTION)) {
@@ -387,7 +387,7 @@ if ($finalParsedData[0] == "funcret") { // Overwrite funrect with info from data
 
 
 if (($finalParsedData[0] == "inputtext") || ($finalParsedData[0] == "inputtext_s") || (strpos($finalParsedData[0],"chatnf")!==false)) {
-	$finalParsedData[3] = "(To {$GLOBALS["HERIKA_NAME"]}) " . $finalParsedData[3];
+	$finalParsedData[3] = $finalParsedData[3]." $DIALOGUE_TARGET";
 }
 
 
@@ -735,7 +735,9 @@ if ($handle === false) {
 				break;
 			}
 
-
+			// Function translation over here
+			
+			
 			if (isset($data["choices"][0]["finish_reason"]) && $data["choices"][0]["finish_reason"] == "function_call") {
 				$parameterArr = json_decode($parameterBuff, true);
 				$parameter = current($parameterArr); // Only support for one parameter
@@ -796,7 +798,7 @@ if ($handle === false) {
 }
 
 if (sizeof($talkedSoFar) == 0) {
-	if (sizeof($alreadysent) > 0) { // AI only issued commands, plugin will request a response in 10 seconds.
+	if (sizeof($alreadysent) > 0) { // AI only issued commands
 
 		$db->insert(
 			'log',
