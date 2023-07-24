@@ -357,7 +357,7 @@ if ($finalParsedData[0] == "combatend") {
 			return "";
 
 	$responseText = requestGeneric(
-		($GLOBALS["FORCE_MOOD"]?"({$GLOBALS["FORCE_MOOD"]})":"").$PROMPTS["combatend"][rand(0,sizeof($PROMPTS["combatend"])-1)]);
+		($GLOBALS["FORCE_MOOD"]?"({$GLOBALS["FORCE_MOOD"]})":"").$PROMPTS["combatend"][rand(0,sizeof($PROMPTS["combatend"])-2)]);
 	parseResponse($responseText);
 
 } else if ($finalParsedData[0] == "location") { // Locations might be cached	// Disabled

@@ -14,8 +14,7 @@ $PROMPTS=array(
         "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME, she laughs at {$GLOBALS["PLAYER_NAME"]}'s combat style) $HERIKA_NAME: #CHAT#",
         "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME, she comments about  {$GLOBALS["PLAYER_NAME"]} weapons)  $HERIKA_NAME: #CHAT#",
         "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME, she admires  {$GLOBALS["PLAYER_NAME"]}'s combat style)  $HERIKA_NAME: #CHAT#",
-        "(Roleplay only as $HERIKA_NAME, she make a short poem about last kill)  $HERIKA_NAME:",
-        "extra"=>["mood"=>"whispering","force_tokens_max"=>"50","dontuse"=>(time()%5==0)]   //20% chance
+        "extra"=>["mood"=>"whispering","force_tokens_max"=>"50","dontuse"=>(time()%5!=0)]   //20% chance
 
     ],
     "quest"=>[
@@ -60,7 +59,8 @@ $PROMPTS=array(
     ],
     "afterfunc"=>[
         "(Complete the text replacing the hashtag #CHAT#, $HERIKA_NAME talks again to {$GLOBALS["PLAYER_NAME"]}, you only generate text as $HERIKA_NAME) $HERIKA_NAME: Well... #CHAT#",
-        "extra"=>[]
+        "extra"=>[],
+        "TakeASeat"=>"(Roleplay only as $HERIKA_NAME) $HERIKA_NAME: (talks about sitting location #CHAT#)"
     ],
     "lockpicked"=>[
         "(Complete the text replacing the hashtag #CHAT#, comment about item lockpicked) $HERIKA_NAME: #CHAT#",

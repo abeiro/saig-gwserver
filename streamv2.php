@@ -1,7 +1,7 @@
 <?php
 error_reporting(E_ERROR);
 
-define("MAXIMUM_SENTENCE_SIZE", 100);
+define("MAXIMUM_SENTENCE_SIZE", 125);
 
 date_default_timezone_set('Europe/Madrid');
 
@@ -37,6 +37,9 @@ function findDotPosition($string)
 
 function split_sentences_stream($paragraph)
 {
+	if (strlen($paragraph)<=MAXIMUM_SENTENCE_SIZE)
+		return [$paragraph];
+		
 	$sentences = preg_split('/(?<=[.!?])\s+/', $paragraph, -1, PREG_SPLIT_NO_EMPTY);
 
 	$splitSentences = [];
@@ -291,8 +294,13 @@ if (!isset($PROMPTS["afterattack"]))
 
 
 if ($finalParsedData[0] == "funcret") { // Take out the functions part
+	$returnFunction = explode("@", $finalParsedData[3]); // Function returns here
 	//$request = str_replace("call function if needed,", "continue chat as $HERIKA_NAME,", $PROMPTS["inputtext"][0]); 
-	$request =$PROMPTS["afterfunc"][0];
+	if (isset($PROMPTS["afterfunc"][$returnFunction[1]])) {
+		$request =$PROMPTS["afterfunc"][$returnFunction[1]];
+	
+	} else 
+		$request =$PROMPTS["afterfunc"][0];
 	
 } else if ($finalParsedData[0] == "chatnf_book") { // Takea out the functions part
 	$request = $PROMPTS["book"][0];
@@ -318,7 +326,7 @@ if ($finalParsedData[0] == "inputtext_s") {
 }
 
 if ($finalParsedData[0] == "funcret") { // Overwrite funrect with info from database when topic requested
-	$returnFunction = explode("@", $finalParsedData[3]); // Function returns here
+	
 	if ($returnFunction[1] == "GetTopicInfo") {
 
 

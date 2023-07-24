@@ -116,6 +116,7 @@ function tts($textString, $mood = "default", $stringforhash)
         $data = $doc->saveXML();
 
         //echo "tts post data: ". $data . "<br>";
+        $data=str_replace("Skyrim","<phoneme ph=\"ˈskaɪrɪm\">Skyrim</phoneme>",$data); // Hack to correect Skyrim pronunciation in other langs
 
         $options = array(
             'http' => array(
