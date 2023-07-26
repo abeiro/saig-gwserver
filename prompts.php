@@ -62,7 +62,7 @@ $PROMPTS=array(
         "extra"=>[],
         "TakeASeat"=>"(Roleplay only as $HERIKA_NAME) $HERIKA_NAME: (talks about sitting location #CHAT#)",
         "GetDateTime"=>"(Roleplay only as $HERIKA_NAME) $HERIKA_NAME: (answers with the current date and time in short sentence)",
-        "MoveTo"=>"(Roleplay only as $HERIKA_NAME) $HERIKA_NAME: (talks about destination)"       
+        "MoveTo"=>"(Roleplay only as $HERIKA_NAME) $HERIKA_NAME: (she makes a comment about movement destination)"       
     ],
     "lockpicked"=>[
         "(Complete the text replacing the hashtag #CHAT#, comment about item lockpicked) $HERIKA_NAME: #CHAT#",
