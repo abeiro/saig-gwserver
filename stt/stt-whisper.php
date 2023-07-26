@@ -5,7 +5,8 @@ require_once($path . "conf.php"); // API KEY must be there
 function stt($file)
 {
     $url = "https://api.openai.com/v1/audio/transcriptions";
-    
+    $lang=($GLOBALS["TTSLANGUAGE_WHISPER"])?$GLOBALS["TTSLANGUAGE_WHISPER"]:"en";
+
     $filePath = $file;
     $boundary = '----WebKitFormBoundary' . md5(mt_rand() . microtime());
     $contentType = 'multipart/form-data; boundary=' . $boundary;
@@ -26,7 +27,7 @@ function stt($file)
         ."{$GLOBALS["HERIKA_NAME"]},Dragonborn,Whiterun\r\n"
         ."--{$boundary}\r\n"
         ."Content-Disposition: form-data; name=\"language\"\r\n\r\n"
-        ."{$GLOBALS["TTSLANGUAGE_WHISPER"]}\r\n"
+        ."$lang\r\n"
         ."--{$boundary}--\r\n";
          
     $contextOptions = [

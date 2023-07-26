@@ -61,7 +61,8 @@ $PROMPTS=array(
         "(Complete the text replacing the hashtag #CHAT#, $HERIKA_NAME talks again to {$GLOBALS["PLAYER_NAME"]}, you only generate text as $HERIKA_NAME) $HERIKA_NAME: Well... #CHAT#",
         "extra"=>[],
         "TakeASeat"=>"(Roleplay only as $HERIKA_NAME) $HERIKA_NAME: (talks about sitting location #CHAT#)",
-        "GetDateTime"=>"(Roleplay only as $HERIKA_NAME) $HERIKA_NAME: (answers with the current date and time in short sentence)"
+        "GetDateTime"=>"(Roleplay only as $HERIKA_NAME) $HERIKA_NAME: (answers with the current date and time in short sentence)",
+        "MoveTo"=>"(Roleplay only as $HERIKA_NAME) $HERIKA_NAME: (talks about destination)"       
     ],
     "lockpicked"=>[
         "(Complete the text replacing the hashtag #CHAT#, comment about item lockpicked) $HERIKA_NAME: #CHAT#",
