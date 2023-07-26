@@ -2,8 +2,30 @@
 
 // Functions to be provided to OpenAI
 
+$ENABLED_FUNCTIONS=[
+    'Inspect',
+    'LookAt',
+    'InspectSurroundings',
+    'MoveTo',
+    'OpenInventory',
+    'Attack',
+    'Follow',
+    'CheckInventory',
+    'SheatheWeapon',
+    'Relax',
+    'LeadTheWayTo',
+    'TakeASeat',
+    'ReadQuestJournal',
+    'SetSpeed',
+    'GetDateTime',
+    'SearchDiary',
+    'SetCurrentTask'
+];
 
-$F_TRANSLATIONS["Inspect"]="Look at or Inspects NPC, Actor, or being";
+
+
+$F_TRANSLATIONS["Inspect"]="LOOK at or Inspects NPC, Actor, or being OUTFIT and GEAR";
+$F_TRANSLATIONS["LookAt"]="LOOK at or Inspects NPC, Actor, or being OUTFIT and GEAR";
 $F_TRANSLATIONS["InspectSurroundings"]="Looks for beings nearby";
 $F_TRANSLATIONS["MoveTo"]= "Walk to a visible building or visible actor, also used to guide {$GLOBALS["PLAYER_NAME"]} to a actor or building.";
 $F_TRANSLATIONS["OpenInventory"]="Initiates trading or exchange items with {$GLOBALS["PLAYER_NAME"]}";
@@ -57,6 +79,22 @@ $FUNCTIONS = [
                 ]
             ],
             "required" => []
+        ],
+    ],
+    [
+        "name" => "LookAt",
+        "description" => $F_TRANSLATIONS["Inspect"],
+        "parameters" => [
+            "type" => "object",
+            "properties" => [
+                "target" => [
+                    "type" => "string",
+                    "description" => "Target NPC, Actor, or being",
+                    "enum" => $FUNCTION_PARM_INSPECT
+
+                ]
+            ],
+            "required" => ["target"],
         ],
     ],
     [
@@ -320,7 +358,7 @@ $FUNCTIONS_GHOSTED =  [
         "parameters" => [
             "type" => "object",
             "properties" => [
-                "topic" => [
+                "page" => [
                     "type" => "string",
                     "description" => "topic to search in full-text query syntax",
                 ]
@@ -330,6 +368,12 @@ $FUNCTIONS_GHOSTED =  [
     ]
     ;
 
-    
-    
+// Delete non wanted functions    
+foreach ($FUNCTIONS as $n=>$v)
+    if (!in_array($v["name"],$ENABLED_FUNCTIONS)) {
+            unset($FUNCTIONS[$n]);
+    }
+
+
+
 ?>

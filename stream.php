@@ -1,6 +1,8 @@
 <?php
 error_reporting(E_ERROR);
 
+define("MAXIMUM_SENTENCE_SIZE", 125);
+
 $path = dirname((__FILE__)) . DIRECTORY_SEPARATOR;
 require_once($path . "conf.php");
 require_once($path . "lib/$DRIVER.class.php");
@@ -250,7 +252,7 @@ if ($handle === false) {
        
        $buffer=strtr($buffer,array("\""=>""));
 	   
-		if (strlen($buffer)<50)	// Avoid too short buffers
+		if (strlen($buffer)<MAXIMUM_SENTENCE_SIZE)	// Avoid too short buffers
 			continue;
 		
 		$position = findDotPosition($buffer);

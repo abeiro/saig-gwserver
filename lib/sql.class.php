@@ -367,12 +367,12 @@ class sql
       */
       $topicTok=explode(" ",strtr($topic,array("'"=>"")));
       $topicFmt=implode(" OR ",$topicTok);
-      $results = self::$link->query(SQLite3::escapeString("SElECT  topic,content,tags,people  FROM diarylogv2
+      $results = self::$link->query(SQLite3::escapeString("SElECT  topic as page,content,tags,people  FROM diarylogv2
       where (tags MATCH \"$topicFmt\" or topic MATCH \"$topicFmt\" or content MATCH \"$topicFmt\" or people MATCH \"$topicFmt\") ORDER BY rank"));
       
       
       if (!$results) {  // No match, will return a list of current memories
-          $results = self::$link->query(SQLite3::escapeString("SElECT  topic,tags  FROM diarylogv2 order by gamets asc"));
+          $results = self::$link->query(SQLite3::escapeString("SElECT  topic as page,tags  FROM diarylogv2 order by gamets asc"));
           
           if (!$results) 
             return  json_encode([]);
@@ -382,7 +382,7 @@ class sql
           while ($row = $results->fetchArray(SQLITE3_ASSOC)) 
             $data[] = $row;
         
-          return json_encode(["return value"=>"Topic not found","similar topics"=>$data]);  
+          return json_encode(["return value"=>"Page not found","similar pages"=>$data]);  
 
      
       } else {       // Return best matching memory
@@ -400,14 +400,14 @@ class sql
 
       if (sizeof($data)==0) { // No match, will return a list of current memories. Revise limits
         
-        $results = self::$link->query(SQLite3::escapeString("SElECT  topic  FROM diarylogv2 order by rowid asc"));
+        $results = self::$link->query(SQLite3::escapeString("SElECT  topic as page  FROM diarylogv2 order by rowid asc"));
       
         $data=[];
 
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) 
           $data[] = $row;
 
-        return json_encode(["return value"=>"Topic not found","available topics"=>$data]);  
+        return json_encode(["return value"=>"Page not found","available pages"=>$data]);  
       }
       
       return json_encode($data);  
@@ -420,12 +420,12 @@ class sql
   {
 
      //$results = self::$link->query('SElECT  topic,tags  FROM diarylogv2 where tags  MATCH NEAR(\'one two\' \'three four\', 10) order by rank');
-     $preData=  self::fetchAll("SElECT  topic,tags,people  FROM diarylogv2 where tags  MATCH 'NEAR(\"$topic\")' or topic  MATCH 'NEAR(\"$topic\")' or people  MATCH 'NEAR(\"$topic\")'  order by rank");
+     $preData=  self::fetchAll("SElECT  topic as page,tags,people  FROM diarylogv2 where tags  MATCH 'NEAR(\"$topic\")' or topic  MATCH 'NEAR(\"$topic\")' or people  MATCH 'NEAR(\"$topic\")'  order by rank");
      //$preData=  self::fetchAll("SElECT  topic,tags,people  FROM diarylogv2 where tags  MATCH \"$topic\" order by rank");
      if (sizeof($preData)==0) {
-       $preData=  self::fetchAll("SElECT  topic,tags,people  FROM diarylogv2 where tags  like '%$topic%'  or topic  like '%$topic%' or people  like '%$topic%'");
+       $preData=  self::fetchAll("SElECT  topic as page,tags,people  FROM diarylogv2 where tags  like '%$topic%'  or topic  like '%$topic%' or people  like '%$topic%'");
             if (sizeof($preData)==0) {
-        $results = self::$link->query(SQLite3::escapeString("SElECT  topic,tags,people  FROM diarylogv2 order by rowid asc"));
+        $results = self::$link->query(SQLite3::escapeString("SElECT  topic as page,tags,people  FROM diarylogv2 order by rowid asc"));
         $data=[];
 
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) 

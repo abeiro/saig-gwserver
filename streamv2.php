@@ -452,7 +452,7 @@ if ($finalParsedData[0] == "funcret") {
 			//
 		} else if ($returnFunction[1] == "LeadTheWayTo") {
 			$argName = "location";
-			$GLOBALS["OPENAI_MAX_TOKENS"]="40";	// Force a short response, as IA here tends to simulate the whole travel
+			$GLOBALS["OPENAI_MAX_TOKENS"]="64";	// Force a short response, as IA here tends to simulate the whole travel
 
 		} else if ($returnFunction[1] == "MoveTo") {
 			if (strpos($finalParsedData[3], "LeadTheWayTo") !== false) {// PatchHack. If Moving returning Shoud use TravelTo, enable functions again
@@ -475,12 +475,12 @@ if ($finalParsedData[0] == "funcret") {
 
 		} else if ($returnFunction[1] == "ReadDiaryPage") {
 			//$useFunctionsAgain=true;
-			$argName = "topic";
+			$argName = "page";
 
 
 		} else if ($returnFunction[1] == "SearchDiary") {
 			//$useFunctionsAgain=true;
-			$request="(use function ReadDiaryPage to acccess the specific topic) $request";
+			$request="(use function ReadDiaryPage to access the specific page provided by SearchDiary) $request";
 			$argName = "keyword";
 			$useFunctionsAgain=true;
 			$GLOBALS["FUNCTIONS"][]=$GLOBALS["FUNCTIONS_GHOSTED"];// We provide here the ReadDiaryPage function
