@@ -239,6 +239,28 @@ try {
 				'localts' => time()
 			)
 		);
+		
+		// Delete TTS(STT cache
+		$directory = __DIR__.DIRECTORY_SEPARATOR."soundcache"; 
+
+		$sixHoursAgo = time() - (6 * 60 * 60);
+
+		$handle = opendir($directory);
+		if ($handle) {
+			while (false !== ($file = readdir($handle))) {
+				$filePath = $directory . DIRECTORY_SEPARATOR . $file;
+
+				if (is_file($filePath)) {
+					$fileMTime = filemtime($filePath);
+					if ($fileMTime < $sixHoursAgo) {
+						@unlink($filePath);
+					}
+				}
+			}
+			closedir($handle);
+		}
+
+
 	} else if ($finalParsedData[0] == "request") { // Just requested response
 		// Do nothing
 		$responseDataMl = $db->dequeue();

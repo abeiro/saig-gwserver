@@ -191,7 +191,7 @@ $GLOBALS["DEBUG_DATA"][]=$parms;
 	
 $url = 'https://api.openai.com/v1/chat/completions';
 $data = array(
-    'model' => 'gpt-3.5-turbo',
+    'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',
     'messages' => 
         $parms
     ,

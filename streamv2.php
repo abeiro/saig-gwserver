@@ -531,7 +531,7 @@ if ($finalParsedData[0] == "funcret") {
 	//$parms = array_merge($head, ($contextDataFull), $functionCalled, $returnFunctionArray, [end($contextDataFull)]);
 
 	$data = array(
-		'model' => 'gpt-3.5-turbo-0613',
+		'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',
 		'messages' =>
 		$parms
 		,
@@ -553,7 +553,7 @@ if ($finalParsedData[0] == "funcret") {
 
 	$parms = array_merge($head, ($contextDataFull), $prompt);
 	$data = array(
-		'model' => 'gpt-3.5-turbo-0613',
+		'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',
 		'messages' =>
 		$parms,
 		'stream' => true,
@@ -570,7 +570,7 @@ if ($finalParsedData[0] == "funcret") {
 
 	$parms = array_merge($head, ($contextDataFull), $prompt);
 	$data = array(
-		'model' => 'gpt-3.5-turbo-0613',
+		'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',
 		'messages' =>
 		$parms,
 		'stream' => false,
@@ -587,7 +587,7 @@ if ($finalParsedData[0] == "funcret") {
 	$prompt[] = array('role' => 'assistant', 'content' => $request);
 	$parms = array_merge($head, ($contextDataFull), $prompt);
 	$data = array(
-		'model' => 'gpt-3.5-turbo-0613',
+		'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:(isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',
 		'messages' =>
 		$parms
 		,

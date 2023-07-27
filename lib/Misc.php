@@ -6,7 +6,7 @@ function split_sentences($paragraph)
 {
 	$paragraphNcr = br2nl($paragraph); // Some BR detected sometimes in response
 	// Split the paragraph into an array of sentences using a regular expression
-	preg_match_all('/[^\n?.!,]+[?.!,]/', $paragraphNcr, $matches);
+	preg_match_all('/[^\n?.!]+[?.!]/', $paragraphNcr, $matches);
 	//print_r($matches);
 	$sentences = $matches[0];
 	// Check if the last sentence is truncated (i.e., doesn't end with a period)
@@ -135,7 +135,7 @@ function print_array_as_table($data)
 
 
 
-function parseResponseV2($responseText, $forceMood = "", $topicQueue)
+function parseResponseV2($responseText, $forceMood = "", $topicQueue="")
 {
 
 	global $db, $startTime;
