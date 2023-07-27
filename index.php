@@ -258,6 +258,8 @@ if ($_GET["table"] == "books") {
     
 }
 
+include("tmpl/footer.html");
+
 $buffer=ob_get_contents();
 ob_end_clean();
 $title = "Gateway Server CP for {$GLOBALS["PLAYER_NAME"]}";
