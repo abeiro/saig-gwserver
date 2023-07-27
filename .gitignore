@@ -3,3 +3,6 @@ release.zip
 release/*
 prompts_custom.php
 tts/gcp_key.json
+.vscode
+vendor
+mysqlitedb.db
