@@ -53,7 +53,8 @@ function cleanReponse($rawResponse)
 
 	if (strpos($toSplit, "{$GLOBALS["HERIKA_NAME"]}:") !== false) {
 		$rawResponseSplited = explode(":", $toSplit);
-		$toSplit = $rawResponseSplited[1];
+		array_shift($rawResponseSplited);
+		$toSplit = implode(":",$rawResponseSplited);
 	}
 
 	$sentences = split_sentences($toSplit);

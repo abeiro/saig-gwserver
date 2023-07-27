@@ -10,10 +10,10 @@ $PROMPTS=array(
         "{$GLOBALS["PLAYER_NAME"]}: $HERIKA_NAME, summarize this book shortly: "
     ],
     "combatend"=>[
-        "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME, she comments about the last combat encounter)  $HERIKA_NAME: #CHAT#",
-        "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME, she laughs at {$GLOBALS["PLAYER_NAME"]}'s combat style) $HERIKA_NAME: #CHAT#",
-        "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME, she comments about  {$GLOBALS["PLAYER_NAME"]} weapons)  $HERIKA_NAME: #CHAT#",
-        "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME, she admires  {$GLOBALS["PLAYER_NAME"]}'s combat style)  $HERIKA_NAME: #CHAT#",
+        "(Complete the text replacing the hashtag #CHAT#)(Generate chat completion for $HERIKA_NAME, she comments about the last combat encounter)  $HERIKA_NAME: #CHAT#",
+        "(Complete the text replacing the hashtag #CHAT#)(Generate chat completion for $HERIKA_NAME, she laughs at {$GLOBALS["PLAYER_NAME"]}'s combat style) $HERIKA_NAME: #CHAT#",
+        "(Complete the text replacing the hashtag #CHAT#)(Generate chat completion for $HERIKA_NAME, she comments about  {$GLOBALS["PLAYER_NAME"]} weapons)  $HERIKA_NAME: #CHAT#",
+        "(Complete the text replacing the hashtag #CHAT#)(Generate chat completion for $HERIKA_NAME, she admires  {$GLOBALS["PLAYER_NAME"]}'s combat style)  $HERIKA_NAME: #CHAT#",
         "extra"=>["mood"=>"whispering","force_tokens_max"=>"50","dontuse"=>(time()%5!=0)]   //20% chance
 
     ],
@@ -29,40 +29,40 @@ $PROMPTS=array(
 
     "bored"=>[
         "",
-        "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME, she makes a casual comment a joke about current location) $HERIKA_NAME: #CHAT# ",
-        "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME, she makes a casual comment about the current weather) $HERIKA_NAME: #CHAT# ",
-        "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME, she makes a casual comment about the time and date) $HERIKA_NAME: #CHAT# ",
-        "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME, she makes a casual comment about the last event) $HERIKA_NAME: #CHAT# ",
-        "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME, she makes a casual comment about a Skyrim Meme) $HERIKA_NAME: #CHAT# ",
-        "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME, she makes a casual comment about any of the Gods in Skyrim) $HERIKA_NAME: #CHAT# ",
-        "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME, she makes a casual comment about the politics of Skyrim) $HERIKA_NAME: #CHAT# ",
-        "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME, she makes a casual comment about a historical event from the Elder Scrolls Universe) $HERIKA_NAME: #CHAT# ",
-        "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME, she makes a casual comment about a book from the Elder Scrolls Universe) $HERIKA_NAME: #CHAT# ",
-        "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME, she makes a casual comment starting with: I once had to) $HERIKA_NAME: #CHAT# ",
-        "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME, she makes a casual comment starting with: Did you hear about what happened in) $HERIKA_NAME: #CHAT# ",
-        "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME, she makes a casual comment starting with: A wise Akaviri man once told me) $$HERIKA_NAME: #CHAT# ",
-        "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME, she makes a casual comment about current relationship/friendship status with {$GLOBALS["PLAYER_NAME"]}) $HERIKA_NAME: #CHAT# "
+        "(Complete the text replacing the hashtag #CHAT#)(Generate chat completion for $HERIKA_NAME, she makes a casual comment a joke about current location) $HERIKA_NAME: #CHAT# ",
+        "(Complete the text replacing the hashtag #CHAT#)(Generate chat completion for $HERIKA_NAME, she makes a casual comment about the current weather) $HERIKA_NAME: #CHAT# ",
+        "(Complete the text replacing the hashtag #CHAT#)(Generate chat completion for $HERIKA_NAME, she makes a casual comment about the time and date) $HERIKA_NAME: #CHAT# ",
+        "(Complete the text replacing the hashtag #CHAT#)(Generate chat completion for $HERIKA_NAME, she makes a casual comment about the last event) $HERIKA_NAME: #CHAT# ",
+        "(Complete the text replacing the hashtag #CHAT#)(Generate chat completion for $HERIKA_NAME, she makes a casual comment about a Skyrim Meme) $HERIKA_NAME: #CHAT# ",
+        "(Complete the text replacing the hashtag #CHAT#)(Generate chat completion for $HERIKA_NAME, she makes a casual comment about any of the Gods in Skyrim) $HERIKA_NAME: #CHAT# ",
+        "(Complete the text replacing the hashtag #CHAT#)(Generate chat completion for $HERIKA_NAME, she makes a casual comment about the politics of Skyrim) $HERIKA_NAME: #CHAT# ",
+        "(Complete the text replacing the hashtag #CHAT#)(Generate chat completion for $HERIKA_NAME, she makes a casual comment about a historical event from the Elder Scrolls Universe) $HERIKA_NAME: #CHAT# ",
+        "(Complete the text replacing the hashtag #CHAT#)(Generate chat completion for $HERIKA_NAME, she makes a casual comment about a book from the Elder Scrolls Universe) $HERIKA_NAME: #CHAT# ",
+        "(Complete the text replacing the hashtag #CHAT#)(Generate chat completion for $HERIKA_NAME, she makes a casual comment starting with: I once had to) $HERIKA_NAME: #CHAT# ",
+        "(Complete the text replacing the hashtag #CHAT#)(Generate chat completion for $HERIKA_NAME, she makes a casual comment starting with: Did you hear about what happened in) $HERIKA_NAME: #CHAT# ",
+        "(Complete the text replacing the hashtag #CHAT#)(Generate chat completion for $HERIKA_NAME, she makes a casual comment starting with: A wise Akaviri man once told me) $$HERIKA_NAME: #CHAT# ",
+        "(Complete the text replacing the hashtag #CHAT#)(Generate chat completion for $HERIKA_NAME, she makes a casual comment about current relationship/friendship status with {$GLOBALS["PLAYER_NAME"]}) $HERIKA_NAME: #CHAT# "
     ],
 
     "goodmorning"=>[
-        "(Complete the text replacing the hashtag #CHAT#)(Roleplay only as $HERIKA_NAME commenting about {$GLOBALS["PLAYER_NAME"]}'s nap )  $HERIKA_NAME: #CHAT#",
+        "(Complete the text replacing the hashtag #CHAT#)(Generate chat completion for $HERIKA_NAME commenting about {$GLOBALS["PLAYER_NAME"]}'s nap )  $HERIKA_NAME: #CHAT#",
         "(waking up after sleep). ahhhh  "
     ],
 
     "inputtext"=>[
-        "(Complete the text replacing the hashtag #CHAT#, call functions if needed, put voice tone in parenthesys,valid voice tones:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ") (Roleplay only as $HERIKA_NAME) $HERIKA_NAME:  #CHAT#" // Prompt is implicit
+        "(Complete the text replacing the hashtag #CHAT#, call functions if needed, put voice tone in parenthesys,valid voice tones:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ") (Generate chat completion for $HERIKA_NAME) $HERIKA_NAME:  #CHAT#" // Prompt is implicit
 
     ],
     "inputtext_s"=>[
-        "(Complete the text replacing the hashtag #CHAT#,call functions if needed, Roleplay only as $HERIKA_NAME) $HERIKA_NAME:  #CHAT#",
+        "(Complete the text replacing the hashtag #CHAT#,call functions if needed, Generate chat completion for $HERIKA_NAME) $HERIKA_NAME:  #CHAT#",
         "extra"=>["mood"=>"whispering"]
     ],
     "afterfunc"=>[
         "(Complete the text replacing the hashtag #CHAT#, $HERIKA_NAME talks again to {$GLOBALS["PLAYER_NAME"]}, you only generate text as $HERIKA_NAME) $HERIKA_NAME: Well... #CHAT#",
         "extra"=>[],
-        "TakeASeat"=>"(Roleplay only as $HERIKA_NAME) $HERIKA_NAME: (talks about sitting location #CHAT#)",
-        "GetDateTime"=>"(Roleplay only as $HERIKA_NAME) $HERIKA_NAME: (answers with the current date and time in short sentence)",
-        "MoveTo"=>"(Roleplay only as $HERIKA_NAME) $HERIKA_NAME: (she makes a comment about movement destination)"       
+        "TakeASeat"=>"(Generate chat completion for $HERIKA_NAME) $HERIKA_NAME: (talks about sitting location #CHAT#)",
+        "GetDateTime"=>"(Generate chat completion for $HERIKA_NAME) $HERIKA_NAME: (answers with the current date and time in short sentence)",
+        "MoveTo"=>"(Generate chat completion for $HERIKA_NAME) $HERIKA_NAME: (she makes a comment about movement destination)"       
     ],
     "lockpicked"=>[
         "(Complete the text replacing the hashtag #CHAT#, comment about item lockpicked) $HERIKA_NAME: #CHAT#",
@@ -73,7 +73,7 @@ $PROMPTS=array(
     ],
     // Like inputtext, but without the functions calls part. It's likely to be used in papyrus scripts
     "chatnf"=>[ 
-         "(Complete the text replacing the hashtag #CHAT#, put voice tone in parenthesys,valid voice tones:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ") (Roleplay only as $HERIKA_NAME) $HERIKA_NAME:  #CHAT#" // Prompt is implicit
+         "(Complete the text replacing the hashtag #CHAT#, put voice tone in parenthesys,valid voice tones:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ") (Generate chat completion for $HERIKA_NAME) $HERIKA_NAME:  #CHAT#" // Prompt is implicit
         
     ],
     "diary"=>[ 
