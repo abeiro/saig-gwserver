@@ -36,6 +36,7 @@ if ($_GET["cleanlog"]) {
 
 }
 
+
 if ($_GET["export"] && $_GET["export"]=="log") {
     while(@ob_end_clean());
     
@@ -150,6 +151,11 @@ echo "
                 <li><a href='addons/diary'   target='_blank'>AI's diary</a></li>
             </ul>
         </li>
+        <li><a href='#'>Please read</a>
+            <ul>
+                <li><a href='index.php?notes=true'>Notes from developers</a></li>
+            </ul>
+        </li>
         
 
     </ul>
@@ -257,6 +263,10 @@ if ($_GET["table"] == "books") {
     print_array_as_table($results);
     
 }
+if ($_GET["notes"]) {
+    echo file_get_contents(__DIR__."/notes.html");
+}
+
 
 $buffer=ob_get_contents();
 ob_end_clean();

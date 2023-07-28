@@ -42,6 +42,8 @@ if (isset($GLOBALS["CORE_LANG"]))
 	if (file_exists(__DIR__.DIRECTORY_SEPARATOR."lang".DIRECTORY_SEPARATOR.$GLOBALS["CORE_LANG"].DIRECTORY_SEPARATOR."command_prompt.php")) 
 		require_once(__DIR__.DIRECTORY_SEPARATOR."lang".DIRECTORY_SEPARATOR.$GLOBALS["CORE_LANG"].DIRECTORY_SEPARATOR."command_prompt.php");
 	
-
+// You can override prompts here
+if (file_exists(__DIR__.DIRECTORY_SEPARATOR."command_prompt_custom.php"))
+    require_once(__DIR__.DIRECTORY_SEPARATOR."command_prompt_custom.php");
 
 ?>
