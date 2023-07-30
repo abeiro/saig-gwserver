@@ -31,7 +31,7 @@ Rule 7. Don't create characters, enemies, or objects; the Narrator will do it.
 
 $DIALOGUE_TARGET="(Talking to {$GLOBALS["HERIKA_NAME"]})";
 
-$RESPONSE_OK_NOTED="Ok, noted.";
+$RESPONSE_OK_NOTED="Okey, noted.";
 
 $ERROR_OPENAI="Didn't hear you, can you repeat?";								// Say something logical, as this response will be pushed in next call.
 $ERROR_OPENAI_REQLIMIT="Be quiet, I'm having a flashback, give me a minute";	// Say something logical, as this response will be pushed in next call.
