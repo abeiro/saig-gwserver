@@ -50,7 +50,7 @@ function split_sentences_stream($paragraph)
 		if (strlen($currentSentence) > 120) {
 			$splitSentences[] = trim($currentSentence);
 			$currentSentence = '';
-		} elseif (strlen($currentSentence) >= 60 && strlen($currentSentence) <= 120) {
+		} elseif (strlen($currentSentence) >= 60 && strlen($currentSentence) <= MAXIMUM_SENTENCE_SIZE) {
 			$splitSentences[] = trim($currentSentence);
 			$currentSentence = '';
 		}
@@ -587,7 +587,7 @@ if ($finalParsedData[0] == "funcret") {
 	$prompt[] = array('role' => 'assistant', 'content' => $request);
 	$parms = array_merge($head, ($contextDataFull), $prompt);
 	$data = array(
-		'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:(isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',
+		'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',
 		'messages' =>
 		$parms
 		,

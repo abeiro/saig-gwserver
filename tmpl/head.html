@@ -7,21 +7,25 @@
 
         <!-- bootstrap -->
         <link href="./lib/ui/bootstrap/bootstrap.min.css" rel="stylesheet" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
         <script src="./lib/ui/bootstrap/bootstrap.bundle.min.js"></script>
 
         <title>#TITLE#</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@11.7.0/styles/default.min.css" />
+
+        <script src="https://unpkg.com/@highlightjs/cdn-assets@11.7.0/highlight.min.js"></script>
+        <script src="https://unpkg.com/@highlightjs/cdn-assets@11.7.0/languages/javascript.min.js"></script>
 
         <script>
             function togglePre(element) {
                 if (element.parentElement.lastChild.className == "") element.parentElement.lastChild.className = "foldable";
                 else element.parentElement.lastChild.className = "";
             }
-    
+
             function toggleDP() {
-                document.querySelector('.debugpane').classList.toggle('d-none');
+                document.querySelector(".debugpane").classList.toggle("d-none");
             }
         </script>
     </head>

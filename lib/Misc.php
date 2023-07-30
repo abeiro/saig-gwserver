@@ -56,8 +56,11 @@ function cleanReponse($rawResponse)
 
     $sentences = split_sentences($toSplit);
 
-    if ($GLOBALS["DEBUG_MODE"])
-        print_r($sentences);
+	if (strpos($toSplit, "{$GLOBALS["HERIKA_NAME"]}:") !== false) {
+		$rawResponseSplited = explode(":", $toSplit);
+		array_shift($rawResponseSplited);
+		$toSplit = implode(":",$rawResponseSplited);
+	}
 
     $sentence = trim((implode(".", $sentences)));
 
