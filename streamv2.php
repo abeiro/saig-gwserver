@@ -458,11 +458,6 @@ if ($finalParsedData[0] == "funcret") {
 			if (strpos($finalParsedData[3], "LeadTheWayTo") !== false) {// PatchHack. If Moving returning Shoud use TravelTo, enable functions again
 				$useFunctionsAgain = true;
 				$request="(use function LeadTheWayTo to travel) $request";
-			} else {
-				if (strpos($finalParsedData[3], "LeadTheWayTo") !== false) {// PatchHack. If Moving returning Shoud use TravelTo, enable functions again
-					$useFunctionsAgain = true;
-					$request="(use function LeadTheWayTo to travel) $request";
-				}
 			}
 			$argName = "target";
 

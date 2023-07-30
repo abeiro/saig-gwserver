@@ -95,6 +95,7 @@ foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($update_di
                   echo "updating..";
                   @mkdir(dirname($orig_file));
                   copy($file->getPathname(),$orig_file);
+                  
                 }
                 
             // Do something to add the file
