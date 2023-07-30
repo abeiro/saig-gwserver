@@ -41,6 +41,29 @@
 <p>This way we can release updates with new prompts definitions for new events, and your customized prompts will always overwrite vanilla ones. 
 GPT-3.5 and GPT-4 work different with the same prompts, so customizing is the way to go to fit your best experience.</p>
 
+<p><strong>5. Disabling functions</strong>. Just create the file functions_custom.php (top level dir, same directory level as conf.php), and just redeclare there enabled functions array.Example:</p>
+<pre><code class="language-php">
+$ENABLED_FUNCTIONS=[
+    'Inspect',
+    'LookAt',
+    'InspectSurroundings',
+    //'MoveTo',             // Will not be available
+    'OpenInventory',
+    'Attack',
+    'Follow',
+    'CheckInventory',
+    'SheatheWeapon',
+    'Relax',
+    //'LeadTheWayTo',       // Will not be available
+    //'TakeASeat',          // Will not be available
+    'ReadQuestJournal',
+    'SetSpeed',
+    'GetDateTime',
+    'SearchDiary',
+    'SetCurrentTask'
+];
+</code></pre>
+
 <p>&nbsp;</p>
 <p>You can find us at Discord.<a href="https://discord.com/invite/NDn9qud2ug">https://discord.com/invite/NDn9qud2ug</a></p>
 
