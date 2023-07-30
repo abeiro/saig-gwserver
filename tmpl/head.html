@@ -7,22 +7,22 @@
 
         <!-- bootstrap -->
         <link href="./lib/ui/bootstrap/bootstrap.min.css" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
         <script src="./lib/ui/bootstrap/bootstrap.bundle.min.js"></script>
 
         <title>#TITLE#</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+        <script>
+            function togglePre(element) {
+                if (element.parentElement.lastChild.className == "") element.parentElement.lastChild.className = "foldable";
+                else element.parentElement.lastChild.className = "";
+            }
+    
+            function toggleDP() {
+                document.querySelector('.debugpane').classList.toggle('d-none');
+            }
+        </script>
     </head>
-
-    <script>
-        function togglePre(element) {
-            if (element.parentElement.lastChild.className == "") element.parentElement.lastChild.className = "foldable";
-            else element.parentElement.lastChild.className = "";
-        }
-
-        function toggleDP() {
-            document.getElementsByClassName("debugpane")[0].style.display =
-                document.getElementsByClassName("debugpane")[0].style.display == "block" ? "none" : "block";
-        }
-    </script>
     <body>
