@@ -6,3 +6,4 @@ tts/gcp_key.json
 .vscode
 vendor
 mysqlitedb.db
+tmp
