@@ -19,17 +19,15 @@ $DEBUG_MODE=false;
 $PLAYER_NAME="Prisoner";
 $HERIKA_NAME="Herika";  //Work in progress configuration for changing Herika's character. Just ignore this and leave as is.
 $HERIKA_PERS="You are Herika, a Breton female who likes jokes and sarcastic comments.";
-$PROMPT_HEAD="Let\'s roleplay in the Universe of Skyrim. I\'m {$GLOBALS["PLAYER_NAME"]}. You dont describe things or actions, just chat as your character";
+$PROMPT_HEAD="Let\'s roleplay in the Universe of Skyrim. I\'m {$GLOBALS["PLAYER_NAME"]}. You don't describe things or actions, just chat as your character";
 
 // Size of context data to send. More context, more tokens, and not so fish-memory
 $CONTEXT_HISTORY="25";
 
 // Azure TTS Configuration
-// More Azure TTS presets can be found in the Article section for the mod page
-// This configuration will make Herika sound like how she does in the Dwemer Dynamics videos
 $AZURETTS_CONF["fixedMood"]="";			// Azure TTS prosody and style. Empty to stay variable.
 $AZURETTS_CONF["region"]="westeurope";			// Region, Fine tune to improve response time. https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/regions
-$AZURETTS_CONF["voice"]="en-US-NancyNeural";	// Voice. Read https://learn.microsoft.com/es-es/azure/cognitive-services/speech-service/language-support?tabs=tts
+$AZURETTS_CONF["voice"]="en-US-NancyNeural";	// Voice. Read https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/language-support?tabs=tts
 $AZURETTS_CONF["volume"]="25";					// Default volume
 $AZURETTS_CONF["rate"]="1.2";					// Default rate (speed)
 $AZURETTS_CONF["countour"]= "(11%, +15%) (60%, -23%) (80%, -34%)";		//Algorithm to change pitch during speech. 
@@ -63,8 +61,8 @@ $GCP_CONF = [
     'languageCode' => 'en-GB'
   ],
   'ssml' => [
-    'rate' => '1.15',
-    'pitch' => '+3.6st'
+    'rate' => '1.10',
+    'pitch' => '+1.6st'
   ]
 ];
 
@@ -73,8 +71,8 @@ $LOCALWHISPER["URL"]="";    // Used for local whisper installations
 
 //Allows you to toggle which providers you use for Text-to-Speech or Speech-to-Text
 //IF YOU DO NOT HEAR HERIKA MAKE SURE TO CHECK YOUR SYSTEM SOUNDS VOLUME
-$STTFUNCTION="azure";								// Valid options are azure or whisper so far
-$TTSFUNCTION="azure";								// Valid options are azure or mimic3 or 11labs or gcp 
+$STTFUNCTION="whisper";								// Valid options are azure or whisper so far
+$TTSFUNCTION="mimic3";								// Valid options are azure or mimic3 or 11labs or gcp 
 
 //Configuration for changing default language for TTS
 $TTSLANGUAGE_AZURE="en-US";							// en-US, es-ES formats
@@ -88,6 +86,6 @@ $HTTP_TIMEOUT=30;                       // How long we will wait for openai resp
 $OPENAI_MAX_TOKENS_MEMORY="1024";       // required to create memories.
 
 
-$GPTMODEL="gpt-3.5-turbo-0613";         // Changes GPT model to use.
+$GPTMODEL="gpt-3.5-turbo-0613";         // Changes GPT model to use. Options are gpt-4 or gpt-3.5-turbo-0613, more can be found here https://platform.openai.com/account/rate-limits
 
 ?>
