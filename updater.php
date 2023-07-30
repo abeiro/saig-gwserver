@@ -93,7 +93,7 @@ foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($update_di
             echo "<li><span style='color:red'>File $relative_path is a new file</b>  ($orig_file vs {$file->getPathname()})</span></li>";
              if ($_POST["doit"]) {
                   echo "updating..";
-                  @mkdir(dirname($orig_file));
+                  @mkdir(dirname($orig_file),770,true);
                   copy($file->getPathname(),$orig_file);
                   
                 }

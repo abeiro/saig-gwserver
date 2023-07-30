@@ -157,6 +157,21 @@ require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
 
 $PROMPT_HEAD=($GLOBALS["PROMPT_HEAD"])?$GLOBALS["PROMPT_HEAD"]:"Let\'s roleplay in the Universe of Skyrim. I\'m {$GLOBALS["PLAYER_NAME"]} ";
 
+/* SUPER PROMPT CUSTOMIZATION */
+
+if (isset($PROMPTS[$finalParsedData[0]]["extra"])) {
+	if (isset($PROMPTS[$finalParsedData[0]]["extra"]["mood"]))
+		$GLOBALS["FORCE_MOOD"] = $PROMPTS[$finalParsedData[0]]["extra"]["mood"];
+	if (isset($PROMPTS[$finalParsedData[0]]["extra"]["force_tokens_max"]))
+		$GLOBALS["OPENAI_MAX_TOKENS"] = $PROMPTS[$finalParsedData[0]]["extra"]["force_tokens_max"];
+	if (isset($PROMPTS[$finalParsedData[0]]["extra"]["transformer"]))
+		$GLOBALS["TRANSFORMER_FUNCTION"] = $PROMPTS[$finalParsedData[0]]["extra"]["transformer"];
+	if (isset($PROMPTS[$finalParsedData[0]]["extra"]["dontuse"]))
+		if (($PROMPTS[$finalParsedData[0]]["extra"]["dontuse"]))
+			return "";
+
+}
+
 $request=$PROMPTS[$finalParsedData[0]][0];
 
 if ($finalParsedData[0]=="inputtext_s") {
