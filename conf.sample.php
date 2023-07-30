@@ -63,7 +63,8 @@ $GCP_CONF = [
   'ssml' => [
     'rate' => '1.10',
     'pitch' => '+1.6st'
-  ]
+  ],
+  'volume' => 1.0
 ];
 
 

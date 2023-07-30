@@ -31,6 +31,7 @@ function tts($textString, $mood = 'default', $stringforhash)
   // Configure the synthesis input
   $voiceName = $GLOBALS['GCP_CONF']['voice']['name'];
   $languageCode = $GLOBALS['GCP_CONF']['voice']['languageCode'];
+  $volumeLevel = isset($GLOBALS['GCP_CONF']['volume']) ? $GLOBALS['GCP_CONF']['volume'] : 1.0;
 
   $input = new SynthesisInput();
       if(!in_array($voiceName, ['en-US-Studio-O', 'en-US-Studio-M']))
@@ -57,6 +58,7 @@ function tts($textString, $mood = 'default', $stringforhash)
   // Configure the audio settings
   $audioConfig = new AudioConfig();
   $audioConfig->setAudioEncoding(AudioEncoding::LINEAR16); // WAV format
+  $audioConfig->setVolume($volumeLevel);
 
   // Perform the text-to-speech synthesis
   $response = $client->synthesizeSpeech($input, $voice, $audioConfig);
