@@ -113,10 +113,14 @@ function print_array_as_table($data)
         echo "<tr>";
         foreach ($row as $n => $cell) {
             if ($n == "prompt") {
-                echo "<td class='{$colorClass}'>
+                /* This is fucking slow
+                 * echo "<td class='{$colorClass}'>
                     <span data-bs-toggle='collapse' data-bs-target='.prompt-$i' style='cursor:pointer'>[+]</span>
                     <pre class='collapse prompt-$i'>" . $cell . "</pre>
                 </td>";
+                */
+                echo "<td style='background-color:{$colors[$colorIndex]}'><span class='foldableCtl' onclick='togglePre(this)' style='cursor:pointer'>[+]</span><pre class='foldable'>" . $cell . "</pre></td>";
+
             } else if (strpos($cell, 'background chat') !== false) {
                 echo "<td class='$colorClass'><em>" . $cell . "</em></td>";
             } else if (strpos($cell, $GLOBALS["PLAYER_NAME"] . ':') !== false) {
