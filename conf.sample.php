@@ -61,9 +61,10 @@ $GCP_CONF = [
     'languageCode' => 'en-GB'
   ],
   'ssml' => [
-    'rate' => '1.10',
-    'pitch' => '+1.6st'
-  ]
+    'rate' => '1.15',
+    'pitch' => '+3.6st'
+  ],
+  'volume' => 1.0
 ];
 
 
