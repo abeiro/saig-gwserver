@@ -437,7 +437,7 @@ $forceAttackingText = false;
 /**** CALL *******/
 
 if ($finalParsedData[0] == "funcret") {
-	$prompt[] = array('role' => 'assistant', 'content' => $request);
+	$prompt[] = array('role' => 'user', 'content' => $request);
 
 	$returnFunction = explode("@", $finalParsedData[3]); // Function returns here
 
@@ -514,17 +514,17 @@ if ($finalParsedData[0] == "funcret") {
 			$argName = "target";
 
 		}
-		$functionCalled[] = array('role' => 'assistant', 'content' => null, 'function_call' => array("name" => $returnFunction[1], "arguments" => "{\"$argName\":\"{$returnFunction[2]}\"}"));
+		$functionCalled[] = array('role' => 'user', 'content' => null, 'function_call' => array("name" => $returnFunction[1], "arguments" => "{\"$argName\":\"{$returnFunction[2]}\"}"));
 
 	} else
-		$functionCalled[] = array('role' => 'assistant', 'content' => null, 'function_call' => ["name" => $returnFunction[1], "arguments" => "\"{}\""]);
+		$functionCalled[] = array('role' => 'user', 'content' => null, 'function_call' => ["name" => $returnFunction[1], "arguments" => "\"{}\""]);
 
 	$returnFunctionArray[] = array('role' => 'function', 'name' => $returnFunction[1], 'content' => "{$returnFunction[3]}");
 
 	if ($forceAttackingText)
-		$returnFunctionArray[] = array('role' => 'assistant', 'content' => "{$PROMPTS["afterattack"][0]} {$GLOBALS["HERIKA_NAME"]}: ");
+		$returnFunctionArray[] = array('role' => 'user', 'content' => "{$PROMPTS["afterattack"][0]} {$GLOBALS["HERIKA_NAME"]}: ");
 	else
-		$returnFunctionArray[] = array('role' => 'assistant', 'content' => $request);
+		$returnFunctionArray[] = array('role' => 'user', 'content' => $request);
 
 
 	$parms = array_merge($head, ($contextDataFull), $functionCalled, $returnFunctionArray);
@@ -549,7 +549,7 @@ if ($finalParsedData[0] == "funcret") {
 } else if ( (strpos($finalParsedData[0],"chatnf")!==false)) {
 
 
-	$prompt[] = array('role' => 'assistant', 'content' => $request);
+	$prompt[] = array('role' => 'user', 'content' => $request);
 
 	$parms = array_merge($head, ($contextDataFull), $prompt);
 	$data = array(
@@ -566,7 +566,7 @@ if ($finalParsedData[0] == "funcret") {
 } else if ($finalParsedData[0] == "diary") {
 
 
-	$prompt[] = array('role' => 'assistant', 'content' => $request);
+	$prompt[] = array('role' => 'user', 'content' => $request);
 
 	$parms = array_merge($head, ($contextDataFull), $prompt);
 	$data = array(
@@ -584,7 +584,7 @@ if ($finalParsedData[0] == "funcret") {
 
 } else {
 
-	$prompt[] = array('role' => 'assistant', 'content' => $request);
+	$prompt[] = array('role' => 'user', 'content' => $request);
 	$parms = array_merge($head, ($contextDataFull), $prompt);
 	$data = array(
 		'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',
@@ -772,8 +772,8 @@ if ($handle === false) {
 
 			$buffer = strtr($buffer, array("\"" => ""));
 
-			$pattern = "/\([^()]*\)/"; // Modified pattern to remove unmatched opening parentheses
-			$buffer = preg_replace($pattern, "", $buffer);
+			//$pattern = "/\([^()]*\)/"; // Modified pattern to remove unmatched opening parentheses
+			//$buffer = preg_replace($pattern, "", $buffer);
 
 			if (strlen($buffer) < MAXIMUM_SENTENCE_SIZE) // Avoid too short buffers
 				continue;
