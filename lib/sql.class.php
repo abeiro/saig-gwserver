@@ -207,7 +207,7 @@ class sql
       $pattern = "/Herika can see this beings in range:(.*)/";
       preg_match_all($pattern,  $row["data"], $matches);
 
-      if (isset($matches[1][0]))
+      if (!empty($matches) && !empty($matches[1]) && isset($matches[1][0])))
         $retData= array_merge($retData,explode(",",$matches[1][0]));
 
       //print_r($matches);
@@ -240,7 +240,7 @@ class sql
       $pattern = "/Herika can see this beings in range:(.*)/";
       preg_match_all($pattern,  $row["data"], $matches);
 
-      if (isset($matches[1][0]))
+      if (!empty($matches) && !empty($matches[1]) && isset($matches[1][0])))
         $retData= explode(",",$matches[1][0]);
 
       
