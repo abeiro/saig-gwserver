@@ -112,7 +112,7 @@ function returnLines($lines)
 
 		if (isset($forceMood)) {
 			$mood = $forceMood;
-		} else if (!empty($matches) && !empty($matches[1]) && isset($matches[1][0])))
+		} else if (!empty($matches) && !empty($matches[1]) && isset($matches[1][0]))
 			$mood = $matches[1][0];
 		else
 			$mood = "default";
