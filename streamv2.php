@@ -514,10 +514,10 @@ if ($finalParsedData[0] == "funcret") {
 			$argName = "target";
 
 		}
-		$functionCalled[] = array('role' => 'user', 'content' => null, 'function_call' => array("name" => $returnFunction[1], "arguments" => "{\"$argName\":\"{$returnFunction[2]}\"}"));
+		$functionCalled[] = array('role' => 'assistant', 'content' => null, 'function_call' => array("name" => $returnFunction[1], "arguments" => "{\"$argName\":\"{$returnFunction[2]}\"}"));
 
 	} else
-		$functionCalled[] = array('role' => 'user', 'content' => null, 'function_call' => ["name" => $returnFunction[1], "arguments" => "\"{}\""]);
+		$functionCalled[] = array('role' => 'assistant', 'content' => null, 'function_call' => ["name" => $returnFunction[1], "arguments" => "\"{}\""]);
 
 	$returnFunctionArray[] = array('role' => 'function', 'name' => $returnFunction[1], 'content' => "{$returnFunction[3]}");
 
