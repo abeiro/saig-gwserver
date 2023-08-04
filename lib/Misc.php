@@ -121,6 +121,13 @@ function print_array_as_table($data)
                 */
                 echo "<td style='background-color:{$colors[$colorIndex]}'><span class='foldableCtl' onclick='togglePre(this)' style='cursor:pointer'>[+]</span><pre class='foldable'>" . $cell . "</pre></td>";
 
+            } else if ($n == "rowid") {
+                echo "<td class='$colorClass'>
+                    <a class='icon-link' href='cmd/deleteRow.php?table={$_GET["table"]}&rowid=$cell'>
+                        " . $cell . "
+                        <i class='bi-trash'></i>
+                    </a>
+                </td>";
             } else if (strpos($cell, 'background chat') !== false) {
                 echo "<td class='$colorClass'><em>" . $cell . "</em></td>";
             } else if (strpos($cell, $GLOBALS["PLAYER_NAME"] . ':') !== false) {
@@ -129,13 +136,6 @@ function print_array_as_table($data)
                 echo "<td class='$colorClass'><strong>" . $cell . "</strong></td>";
             } else if (strpos($cell, "{$GLOBALS["HERIKA_NAME"]}:") !== false) {
                 echo "<td  class='$colorClass'>" . $cell . "</td>";
-            } else if ($n == "rowid") {
-                echo "<td class='$colorClass'>
-                    <a class='icon-link' href='cmd/deleteRow.php?table={$_GET["table"]}&rowid=$cell'>
-                        " . $cell . "
-                        <i class='bi-trash'></i>
-                    </a>
-                </td>";
             } else {
                 echo "<td class='$colorClass'>" . $cell . "</td>";
             }

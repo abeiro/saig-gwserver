@@ -65,4 +65,5 @@ function ttsMimic($textString, $mood = "cheerful", $stringforhash='')
 
     file_put_contents(dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "soundcache/" . md5(trim($stringforhash)) . ".txt", trim($data) . "\n\rsize of wav ($size)\n\rexecution time: $executionTime secs  function tts($textString,$mood=\"cheerful\",$stringforhash)");
 
+    return "soundcache/" . md5(trim($stringforhash)) . ".wav";
 }

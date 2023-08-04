@@ -186,6 +186,13 @@ include("tmpl/navbar.php");
         echo "<h3 class='my-2'>Book log</h3>";
         print_array_as_table($results);
     } 
+    
+    if ($_GET["table"] == "memory") {
+        $results = $db->fetchAll("select  A.*,ROWID as rowid FROM memory A order by gamets desc,rowid desc");
+        echo "<h3 class='my-2'>Memories log</h3>";
+        print_array_as_table($results);
+    }
+    
         
     if ($_GET["notes"]) {
         echo file_get_contents(__DIR__."/notes.html");

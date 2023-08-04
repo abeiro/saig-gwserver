@@ -5,10 +5,13 @@ define("MAXIMUM_SENTENCE_SIZE", 125);
 
 date_default_timezone_set('Europe/Madrid');
 
+
 $path = dirname((__FILE__)) . DIRECTORY_SEPARATOR;
 require_once($path . "conf.php");
 require_once($path . "lib/$DRIVER.class.php");
 require_once($path . "lib/Misc.php");
+//require_once($path . "lib/vectordb.php");
+//require_once($path . "lib/embeddings.php");
 $db = new sql();
 
 while (@ob_end_clean())
@@ -18,9 +21,13 @@ ignore_user_abort(true);
 set_time_limit(1200);
 
 $startTime = time();
+$momentum=time();
 
 $talkedSoFar = array();
 $alreadysent = array();
+
+$ERROR_TRIGGERED=false;
+$LAST_ROLE="assistant";
 
 function findDotPosition($string)
 {
@@ -100,6 +107,7 @@ function returnLines($lines)
 
 		if ($scoring >= 3) { // Catch OpenAI brekaing policies stuff
 			$responseTextUnmooded = $ERROR_OPENAI_POLICY; // Key phrase to indicate OpenAI triggered warning
+			$ERROR_TRIGGERED=true;
 			$FORCED_STOP = true;
 		} else {
 			if (isset($TRANSFORMER_FUNCTION)) {
@@ -193,6 +201,27 @@ function returnLines($lines)
 		);
 	}
 
+}
+
+function logMemory($speaker,$listener,$message,$momentum,$gamets) {
+    global $db;
+    $db->insert(
+	'memory',
+		array(
+				'localts' => time(),
+				'speaker' => (SQLite3::escapeString($speaker)),
+                'listener' => (SQLite3::escapeString($listener)),
+				'message' => (SQLite3::escapeString($message)),
+	  			'gamets' => $gamets,
+				'session' => "pending",
+                'momentum'=>$momentum
+		)
+	);
+    
+	$insertedSeq=$db->fetchAll("SELECT SEQ from sqlite_sequence WHERE name='memory'");
+	$embeddings=getEmbeddingRemote($message);
+	storeMemory($embeddings,$message,$insertedSeq[0]["seq"]);	
+    
 }
 
 /*********** MAIN FLOW **************/
@@ -388,7 +417,7 @@ if ($finalParsedData[0] == "funcret") { // Overwrite funrect with info from data
 
 	
 } else if ($finalParsedData[0] == "diary") {
-	$GLOBALS["CONTEXT_HISTORY"] = ($GLOBALS["CONTEXT_HISTORY"]<50)?50:$GLOBALS["CONTEXT_HISTORY"];		// Forced to obtain high history volume;
+	$GLOBALS["CONTEXT_HISTORY"] = ($GLOBALS["CONTEXT_HISTORY"]<35)?35:$GLOBALS["CONTEXT_HISTORY"];		// Forced to obtain high history volume;
 	$finalParsedData[3]=$GLOBALS["PROMPTS"]["diary"][1];
 
 }
@@ -418,6 +447,26 @@ $contextData = $db->lastDataFor("", $lastNDataForContext * -1); // Context (last
 $contextData2 = $db->lastInfoFor("", -2); // Infot about location and npcs in first position
 
 $contextCurrentPlan[]=  array('role' => 'user', 'content' => 'The Narrator: ('.$db->get_current_task().')');
+
+/* Memory offering */
+/*
+if (($finalParsedData[0] == "inputtext") || ($finalParsedData[0] == "inputtext_s")) {
+	$memory=array();
+	
+	$textToEmbed=str_replace($DIALOGUE_TARGET,"",$finalParsedData[3]);
+	$pattern = '/\([^)]+\)/';
+	$textToEmbedFinal = preg_replace($pattern, '', $textToEmbed);
+	$textToEmbedFinal=str_replace("{$GLOBALS["PLAYER_NAME"]}:","",$textToEmbedFinal);
+
+	$embeddings=getEmbeddingRemote($textToEmbedFinal);
+	$memories=queryMemory($embeddings);
+	if ($memories["content"][0]) {
+		//$memories["content"][0]["search_term"]=$textToEmbedFinal;
+		$contextData[]=['role' => 'user', 'content' => "The Narrator: Past related memories of {$GLOBALS["HERIKA_NAME"]}'s :".json_encode($memories["content"]) ];
+	}
+}
+*/
+
 
 $contextDataFull = array_merge($contextData2, $contextCurrentPlan,$contextData);
 
@@ -522,9 +571,9 @@ if ($finalParsedData[0] == "funcret") {
 	$returnFunctionArray[] = array('role' => 'function', 'name' => $returnFunction[1], 'content' => "{$returnFunction[3]}");
 
 	if ($forceAttackingText)
-		$returnFunctionArray[] = array('role' => 'assistant', 'content' => "{$PROMPTS["afterattack"][0]} {$GLOBALS["HERIKA_NAME"]}: ");
+		$returnFunctionArray[] = array('role' => $LAST_ROLE, 'content' => "{$PROMPTS["afterattack"][0]} {$GLOBALS["HERIKA_NAME"]}: ");
 	else
-		$returnFunctionArray[] = array('role' => 'assistant', 'content' => $request);
+		$returnFunctionArray[] = array('role' =>$LAST_ROLE, 'content' => $request);
 
 
 	$parms = array_merge($head, ($contextDataFull), $functionCalled, $returnFunctionArray);
@@ -584,7 +633,7 @@ if ($finalParsedData[0] == "funcret") {
 
 } else {
 
-	$prompt[] = array('role' => 'assistant', 'content' => $request);
+	$prompt[] = array('role' => $LAST_ROLE, 'content' => $request);
 	$parms = array_merge($head, ($contextDataFull), $prompt);
 	$data = array(
 		'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',
@@ -650,6 +699,7 @@ if ($handle === false) {
 		)
 	);
 	returnLines([$GLOBALS["ERROR_OPENAI"]]);
+	$ERROR_TRIGGERED=true;
 	@ob_end_flush();
 
 	print_r(error_get_last(), true);
@@ -740,6 +790,7 @@ if ($handle === false) {
 			if (isset($data["error"])) {
 				$GLOBALS["DEBUG_DATA"][] = $data["error"];
 				returnLines([$ERROR_OPENAI_REQLIMIT]);
+				$ERROR_TRIGGERED=true;
 				break;
 			}
 
@@ -824,6 +875,9 @@ if (sizeof($talkedSoFar) == 0) {
 
 	} else { // Fail request? or maybe an invalid command was issued
 
+		
+		        
+
 		//returnLines(array($randomSentence));
 		$db->insert(
 			'log',
@@ -838,9 +892,11 @@ if (sizeof($talkedSoFar) == 0) {
 		);
 
 	}
-
-
-
+} else {
+	if (!$ERROR_TRIGGERED) {
+		$lastPlayerLine=$db->fetchAll("SELECT data from eventlog where type in ('inputtext','inputtext_s') order by gamets desc limit 0,1");
+		logMemory($GLOBALS["HERIKA_NAME"],$GLOBALS["PLAYER_NAME"],"{$lastPlayerLine[0]["data"]} \n\r {$GLOBALS["HERIKA_NAME"]}:".implode(" ",$talkedSoFar),$momentum,$finalParsedData[2]);
+	}
 }
 echo 'X-CUSTOM-CLOSE';
 $stamp = "@STAMP END ################# " . date('h:i:s', time());

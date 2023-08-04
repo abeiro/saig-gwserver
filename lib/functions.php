@@ -18,8 +18,9 @@ $ENABLED_FUNCTIONS=[
     'ReadQuestJournal',
     'SetSpeed',
     'GetDateTime',
-    'SearchDiary',
-    'SetCurrentTask'
+    //'SearchDiary',
+    'SetCurrentTask',
+    'StopWalk'
 ];
 
 
@@ -33,7 +34,7 @@ $F_TRANSLATIONS["Attack"]="Attacks actor, npc or being. but always avoid the dea
 $F_TRANSLATIONS["Follow"]="Moves to and follow a NPC, an actor or being";
 $F_TRANSLATIONS["CheckInventory"]="Search in {$GLOBALS["HERIKA_NAME"]}\'s inventory, backpack or pocket";
 $F_TRANSLATIONS["SheatheWeapon"]="Sheates current weapon";
-$F_TRANSLATIONS["Relax"]="Makes{$GLOBALS["HERIKA_NAME"]} to stop current action and relax herself";
+$F_TRANSLATIONS["Relax"]="Makes {$GLOBALS["HERIKA_NAME"]} to stop current action and relax herself";
 $F_TRANSLATIONS["LeadTheWayTo"]="Only use if {$GLOBALS["PLAYER_NAME"]} explicitly orders it. Guide {$GLOBALS["PLAYER_NAME"]} to a Town o City. ";
 $F_TRANSLATIONS["TakeASeat"]="{$GLOBALS["HERIKA_NAME"]} seats in nearby chair or furniture ";
 $F_TRANSLATIONS["ReadQuestJournal"]="Only use if {$GLOBALS["PLAYER_NAME"]} explicitly ask for a quest. Get info about current quests";
@@ -43,6 +44,7 @@ $F_TRANSLATIONS["SearchDiary"]="Read {$GLOBALS["HERIKA_NAME"]}'s diary to make h
 $F_TRANSLATIONS["SetCurrentTask"]="Set the current plan of action or task or quest";
 $F_TRANSLATIONS["WriteIntoDiary"]="Summarize briefly the recent events and dialogues and write them down in Herika's diary.";
 $F_TRANSLATIONS["ReadDiaryPage"]="Read {$GLOBALS["HERIKA_NAME"]}'s diary to access a specific topic";
+$F_TRANSLATIONS["StopWalk"]="Stop all {$GLOBALS["HERIKA_NAME"]}'s actions inmediately";
 
 if (isset($GLOBALS["CORE_LANG"]))
 	if (file_exists(__DIR__.DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR."lang".DIRECTORY_SEPARATOR.$GLOBALS["CORE_LANG"].DIRECTORY_SEPARATOR."functions.php")) 
@@ -298,20 +300,20 @@ $FUNCTIONS = [
             "required" => ["description"]
         ]
     ], 
-    /*[
-        "name" => "GetTopicInfo",
-        "description" => "Get information about a topic or character on Herika's long-term memory.",
+    [
+        "name" => "StopWalk",
+        "description" => $F_TRANSLATIONS["StopWalk"],
         "parameters" => [
             "type" => "object",
             "properties" => [
-                "topic" => [
+                "target" => [
                     "type" => "string",
-                    "description" => "Topic or Characters",
+                    "description" => "action",
                 ]
             ],
-            "required" =>["topic"]
+            "required" =>[""]
         ]
-    ]*/
+    ]
 ];
 
 
@@ -374,6 +376,7 @@ foreach ($FUNCTIONS as $n=>$v)
             unset($FUNCTIONS[$n]);
     }
 
+    $FUNCTIONS=array_values($FUNCTIONS); //Get rid of array keys
 
 
 ?>

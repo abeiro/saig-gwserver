@@ -51,20 +51,20 @@ $PROMPTS=array(
     ],
 
     "inputtext"=>[
-        "(Completa el texto reemplazando el hashtag #CHAT#, llama a una funcion, pon el tono de voz entre parentesis,tonos validos:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ") (Solo interpreta a $HERIKA_NAME) $HERIKA_NAME:  #CHAT#" // Prompt is implicit
+        "(Completa el texto reemplazando el hashtag #CHAT#, llama a una funcion si es necesario, pon el tono de voz entre parentesis,tonos validos:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ") (Solo interpreta a $HERIKA_NAME, responde a {$GLOBALS["PLAYER_NAME"]} ) $HERIKA_NAME: (tono)  #CHAT#" // Prompt is implicit
 
     ],
     "inputtext_s"=>[
-        "(Completa el texto reemplazando el hashtag #CHAT#, llama a una funcion, interpreta solo a $HERIKA_NAME) $HERIKA_NAME:  #CHAT#",
+        "(Completa el texto reemplazando el hashtag #CHAT#, llama a una funcion si es necesario, interpreta solo a $HERIKA_NAME,esponde a {$GLOBALS["PLAYER_NAME"]}) $HERIKA_NAME:  #CHAT#",
         "extra"=>["mood"=>"whispering"]
     ],
     "afterfunc"=>[
-        "(Completa el texto reemplazando el hashtag #CHAT#, $HERIKA_NAME sigue hablado a {$GLOBALS["PLAYER_NAME"]}, solo completa el texto de $HERIKA_NAME) $HERIKA_NAME: bueno... #CHAT#",
+        "(Completa el texto reemplazando el hashtag #CHAT#, $HERIKA_NAME sigue hablado a {$GLOBALS["PLAYER_NAME"]}, pon el tono de voz entre parentesis,tonos validos:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ") ,solo completa el texto de $HERIKA_NAME) $HERIKA_NAME: (tono) #CHAT#",
         "extra"=>[]
     ],
     "lockpicked"=>[
         "(Completa el texto reemplazando el hashtag #CHAT#, $HERIKA_NAME comenta el objetvo que se ha forzado) $HERIKA_NAME: #CHAT#",
-        "({$GLOBALS["PLAYER_NAME"]} ha forzado la cerradura de {$finalParsedData[3]})"
+        "The Narrator: ({$GLOBALS["PLAYER_NAME"]} ha forzado la cerradura de {$finalParsedData[3]})"
     ],
      "afterattack"=>[
         "(Completa el texto reemplazando el hashtag #CHAT#, $HERIKA_NAME suelta una frase corta motivadora para el combate) $HERIKA_NAME: #CHAT#"
@@ -76,7 +76,7 @@ $PROMPTS=array(
     ],
     "diary"=>[ 
         "(Usa la function WriteIntoDiary para escribir en el diario) $HERIKA_NAME:" ,
-        "Por favor, escribe en tu diario un resumen de los ultimos dialogos y eventos de {$GLOBALS["PLAYER_NAME"]} y $HERIKA_NAME, se creativa y ponle un titulo adecuado"      
+        "Por favor, escribe en tu diario un resumen de los ultimos dialogos y eventos de {$GLOBALS["PLAYER_NAME"]} y $HERIKA_NAME en tercera persona, se creativa y ponle un titulo adecuado"      
     ],
 
 );

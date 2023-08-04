@@ -90,7 +90,7 @@ class sql
     end||a.data  as data 
     FROM  eventlog a WHERE data like '%$actor%' 
     and type<>'combatend'  
-    and type<>'bored' and type<>'init' and type<>'lockpicked' and type<>'infonpc' and type<>'infoloc' and type<>'info' and type<>'funcret' 
+    and type<>'bored' and type<>'init' and type<>'lockpicked' and type<>'infonpc' and type<>'infoloc' and type<>'info' and type<>'funcret'  and type<>'quest'
     and type<>'funccall'  order by gamets desc,ts desc LIMIT 0,50");
     $lastData = "";
 
@@ -101,8 +101,13 @@ class sql
         if ((strpos($row["data"],"{$GLOBALS["HERIKA_NAME"]}:")!==false)||((strpos($row["data"],"{$GLOBALS["PLAYER_NAME"]}:")!==false))) {
           $pattern = "/\([^)]*Context location[^)]*\)/";    // Remove (Context location.. from Herikas lines.
           $replacement = "";
-          $row["data"] = preg_replace($pattern, $replacement, $row["data"]);
-          $lastDialogFull[] = array('role' => 'user', 'content' => $row["data"]);
+          $row["data"] = preg_replace($pattern, $replacement, $row["data"]);  // // assistant vs user war
+          if ((strpos($row["data"],"{$GLOBALS["HERIKA_NAME"]}:")!==false))
+            $role="assistant";
+          else
+            $role="user";
+          
+          $lastDialogFull[] = array('role' => $role, 'content' => $row["data"]); 
 
         } else
           $lastDialogFull[] = array('role' => 'user', 'content' => $row["data"]);
