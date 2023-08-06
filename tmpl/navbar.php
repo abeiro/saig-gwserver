@@ -15,6 +15,7 @@
                     <li><a class="dropdown-item" href="index.php?table=currentmission">Current mission</a></li>
                     <li><a class="dropdown-item" href="index.php?table=diarylog">Diary</a></li>
                     <li><a class="dropdown-item" href="index.php?table=books">Books</a></li>
+                    <li><a class="dropdown-item" href="index.php?table=openai_token_count">OpenAI Token Pricing</a></li>
                     <li><a class="dropdown-item" href="index.php?table=eventlog&autorefresh=true">Monitor events</a></li>
                 </ul>
             </li>

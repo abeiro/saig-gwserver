@@ -129,6 +129,9 @@ function print_array_as_table($data)
                 echo "<td class='$colorClass'><strong>" . $cell . "</strong></td>";
             } else if (strpos($cell, "{$GLOBALS["HERIKA_NAME"]}:") !== false) {
                 echo "<td  class='$colorClass'>" . $cell . "</td>";
+            } else if ($n == "cost_USD" || $n == "total_cost_so_far_USD") {
+                $formatted_cell = (is_numeric($cell)) ? number_format($cell, 6) : $cell;
+                echo "<td class='$colorClass'>" . $formatted_cell . "</td>";
             } else if ($n == "rowid") {
                 echo "<td class='$colorClass'>
                     <a class='icon-link' href='cmd/deleteRow.php?table={$_GET["table"]}&rowid=$cell'>
@@ -326,6 +329,122 @@ function parseResponseV2($responseText, $forceMood = "", $topicQueue = "")
                 tts($responseTextUnmooded, $mood, $responseText);
             }
         }
+    }
+}
+
+function getCostPerThousandInputTokens()
+{
+    $costPerThousandTokens = 0;
+    if ($GLOBALS["GPTMODEL"] == 'gpt-3.5-turbo') {
+        $costPerThousandTokens = 0.0015;
+    } elseif ($GLOBALS["GPTMODEL"] == 'gpt-3.5-turbo-16k') {
+        $costPerThousandTokens = 0.003;
+    } elseif ($GLOBALS["GPTMODEL"] == 'gpt-3.5-turbo-0613') {
+        $costPerThousandTokens = 0.0015;
+    } elseif ($GLOBALS["GPTMODEL"] == 'gpt-3.5-turbo-16k-0613') {
+        $costPerThousandTokens = 0.003;
+    } elseif ($GLOBALS["GPTMODEL"] == 'gpt-4') {
+        $costPerThousandTokens = 0.03;
+    } elseif ($GLOBALS["GPTMODEL"] == 'gpt-4-0613') {
+        $costPerThousandTokens = 0.03;
+    } elseif ($GLOBALS["GPTMODEL"] == 'gpt-4-32k') {
+        $costPerThousandTokens = 0.06;
+    } elseif ($GLOBALS["GPTMODEL"] == 'gpt-4-32k-0613') {
+        $costPerThousandTokens = 0.06;
+    } else {
+        error_log("Cannot tokenize - unrecognized model {$GLOBALS["GPTMODEL"]}");
+        $costPerThousandTokens = 0; // model unknown
+    }
+
+    return $costPerThousandTokens;
+}
+
+function getCostPerThousandOutputTokens()
+{
+    $costPerThousandTokens = 0;
+    if ($GLOBALS["GPTMODEL"] == 'gpt-3.5-turbo') {
+        $costPerThousandTokens = 0.002;
+    } elseif ($GLOBALS["GPTMODEL"] == 'gpt-3.5-turbo-16k') {
+        $costPerThousandTokens = 0.004;
+    } elseif ($GLOBALS["GPTMODEL"] == 'gpt-3.5-turbo-0613') {
+        $costPerThousandTokens = 0.002;
+    } elseif ($GLOBALS["GPTMODEL"] == 'gpt-3.5-turbo-16k-0613') {
+        $costPerThousandTokens = 0.004;
+    } elseif ($GLOBALS["GPTMODEL"] == 'gpt-4') {
+        $costPerThousandTokens = 0.06;
+    } elseif ($GLOBALS["GPTMODEL"] == 'gpt-4-0613') {
+        $costPerThousandTokens = 0.06;
+    } elseif ($GLOBALS["GPTMODEL"] == 'gpt-4-32k') {
+        $costPerThousandTokens = 0.12;
+    } elseif ($GLOBALS["GPTMODEL"] == 'gpt-4-32k-0613') {
+        $costPerThousandTokens = 0.12;
+    } else {
+        error_log("Cannot tokenize - unrecognized model {$GLOBALS["GPTMODEL"]}");
+        $costPerThousandTokens = 0; // model unknown
+    }
+
+    return $costPerThousandTokens;
+}
+
+function tokenizePrompt($jsonEncodedData)
+{
+    global $db;
+
+    if (isset($GLOBALS["GPTMODEL"]) && isset($GLOBALS["COST_MONITOR_ENABLED"]) && $GLOBALS["COST_MONITOR_ENABLED"]) {
+        $costPerThousandTokens = getCostPerThousandInputTokens();
+        // connect to local Python server servicing tokenizing requests
+        $tokenizer_url = 'http://127.0.0.1:8090';
+        $tokenizer_headers = array(
+            'http' => array(
+                'method' => 'POST',
+                'header' => 'Content-Type: application/json',
+                'content' => $jsonEncodedData,
+                'timeout' => 2
+            )
+        );
+        $tokenizer_context = stream_context_create($tokenizer_headers);
+        $tokenizer_buffer = file_get_contents('http://127.0.0.1:8090', false, $tokenizer_context);
+        if ($tokenizer_buffer !== false) {
+            $tokenizer_buffer = trim($tokenizer_buffer);
+            if (ctype_digit($tokenizer_buffer)) { // make sure the response from tokenizer is a number (num of tokens)
+                $numTokens = intval($tokenizer_buffer);
+                $cost = $numTokens * $costPerThousandTokens * 0.001;
+                $db->insert_and_calc_totals(
+                    'openai_token_count',
+                    array(
+                        'input_tokens' => $tokenizer_buffer,
+                        'output_tokens' => '0',
+                        'cost_USD' => $cost,
+                        'localts' => time(),
+                        'datetime' => date("Y-m-d H:i:s"),
+                        'model' => $GLOBALS["GPTMODEL"]
+                    )
+                );
+            }
+        } else {
+            error_log("error: tokenizer buf false\n");
+        }
+    }
+}
+
+function tokenizeResponse($numOutputTokens)
+{
+    global $db;
+
+    if (isset($GLOBALS["GPTMODEL"]) && isset($GLOBALS["COST_MONITOR_ENABLED"]) && $GLOBALS["COST_MONITOR_ENABLED"]) {
+        $costPerThousandTokens = getCostPerThousandOutputTokens();
+        $cost = $numOutputTokens * $costPerThousandTokens * 0.001;
+        $db->insert_and_calc_totals(
+            'openai_token_count',
+            array(
+                'input_tokens' => '0',
+                'output_tokens' => $numOutputTokens,
+                'cost_USD' => $cost,
+                'localts' => time(),
+                'datetime' => date("Y-m-d H:i:s"),
+                'model' => $GLOBALS["GPTMODEL"]
+            )
+        );
     }
 }
 

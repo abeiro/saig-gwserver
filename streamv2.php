@@ -632,6 +632,9 @@ $fileLogSent = fopen("logSent.txt", 'a'); // Will LOG OpenAI calls
 $stamp = "@STAMP ################# " . date('h:i:s', time());
 fwrite($fileLogSent, $stamp . PHP_EOL); // Write the line to the file with a line break // DEBUG CODE
 
+// call into tokenizer and tokenize request as part of OpenAI cost monitoring - save result in DB
+tokenizePrompt(json_encode($data));
+
 /////
 error_reporting(E_ALL);
 $handle = fopen($url, 'r', false, $context);
@@ -704,6 +707,7 @@ if ($handle === false) {
 
 	} else {
 		// Streamed mode. Read and process the response line by line
+		$numOutputTokens = 0;
 		$buffer = "";
 		$totalBuffer = "";
 		$functionIsUsed = false;
@@ -715,8 +719,10 @@ if ($handle === false) {
 
 			$data = json_decode(substr($line, 6), true);
 			if (isset($data["choices"][0]["delta"]["content"])) {
-				if (strlen(trim($data["choices"][0]["delta"]["content"])) > 0)
+				if (strlen(trim($data["choices"][0]["delta"]["content"])) > 0) {
 					$buffer .= $data["choices"][0]["delta"]["content"];
+					$numOutputTokens += 1;
+				}
 				$totalBuffer .= $data["choices"][0]["delta"]["content"];
 
 
@@ -800,6 +806,9 @@ if ($handle === false) {
 			returnLines($sentences);
 
 		}
+
+		tokenizeResponse($numOutputTokens);
+
 		fclose($handle);
 		fwrite($fileLog, $totalBuffer . " lines talked. " . sizeof($talkedSoFar) . " commands " . sizeof($alreadysent) . "\r\nParsed Commands:" . print_r($alreadysent, true) . PHP_EOL); // Write the line to the file with a line break // DEBUG CODE
 	}

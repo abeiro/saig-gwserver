@@ -52,17 +52,19 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
     $headers = array(
     'Content-Type: application/json',
     "Authorization: Bearer {$GLOBALS["OPENAI_API_KEY"]}"
-);
-
+	);
+	$jsonEncodedData = json_encode($data);
     $options = array(
         'http' => array(
             'method' => 'POST',
             'header' => implode("\r\n", $headers),
-            'content' => json_encode($data),
+            'content' => $jsonEncodedData,
             'timeout' => ($GLOBALS["HTTP_TIMEOUT"]) ?: 30
         )
     );
 
+    // call into tokenizer and tokenize request as part of OpenAI cost monitoring - save result in DB
+    tokenizePrompt($jsonEncodedData);
 
     $url = 'https://api.openai.com/v1/chat/completions';
 
