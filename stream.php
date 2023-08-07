@@ -203,35 +203,68 @@ else
 $GLOBALS["DEBUG_DATA"][]=$parms;
 
 //// DIRECT OPENAI REST API
+
+if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
+	$url = 'https://api.openai.com/v1/chat/completions';
+	$data = array(
+		'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',
+		'messages' => 
+			$parms
+		,
+		'stream' => true,
+		'max_tokens'=>((isset($GLOBALS["OPENAI_MAX_TOKENS"])?$GLOBALS["OPENAI_MAX_TOKENS"]:48)+0)
+		
+	);
+
+
+	$headers = array(
+		'Content-Type: application/json',
+		"Authorization: Bearer {$GLOBALS["OPENAI_API_KEY"]}"
+	);
+
+	$options = array(
+		'http' => array(
+			'method' => 'POST',
+			'header' => implode("\r\n", $headers),
+			'content' => json_encode($data)
+		)
+	);
+	error_reporting(E_ALL);
+	$context = stream_context_create($options);
+	$handle = fopen($url, 'r', false, $context);
+
+} else if ( (isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="koboldcpp"))) { {
 	
-$url = 'https://api.openai.com/v1/chat/completions';
-$data = array(
-    'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',
-    'messages' => 
-        $parms
-    ,
-    'stream' => true,
-    'max_tokens'=>((isset($GLOBALS["OPENAI_MAX_TOKENS"])?$GLOBALS["OPENAI_MAX_TOKENS"]:48)+0)
+	$url = 'https://localhost:5001/v1/chat/completions';
+	$data = array(
+		'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',
+		'messages' => 
+			$parms
+		,
+		'stream' => true,
+		'max_tokens'=>((isset($GLOBALS["OPENAI_MAX_TOKENS"])?$GLOBALS["OPENAI_MAX_TOKENS"]:48)+0)
+		
+	);
+
+
+	$headers = array(
+		'Content-Type: application/json',
+		"Authorization: Bearer {$GLOBALS["OPENAI_API_KEY"]}"
+	);
+
+	$options = array(
+		'http' => array(
+			'method' => 'POST',
+			'header' => implode("\r\n", $headers),
+			'content' => json_encode($data)
+		)
+	);
+	error_reporting(E_ALL);
+	$context = stream_context_create($options);
+	$handle = fopen($url, 'r', false, $context);
 	
-);
-
-
-$headers = array(
-    'Content-Type: application/json',
-    "Authorization: Bearer {$GLOBALS["OPENAI_API_KEY"]}"
-);
-
-$options = array(
-    'http' => array(
-        'method' => 'POST',
-        'header' => implode("\r\n", $headers),
-        'content' => json_encode($data)
-    )
-);
-error_reporting(E_ALL);
-$context = stream_context_create($options);
-$handle = fopen($url, 'r', false, $context);
-
+	
+}
 ///////DEBUG CODE
 //$fileLog = fopen("log.txt", 'a');
 /////
