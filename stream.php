@@ -233,7 +233,7 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 	$context = stream_context_create($options);
 	$handle = fopen($url, 'r', false, $context);
 
-} else if ( (isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="koboldcpp"))) { {
+} else if ( (isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="koboldcpp")))  {
 	
 	$url = 'https://localhost:5001/v1/chat/completions';
 	$data = array(
