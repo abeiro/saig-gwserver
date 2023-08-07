@@ -216,10 +216,11 @@ function logMemory($speaker,$listener,$message,$momentum,$gamets) {
                 'momentum'=>$momentum
 		)
 	);
-    
-	$insertedSeq=$db->fetchAll("SELECT SEQ from sqlite_sequence WHERE name='memory'");
-	$embeddings=getEmbeddingRemote($message);
-	storeMemory($embeddings,$message,$insertedSeq[0]["seq"]);	
+    if (isset($GLOBALS["MEMORY_EMBEDDING"]) && $GLOBALS["MEMORY_EMBEDDING"]) {
+		$insertedSeq=$db->fetchAll("SELECT SEQ from sqlite_sequence WHERE name='memory'");
+		$embeddings=getEmbeddingRemote($message);
+		storeMemory($embeddings,$message,$insertedSeq[0]["seq"]);	
+	}
     
 }
 
@@ -449,19 +450,21 @@ $contextCurrentPlan[]=  array('role' => 'user', 'content' => 'The Narrator: ('.$
 
 /* Memory offering */
 
-if (($finalParsedData[0] == "inputtext") || ($finalParsedData[0] == "inputtext_s")) {
-	$memory=array();
-	
-	$textToEmbed=str_replace($DIALOGUE_TARGET,"",$finalParsedData[3]);
-	$pattern = '/\([^)]+\)/';
-	$textToEmbedFinal = preg_replace($pattern, '', $textToEmbed);
-	$textToEmbedFinal=str_replace("{$GLOBALS["PLAYER_NAME"]}:","",$textToEmbedFinal);
+if (isset($GLOBALS["MEMORY_EMBEDDING"]) && $GLOBALS["MEMORY_EMBEDDING"]) {
+	if (($finalParsedData[0] == "inputtext") || ($finalParsedData[0] == "inputtext_s")) {
+		$memory=array();
+		
+		$textToEmbed=str_replace($DIALOGUE_TARGET,"",$finalParsedData[3]);
+		$pattern = '/\([^)]+\)/';
+		$textToEmbedFinal = preg_replace($pattern, '', $textToEmbed);
+		$textToEmbedFinal=str_replace("{$GLOBALS["PLAYER_NAME"]}:","",$textToEmbedFinal);
 
-	$embeddings=getEmbeddingRemote($textToEmbedFinal);
-	$memories=queryMemory($embeddings);
-	if ($memories["content"][0]) {
-		//$memories["content"][0]["search_term"]=$textToEmbedFinal;
-		//$contextData[]=['role' => 'user', 'content' => "The Narrator: Past related memories of {$GLOBALS["HERIKA_NAME"]}'s :".json_encode($memories["content"]) ];
+		$embeddings=getEmbeddingRemote($textToEmbedFinal);
+		$memories=queryMemory($embeddings);
+		if ($memories["content"][0]) {
+			//$memories["content"][0]["search_term"]=$textToEmbedFinal;
+			$contextData[]=['role' => 'user', 'content' => "The Narrator: Past related memories of {$GLOBALS["HERIKA_NAME"]}'s :".json_encode($memories["content"]) ];
+		}
 	}
 }
 
