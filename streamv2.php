@@ -10,12 +10,11 @@ $path = dirname((__FILE__)) . DIRECTORY_SEPARATOR;
 require_once($path . "conf.php");
 require_once($path . "lib/$DRIVER.class.php");
 require_once($path . "lib/Misc.php");
-//require_once($path . "lib/vectordb.php");
-//require_once($path . "lib/embeddings.php");
+require_once($path . "lib/vectordb.php");
+require_once($path . "lib/embeddings.php");
 $db = new sql();
 
-while (@ob_end_clean())
-	;
+while (@ob_end_clean())	;
 
 ignore_user_abort(true);
 set_time_limit(1200);
@@ -27,7 +26,7 @@ $talkedSoFar = array();
 $alreadysent = array();
 
 $ERROR_TRIGGERED=false;
-$LAST_ROLE="assistant";
+$LAST_ROLE="user";
 
 function findDotPosition($string)
 {
@@ -449,7 +448,7 @@ $contextData2 = $db->lastInfoFor("", -2); // Infot about location and npcs in fi
 $contextCurrentPlan[]=  array('role' => 'user', 'content' => 'The Narrator: ('.$db->get_current_task().')');
 
 /* Memory offering */
-/*
+
 if (($finalParsedData[0] == "inputtext") || ($finalParsedData[0] == "inputtext_s")) {
 	$memory=array();
 	
@@ -462,10 +461,10 @@ if (($finalParsedData[0] == "inputtext") || ($finalParsedData[0] == "inputtext_s
 	$memories=queryMemory($embeddings);
 	if ($memories["content"][0]) {
 		//$memories["content"][0]["search_term"]=$textToEmbedFinal;
-		$contextData[]=['role' => 'user', 'content' => "The Narrator: Past related memories of {$GLOBALS["HERIKA_NAME"]}'s :".json_encode($memories["content"]) ];
+		//$contextData[]=['role' => 'user', 'content' => "The Narrator: Past related memories of {$GLOBALS["HERIKA_NAME"]}'s :".json_encode($memories["content"]) ];
 	}
 }
-*/
+
 
 
 $contextDataFull = array_merge($contextData2, $contextCurrentPlan,$contextData);
@@ -573,7 +572,7 @@ if ($finalParsedData[0] == "funcret") {
 	if ($forceAttackingText)
 		$returnFunctionArray[] = array('role' => $LAST_ROLE, 'content' => "{$PROMPTS["afterattack"][0]} {$GLOBALS["HERIKA_NAME"]}: ");
 	else
-		$returnFunctionArray[] = array('role' =>$LAST_ROLE, 'content' => $request);
+		$returnFunctionArray[] = array('role' => $LAST_ROLE, 'content' => $request);
 
 
 	$parms = array_merge($head, ($contextDataFull), $functionCalled, $returnFunctionArray);
@@ -823,9 +822,6 @@ if ($handle === false) {
 
 			$buffer = strtr($buffer, array("\"" => ""));
 
-			$pattern = "/\([^()]*\)/"; // Modified pattern to remove unmatched opening parentheses
-			$buffer = preg_replace($pattern, "", $buffer);
-
 			if (strlen($buffer) < MAXIMUM_SENTENCE_SIZE) // Avoid too short buffers
 				continue;
 
@@ -874,9 +870,6 @@ if (sizeof($talkedSoFar) == 0) {
 		//returnLines(["Sure thing!"]);
 
 	} else { // Fail request? or maybe an invalid command was issued
-
-		
-		        
 
 		//returnLines(array($randomSentence));
 		$db->insert(
