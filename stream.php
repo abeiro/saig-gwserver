@@ -1,7 +1,9 @@
 <?php
 error_reporting(E_ERROR);
 
-define("MAXIMUM_SENTENCE_SIZE", 125);
+define("MAXIMUM_SENTENCE_SIZE", 25);
+
+$MINIMUM_SENTENCE_SIZE=15;
 
 $path = dirname((__FILE__)) . DIRECTORY_SEPARATOR;
 require_once($path . "conf.php");
@@ -58,6 +60,10 @@ function returnLines($lines) {
 	global $db,$startTime,$forceMood,$staticMood;
 	foreach ($lines as $n=>$sentence) {
 
+		$output = preg_replace('/\*([^*]+)\*/', '', $sentence); // Remove text bewteen * *
+
+		$sentence = preg_replace('/"/', '', $output); // Remove "
+
 		preg_match_all('/\((.*?)\)/', $sentence, $matches);
 		$responseTextUnmooded = trim(preg_replace('/\((.*?)\)/', '', $sentence));
 		
@@ -70,8 +76,14 @@ function returnLines($lines) {
 			$mood=$staticMood;
 		else
 			$staticMood=$mood;
+		
 		$responseText=$responseTextUnmooded;
 
+		if (preg_match('/^[^a-zA-Z0-9]+$/', $responseText))	// Skip if only non alphanumeric
+			return;
+
+		if (isset($GLOBALS["FORCE_MOOD"]))
+			$mood = $GLOBALS["FORCE_MOOD"];
 		
 		if ($GLOBALS["TTSFUNCTION"] == "azure") {
 			if ($GLOBALS["AZURE_API_KEY"]) {
@@ -183,7 +195,13 @@ if ($finalParsedData[0]=="inputtext_s") {
 	$books=$db->fetchAll("select title from books order by gamets desc");
 	
 	$finalParsedData[3]=$PROMPTS["book"][1]." ".$books[0]["title"];
-} 
+
+}  else if ( (strpos($finalParsedData[0],"chatnf")!==false)) {
+
+	$request = $PROMPTS[$finalParsedData[0]][0];
+
+
+}
 
 $preprompt=preg_replace("/^[^:]*:/", "", $finalParsedData[3]);
 $lastNDataForContext=(isset($GLOBALS["CONTEXT_HISTORY"])) ? ($GLOBALS["CONTEXT_HISTORY"]) : "25";
@@ -198,7 +216,8 @@ $foot[] = array('role' => 'user', 'content' => $GLOBALS["PLAYER_NAME"].':' . $pr
 if (!$preprompt)
 	$parms = array_merge($head, ($contextData), $prompt);
 else
-	$parms = array_merge($head, ($contextData), $foot, $prompt);
+	//$parms = array_merge($head, ($contextData), $foot, $prompt);
+	$parms = array_merge($head, ($contextData),  $prompt);
 
 $GLOBALS["DEBUG_DATA"][]=$parms;
 
@@ -234,29 +253,55 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 	$handle = fopen($url, 'r', false, $context);
 
 } else if ( (isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="koboldcpp")))  {
-	
-	$url = 'https://localhost:5001/v1/chat/completions';
-	$data = array(
-		'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',
-		'messages' => 
-			$parms
-		,
-		'stream' => true,
-		'max_tokens'=>((isset($GLOBALS["OPENAI_MAX_TOKENS"])?$GLOBALS["OPENAI_MAX_TOKENS"]:48)+0)
+	$GLOBALS["DEBUG_DATA"]=[];//reset
+	$url = 'http://172.16.1.111:5001/api/v1/generate/';
+	$context="";
+
+	foreach ($parms as $s_role=>$s_msg) {
+
+		if (empty(trim($s_msg["content"])))
+			continue;
+		else
+			$normalizedContext[]=$s_msg["content"];
+	}	
+
+	foreach ($normalizedContext as $n=>$s_msg) {
+		if ($n==(sizeof($normalizedContext)-1)) {
+			$context.="[Author's notes: ".$s_msg."]";
+			$GLOBALS["DEBUG_DATA"][]="[Author's notes: ".$s_msg."]";
+
+		} else {
+			$s_msg_p = preg_replace('/^(?=.*The Narrator).*$/s', '[Author\'s notes: $0 ]', $s_msg);
+			$context.="$s_msg_p\n";
+			$GLOBALS["DEBUG_DATA"][]=$s_msg_p;
+		}
 		
+	}
+	$context.="\n{$GLOBALS["HERIKA_NAME"]}:";
+	//$GLOBALS["DEBUG_DATA"]=explode("\n",$context);
+	$postData = array(
+		
+		"prompt"=>$context,
+		"temperature"=> 0.9,
+		"top_p"=> 0.9,
+		"max_context_length"=>1024,
+		"max_length"=>80,
+		"rep_pen"=>1.1,
+		"stop_sequence"=>["{$GLOBALS["PLAYER_NAME"]}:","\\n{$GLOBALS["PLAYER_NAME"]} ","The Narrator","\n"]
 	);
+		
+	
 
 
 	$headers = array(
-		'Content-Type: application/json',
-		"Authorization: Bearer {$GLOBALS["OPENAI_API_KEY"]}"
+		'Content-Type: application/json'
 	);
 
 	$options = array(
 		'http' => array(
 			'method' => 'POST',
 			'header' => implode("\r\n", $headers),
-			'content' => json_encode($data)
+			'content' => json_encode($postData)
 		)
 	);
 	error_reporting(E_ALL);
@@ -286,21 +331,61 @@ if ($handle === false) {
     // Read and process the response line by line
     $buffer="";
     $totalBuffer="";
-    while (!feof($handle)) {
-        $line = fgets($handle);
-	    
+	$breakFlag=false;
+	$lineCounter=0;
+	$fullContent="";
+    while (true) {
 		
+		if ($breakFlag)
+			break;
 		
-        $data=json_decode(substr($line,6),true);
-        if (isset($data["choices"][0]["delta"]["content"])) {
-            if (strlen(trim($data["choices"][0]["delta"]["content"]))>0)
-                $buffer.=$data["choices"][0]["delta"]["content"];
-        $totalBuffer.=$data["choices"][0]["delta"]["content"];
+		if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
+			$line = fgets($handle);
+			
+
+			file_put_contents("debugStream.log",$line,FILE_APPEND);
+
+			$data=json_decode(substr($line,6),true);
+			if (isset($data["choices"][0]["delta"]["content"])) {
+				if (strlen(trim($data["choices"][0]["delta"]["content"]))>0)
+					$buffer.=$data["choices"][0]["delta"]["content"];
+			$totalBuffer.=$data["choices"][0]["delta"]["content"];
+			}
+
+		} else if ( (isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="koboldcpp")))  {
+			
+			if (empty($fullContent))
+				$fullContent=fread($handle,2048);
+			$data=json_decode($fullContent,true);
+		
+			$dataArray = preg_split('/\R/', $data["results"][0]["text"]);
+
+			$buffer=$dataArray[$lineCounter];
+			foreach ($postData["stop_sequence"] as $keyword) {
+				if (stripos($buffer, $keyword) !== false) {
+					$lineCounter++;
+					$buffer="";
+					continue;
+				}
+			}
+
+			if (substr($buffer, -1) !== '.');
+				$buffer=$buffer."."; // Force final point
+
+			
+			$totalBuffer.=$buffer;
+			file_put_contents("debugStream.log",print_r($dataArray,true),FILE_APPEND);
+			$GLOBALS["DEBUG_DATA"]["response"][]=$dataArray[$lineCounter];	
+
+			$lineCounter++;
+			if ($lineCounter>=sizeof($dataArray))
+				$breakFlag=true;
+
 		}
-       
+
        $buffer=strtr($buffer,array("\""=>""));
 	   
-		if (strlen($buffer)<MAXIMUM_SENTENCE_SIZE)	// Avoid too short buffers
+		if (strlen($buffer)<$MINIMUM_SENTENCE_SIZE)	// Avoid too short buffers
 			continue;
 		
 		$position = findDotPosition($buffer);
@@ -316,6 +401,13 @@ if ($handle === false) {
             $buffer=$remainingData;
             
         }
+		if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
+			if (!feof($handle))
+				$breakFlag=true;
+		} else if ( (isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="koboldcpp")))  {
+
+				
+		}
     }
     if (trim($buffer)) {
 		 $sentences=split_sentences_stream(cleanReponse(trim($buffer)));
