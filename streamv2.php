@@ -26,7 +26,7 @@ $talkedSoFar = array();
 $alreadysent = array();
 
 $ERROR_TRIGGERED=false;
-$LAST_ROLE="user";
+$LAST_ROLE="assistant";
 
 function findDotPosition($string)
 {
@@ -504,6 +504,18 @@ if ($finalParsedData[0] == "funcret") {
 		} else if ($returnFunction[1] == "LeadTheWayTo") {
 			$argName = "location";
 			$GLOBALS["OPENAI_MAX_TOKENS"]="64";	// Force a short response, as IA here tends to simulate the whole travel
+			
+			$db->insert(
+			'currentmission',
+				array(
+					'ts' => $finalParsedData[1],
+					'gamets' => $finalParsedData[2],
+					'description' => SQLite3::escapeString("Travel to {$returnFunction[2]}"),
+					'sess' => 'pending',
+					'localts' => time()
+				)
+			);
+			
 
 		} else if ($returnFunction[1] == "MoveTo") {
 			if (strpos($finalParsedData[3], "LeadTheWayTo") !== false) {// PatchHack. If Moving returning Shoud use TravelTo, enable functions again
@@ -889,6 +901,19 @@ if (sizeof($talkedSoFar) == 0) {
 
 	}
 } else {
+	
+	if (sizeof($alreadysent) > 0) { // AI only issued commands
+		$db->insert(
+			'log',
+			array(
+				'localts' => time(),
+				'prompt' => nl2br(SQLite3::escapeString(json_encode($GLOBALS["DEBUG_DATA"], JSON_PRETTY_PRINT))),
+				'response' => SQLite3::escapeString(print_r($alreadysent, true)),
+				'url' => nl2br(SQLite3::escapeString(print_r(base64_decode(stripslashes($_GET["DATA"])), true) . " in " . (time() - $startTime) . " secs "))
+			)
+		);
+	}
+	
 	if (!$ERROR_TRIGGERED) {
 		$lastPlayerLine=$db->fetchAll("SELECT data from eventlog where type in ('inputtext','inputtext_s') order by gamets desc limit 0,1");
 		logMemory($GLOBALS["HERIKA_NAME"],$GLOBALS["PLAYER_NAME"],"{$lastPlayerLine[0]["data"]} \n\r {$GLOBALS["HERIKA_NAME"]}:".implode(" ",$talkedSoFar),$momentum,$finalParsedData[2]);

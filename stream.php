@@ -9,6 +9,8 @@ $path = dirname((__FILE__)) . DIRECTORY_SEPARATOR;
 require_once($path . "conf.php");
 require_once($path . "lib/$DRIVER.class.php");
 require_once($path . "lib/Misc.php");
+require_once($path . "lib/vectordb.php");
+require_once($path . "lib/embeddings.php");
 $db = new sql();
 
 while (@ob_end_clean());
@@ -17,7 +19,9 @@ ignore_user_abort(true);
 set_time_limit(1200);
 
 $startTime=time();
-
+$LAST_ROLE="user";
+$ERROR_TRIGGERED=false;
+$momentum=time();
 
 function findDotPosition($string) {
     $dotPosition = strrpos($string, ".");
@@ -57,7 +61,7 @@ function split_sentences_stream($paragraph) {
 
 function returnLines($lines) {
 	
-	global $db,$startTime,$forceMood,$staticMood;
+	global $db,$startTime,$forceMood,$staticMood,$talkedSoFar;
 	foreach ($lines as $n=>$sentence) {
 
 		$output = preg_replace('/\*([^*]+)\*/', '', $sentence); // Remove text bewteen * *
@@ -113,6 +117,8 @@ function returnLines($lines) {
 			}
 		}
 		
+		if (trim($responseText))
+			$talkedSoFar[] = $responseText;
 		
 		$outBuffer=array(
 						'localts' => time(),
@@ -141,6 +147,29 @@ function returnLines($lines) {
 	}
 	
 }
+
+function logMemory($speaker,$listener,$message,$momentum,$gamets) {
+    global $db;
+    $db->insert(
+	'memory',
+		array(
+				'localts' => time(),
+				'speaker' => (SQLite3::escapeString($speaker)),
+                'listener' => (SQLite3::escapeString($listener)),
+				'message' => (SQLite3::escapeString($message)),
+	  			'gamets' => $gamets,
+				'session' => "pending",
+                'momentum'=>$momentum
+		)
+	);
+    if (isset($GLOBALS["MEMORY_EMBEDDING"]) && $GLOBALS["MEMORY_EMBEDDING"]) {
+		$insertedSeq=$db->fetchAll("SELECT SEQ from sqlite_sequence WHERE name='memory'");
+		$embeddings=getEmbeddingRemote($message);
+		storeMemory($embeddings,$message,$insertedSeq[0]["seq"]);	
+	}
+    
+}
+
 
 $starTime=microtime(true);
 
@@ -209,8 +238,29 @@ $contextData = $db->lastDataFor("",$lastNDataForContext*-1);
 $head = array();
 $foot = array();
 
-$head[] = array('role' => 'user', 'content' => '('.$PROMPT_HEAD.$GLOBALS["HERIKA_PERS"]);
-$prompt[] = array('role' => 'assistant', 'content' => $request);
+
+/* Memory offering */
+if (isset($GLOBALS["MEMORY_EMBEDDING"]) && $GLOBALS["MEMORY_EMBEDDING"]) {
+	if (($finalParsedData[0] == "inputtext") || ($finalParsedData[0] == "inputtext_s")) {
+		$memory=array();
+		
+		$textToEmbed=str_replace($DIALOGUE_TARGET,"",$finalParsedData[3]);
+		$pattern = '/\([^)]+\)/';
+		$textToEmbedFinal = preg_replace($pattern, '', $textToEmbed);
+		$textToEmbedFinal=str_replace("{$GLOBALS["PLAYER_NAME"]}:","",$textToEmbedFinal);
+
+		$embeddings=getEmbeddingRemote($textToEmbedFinal);
+		$memories=queryMemory($embeddings);
+		if ($memories["content"][0]) {
+			//$memories["content"][0]["search_term"]=$textToEmbedFinal;
+			$contextData[]=['role' => 'user', 'content' => "The Narrator: Past related memories of {$GLOBALS["HERIKA_NAME"]}'s :".json_encode($memories["content"]) ];
+		}
+	}
+}
+/**/
+
+$head[] = array('role' => 'system', 'content' => '('.$PROMPT_HEAD.$GLOBALS["HERIKA_PERS"]);
+$prompt[] = array('role' => $LAST_ROLE, 'content' => $request);
 $foot[] = array('role' => 'user', 'content' => $GLOBALS["PLAYER_NAME"].':' . $preprompt);
 
 if (!$preprompt)
@@ -219,7 +269,6 @@ else
 	//$parms = array_merge($head, ($contextData), $foot, $prompt);
 	$parms = array_merge($head, ($contextData),  $prompt);
 
-$GLOBALS["DEBUG_DATA"][]=$parms;
 
 //// DIRECT OPENAI REST API
 
@@ -251,6 +300,8 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 	error_reporting(E_ALL);
 	$context = stream_context_create($options);
 	$handle = fopen($url, 'r', false, $context);
+	$GLOBALS["DEBUG_DATA"][]=$parms;
+
 
 } else if ( (isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="koboldcpp")))  {
 	$GLOBALS["DEBUG_DATA"]=[];//reset
@@ -383,8 +434,16 @@ if ($handle === false) {
 
 		}
 
-       $buffer=strtr($buffer,array("\""=>""));
+		$buffer=strtr($buffer,array("\""=>""));
 	   
+		if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
+			if (feof($handle))
+				$breakFlag=true;
+		} else if ( (isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="koboldcpp")))  {
+
+				
+		}
+		
 		if (strlen($buffer)<$MINIMUM_SENTENCE_SIZE)	// Avoid too short buffers
 			continue;
 		
@@ -401,24 +460,26 @@ if ($handle === false) {
             $buffer=$remainingData;
             
         }
-		if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
-			if (!feof($handle))
-				$breakFlag=true;
-		} else if ( (isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="koboldcpp")))  {
-
-				
-		}
+		
     }
     if (trim($buffer)) {
 		 $sentences=split_sentences_stream(cleanReponse(trim($buffer)));
 		 $GLOBALS["DEBUG_DATA"][]=(microtime(true) - $starTime)." secs in openai stream";
          returnLines($sentences);
+		 $totalBuffer.=trim($buffer);
 		
 	}
     fclose($handle);
 	//fwrite($fileLog, $totalBuffer . PHP_EOL); // Write the line to the file with a line break // DEBUG CODE
 }
 
+if (!$ERROR_TRIGGERED) {
+		$lastPlayerLine=$db->fetchAll("SELECT data from eventlog where type in ('inputtext','inputtext_s') order by gamets desc limit 0,1");
+		logMemory($GLOBALS["HERIKA_NAME"],$GLOBALS["PLAYER_NAME"],"{$lastPlayerLine[0]["data"]} \n\r {$GLOBALS["HERIKA_NAME"]}:".implode(" ",$talkedSoFar),$momentum,$finalParsedData[2]);
+	}
+
+file_put_contents("log_stream.txt",$totalBuffer,FILE_APPEND);
+	
 
 echo 'X-CUSTOM-CLOSE';
 //echo "\r\n<$totalBuffer>";

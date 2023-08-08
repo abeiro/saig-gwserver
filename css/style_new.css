@@ -1,0 +1,14 @@
+@charset "utf-8";
+
+
+body > div.container-fluid > div.datatable > table > tbody > tr > td > pre {
+	font-size:11px;
+}
+
+
+pre.foldable {
+  display:none
+}
+
+
+

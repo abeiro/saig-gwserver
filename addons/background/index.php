@@ -13,9 +13,9 @@ if ($_POST["doit"]) {
   
   $head[] = array('role' => 'system', 'content' => stripslashes($_POST["prompt"]));
   $prompt[] = array('role' => 'user', 'content' => "Generate a background story for $HERIKA_NAME, in first person, and how she ended in Whiterun, as she would write it into her diary");
-  $foot[] = array('role' => 'assistant', 'content' => '');
+  
 
-  $parms=array_merge($head,$prompt,$foot);
+  $parms=array_merge($head,$prompt);
   
   
   
