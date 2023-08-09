@@ -87,6 +87,15 @@ $HTTP_TIMEOUT=30;                       // How long we will wait for openai resp
 $OPENAI_MAX_TOKENS_MEMORY="1024";       // required to create memories.
 
 
+
+
+$CORE_LANG="es";
+
+$MEMORY_EMBEDDING=true;                     // Memory feature
+$CHROMADB_URL='http://172.16.1.128:8000';   // CHROMADB REST API URL
+
+$MODEL="openai";
 $GPTMODEL="gpt-3.5-turbo-0613";         // Changes GPT model to use. Options are gpt-4 or gpt-3.5-turbo-0613, more can be found here https://platform.openai.com/account/rate-limits
+
 
 ?>

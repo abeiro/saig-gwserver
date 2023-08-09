@@ -3,7 +3,7 @@
 
 // Should move this to conf.
 
-$VECTORDB_URL= 'http://172.16.1.128:8000';
+$VECTORDB_URL= $GLOBALS["CHROMADB_URL"];
 $VECTORDB_URL_COLLECTION_NAME="herika_memories";
 $VECTORDB_URL_COLLECTION="";
 
