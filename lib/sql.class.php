@@ -26,36 +26,32 @@ class sql
 
     }
 
-    public function query($query)
+    // used for openai_token_count table
+    function insert_and_calc_totals($table, $data)
     {
+        // Fetch the last row
+        $latestRowQuery = "SELECT * FROM $table ORDER BY ROWID DESC LIMIT 1";
+        $latestRowResult = self::fetchAll($latestRowQuery);
 
+        if (!empty($latestRowResult)) {
+            // If the table is not empty
+            $latestRow = $latestRowResult[0];
 
-  // used for openai_token_count table
-  function insert_and_calc_totals($table, $data)
-  {
-      // Fetch the last row
-      $latestRowQuery = "SELECT * FROM $table ORDER BY ROWID DESC LIMIT 1";
-      $latestRowResult = self::fetchAll($latestRowQuery);
+            // Calculate totals
+            $data['total_tokens_so_far'] = $latestRow['total_tokens_so_far'] + $data['input_tokens'] + $data['output_tokens'];
+            $data['total_cost_so_far_USD'] = $latestRow['total_cost_so_far_USD'] + $data['cost_USD'];
+        } else {
+            // If the table is empty
+            $data['total_tokens_so_far'] = $data['input_tokens'] + $data['output_tokens'];
+            $data['total_cost_so_far_USD'] = $data['cost_USD'];
+        }
 
-      if (!empty($latestRowResult)) {
-          // If the table is not empty
-          $latestRow = $latestRowResult[0];
+        // Insert new row
+        self::$link->exec("INSERT INTO $table (" . implode(",", array_keys($data)) . ") VALUES ('" . implode("','", $data) . "')");
+    }
 
-          // Calculate totals
-          $data['total_tokens_so_far'] = $latestRow['total_tokens_so_far'] + $data['input_tokens'] + $data['output_tokens'];
-          $data['total_cost_so_far_USD'] = $latestRow['total_cost_so_far_USD'] + $data['cost_USD'];
-      } else {
-          // If the table is empty
-          $data['total_tokens_so_far'] = $data['input_tokens'] + $data['output_tokens'];
-          $data['total_cost_so_far_USD'] = $data['cost_USD'];
-      }
-
-      // Insert new row
-      self::$link->exec("INSERT INTO $table (" . implode(",", array_keys($data)) . ") VALUES ('" . implode("','", $data) . "')");
-  }
-
-  function query($query)
-  {
+    function query($query)
+    {
 
         return self::$link->query($query);
     }
@@ -125,15 +121,15 @@ class sql
 
         while ($row = $results->fetchArray()) {
 
-            if ($lastData!=md5($row["data"])) {
-                if ((strpos($row["data"], "{$GLOBALS["HERIKA_NAME"]}:")!==false)||((strpos($row["data"], "{$GLOBALS["PLAYER_NAME"]}:")!==false))) {
-                    $pattern = "/\([^)]*Context location[^)]*\)/";    // Remove (Context location.. from Herikas lines.
+            if ($lastData != md5($row["data"])) {
+                if ((strpos($row["data"], "{$GLOBALS["HERIKA_NAME"]}:") !== false) || ((strpos($row["data"], "{$GLOBALS["PLAYER_NAME"]}:") !== false))) {
+                    $pattern = "/\([^)]*Context location[^)]*\)/"; // Remove (Context location.. from Herikas lines.
                     $replacement = "";
-                    $row["data"] = preg_replace($pattern, $replacement, $row["data"]);  // // assistant vs user war
-                    if ((strpos($row["data"], "{$GLOBALS["HERIKA_NAME"]}:")!==false)) {
-                        $role="assistant";
+                    $row["data"] = preg_replace($pattern, $replacement, $row["data"]); // // assistant vs user war
+                    if ((strpos($row["data"], "{$GLOBALS["HERIKA_NAME"]}:") !== false)) {
+                        $role = "assistant";
                     } else {
-                        $role="user";
+                        $role = "user";
                     }
 
                     $lastDialogFull[] = array('role' => $role, 'content' => $row["data"]);
@@ -218,7 +214,7 @@ class sql
         $results = self::$link->query("select  a.data  as data  FROM  eventlog a 
     WHERE type in ('infoloc')  order by gamets desc,ts desc LIMIT 0,50");
         $lastData = "";
-        $retData=[];
+        $retData = [];
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
             //$row = $results->fetchArray();
 
@@ -226,8 +222,9 @@ class sql
 
             preg_match($re, $row["data"], $matches, PREG_OFFSET_CAPTURE, 0);
             if (isset($matches[2])) {
-                $retData=explode(",", $matches[2][0]);
-            };
+                $retData = explode(",", $matches[2][0]);
+            }
+            ;
             break;
         }
 
@@ -236,7 +233,7 @@ class sql
         $results = self::$link->query("select  a.data  as data  FROM  eventlog a 
     WHERE type in ('infonpc')  order by gamets desc,ts desc LIMIT 0,50");
         $lastData = "";
-        $matches=[];
+        $matches = [];
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
             //$row = $results->fetchArray();
 
@@ -244,18 +241,18 @@ class sql
             preg_match_all($pattern, $row["data"], $matches);
 
             if (!empty($matches) && !empty($matches[1]) && isset($matches[1][0])) {
-                $retData= array_merge($retData, explode(",", $matches[1][0]));
+                $retData = array_merge($retData, explode(",", $matches[1][0]));
             }
 
             //print_r($matches);
             break;
         }
 
-        foreach ($retData as $k=>$v) {
-            if (strlen($v)<2) {
+        foreach ($retData as $k => $v) {
+            if (strlen($v) < 2) {
                 unset($retData[$k]);
             } else {
-                $retData[$k]= preg_replace("/\([^)]+\)/", '', $v);
+                $retData[$k] = preg_replace("/\([^)]+\)/", '', $v);
                 //$retData[$k]=$v;
 
             }
@@ -270,7 +267,7 @@ class sql
         $results = self::$link->query("select  a.data  as data  FROM  eventlog a 
     WHERE type in ('infonpc')  order by gamets desc,ts desc LIMIT 0,50");
         $lastData = "";
-        $matches=[];
+        $matches = [];
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
             //$row = $results->fetchArray();
 
@@ -278,25 +275,25 @@ class sql
             preg_match_all($pattern, $row["data"], $matches);
 
             if (!empty($matches) && !empty($matches[1]) && isset($matches[1][0])) {
-                $retData= explode(",", $matches[1][0]);
+                $retData = explode(",", $matches[1][0]);
             }
 
 
             break;
         }
 
-        foreach ($retData as $k=>$v) {
-            if (strlen($v)<2) {
+        foreach ($retData as $k => $v) {
+            if (strlen($v) < 2) {
                 unset($retData[$k]);
             } else {
-                $retData[$k]= preg_replace("/\([^)]+\)/", '', $v);
+                $retData[$k] = preg_replace("/\([^)]+\)/", '', $v);
                 //$retData[$k]=$v;
 
             }
 
         }
         if (!is_array($retData)) {
-            $retData=[];
+            $retData = [];
         }
         return array_values($retData);
     }
@@ -320,24 +317,24 @@ class sql
             return json_encode($data);
             */
             $results = $db->fetchAll("SElECT name,id_quest,briefing,'pending' as status FROM quests");
-            $finalRow=[];
+            $finalRow = [];
             foreach ($results as $row) {
                 if (isset($finalRow[$row["id_quest"]])) {
                     continue;
                 } else {
-                    $finalRow[$row["id_quest"]]=$row;
+                    $finalRow[$row["id_quest"]] = $row;
                 }
             }
 
-            if (sizeof($finalRow)==0) {
+            if (sizeof($finalRow) == 0) {
                 $data[] = "no active quests";
             } else {
-                $data=array_values($finalRow);
+                $data = array_values($finalRow);
             }
 
-            $extraData=$db->get_current_task();
+            $extraData = $db->get_current_task();
 
-            $data[]=["side note"=>"$extraData"];
+            $data[] = ["side note" => "$extraData"];
 
             return json_encode($data);
 
@@ -374,7 +371,7 @@ class sql
     {
 
         $lastDialogFull = array();
-        $results =self::$link->query("select  
+        $results = self::$link->query("select  
     case 
       when type like 'info%' or type like 'death%' or  type like 'funcret%' or type like 'location%' then 'The Narrator:'
       when type='book' then 'The Narrator: ({$GLOBALS["PLAYER_NAME"]} took the book ' 
@@ -386,32 +383,32 @@ class sql
     and type<>'funccall'  order by gamets desc,ts desc LIMIT 0,100");
 
         while ($row = $results->fetchArray()) {
-            $rawData[]=$row;
+            $rawData[] = $row;
         }
 
         $orderedData = array_reverse($rawData);
 
-        $orderedData=array_slice($orderedData, $lastNelements);
+        $orderedData = array_slice($orderedData, $lastNelements);
 
-        $currentLocation="";
-        $writeLocation=true;
+        $currentLocation = "";
+        $writeLocation = true;
 
-        $currentSpeaker="user";
-        $buffer=[];
+        $currentSpeaker = "user";
+        $buffer = [];
 
         foreach ($orderedData as $row) {
-            $rowData=$row["data"];
+            $rowData = $row["data"];
             // Extract location
             $pattern = '/\(Context location: (.*?),(.*?)\)/';
 
             if (preg_match($pattern, str_replace(" background chat", "", $rowData), $matches)) {
 
                 $contextLocation = $matches[0];
-                if ($currentLocation!=$contextLocation) {
-                    $currentLocation=$contextLocation;
-                    $writeLocation=true;
+                if ($currentLocation != $contextLocation) {
+                    $currentLocation = $contextLocation;
+                    $writeLocation = true;
                 } else {
-                    $writeLocation=false;
+                    $writeLocation = false;
                 }
 
             } else {
@@ -420,29 +417,29 @@ class sql
 
             if (!$writeLocation) {
                 $pattern = "/\([^)]*Context location[^)]*\)/";
-                $rowData = preg_replace($pattern, "", $rowData);  // Remove context location if repeated
+                $rowData = preg_replace($pattern, "", $rowData); // Remove context location if repeated
             }
 
 
-            if ((strpos($rowData, "{$GLOBALS["HERIKA_NAME"]}:")!==false)) {
-                $speaker="assistant";
-            } elseif ((strpos($rowData, "{$GLOBALS["PLAYER_NAME"]}:")!==false)) {
-                $speaker="player";
+            if ((strpos($rowData, "{$GLOBALS["HERIKA_NAME"]}:") !== false)) {
+                $speaker = "assistant";
+            } elseif ((strpos($rowData, "{$GLOBALS["PLAYER_NAME"]}:") !== false)) {
+                $speaker = "player";
             } else {
-                $speaker="user";
+                $speaker = "user";
             }
 
 
 
-            if (($currentSpeaker==$speaker) && ($speaker=="assistant")) {
-                $buffer[]=$rowData;
+            if (($currentSpeaker == $speaker) && ($speaker == "assistant")) {
+                $buffer[] = $rowData;
             } else {
-                if (sizeof($buffer)>0) {
+                if (sizeof($buffer) > 0) {
                     $lastDialogFull[] = array('role' => $currentSpeaker, 'content' => implode("\n", $buffer));
                 }
-                $buffer=[];
-                $buffer[]=$rowData;
-                $currentSpeaker=$speaker;
+                $buffer = [];
+                $buffer[] = $rowData;
+                $currentSpeaker = $speaker;
             }
         }
 
@@ -450,11 +447,11 @@ class sql
 
         // Compact Herika's lines
         foreach ($lastDialogFull as $n => $line) {
-            if ($line["role"]=="assistant") {
+            if ($line["role"] == "assistant") {
                 $pattern = "/\([^)]*Context location[^)]*\)/";
-                $cleanedText = trim(preg_replace($pattern, "", $line["content"]));  // Remove context location always for assistant
+                $cleanedText = trim(preg_replace($pattern, "", $line["content"])); // Remove context location always for assistant
 
-                $re = '/[^('.$GLOBALS["HERIKA_NAME"].':)].*('.$GLOBALS["HERIKA_NAME"].':)/m';
+                $re = '/[^(' . $GLOBALS["HERIKA_NAME"] . ':)].*(' . $GLOBALS["HERIKA_NAME"] . ':)/m';
                 $subst = "";
                 $cleanedText = preg_replace($re, $subst, $cleanedText);
                 $lastDialogFull[$n]["content"] = $cleanedText;
@@ -464,7 +461,7 @@ class sql
 
         // Replace player for user.
         foreach ($lastDialogFull as $n => $line) {
-            if ($line["role"]=="player") {
+            if ($line["role"] == "player") {
                 $lastDialogFull[$n]["role"] = "user";
             }
         }
@@ -492,18 +489,18 @@ class sql
         $results = self::$link->query("SElECT  speaker,speech,location,listener,topic as quest FROM speech
       where (speaker like '%$topic%' or  listener like '%$topic%' or location like '%$topic%' or  topic like '%$topic%') order by rowid desc");
         if (!$results) {
-            return  json_encode([]);
+            return json_encode([]);
         }
 
-        $data=[];
+        $data = [];
 
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
             $data[] = $row;
         }
 
-        if (sizeof($data)==0) {
-            return  json_encode([]);
-        } elseif  (sizeof($data)<25) {
+        if (sizeof($data) == 0) {
+            return json_encode([]);
+        } elseif (sizeof($data) < 25) {
             $dataReversed = array_reverse($data);
         } else {
             $smalldata = array_slice($data, 25);
@@ -522,52 +519,52 @@ class sql
         $results = self::$link->query("SElECT  topic,content,tags,people  FROM diarylog
         where (tags like '%$topic%' or topic like '%$topic%' or people like '%$topic%') order by gamets asc");
         */
-        $topicTok=explode(" ", strtr($topic, array("'"=>"")));
-        $topicFmt=implode(" OR ", $topicTok);
+        $topicTok = explode(" ", strtr($topic, array("'" => "")));
+        $topicFmt = implode(" OR ", $topicTok);
         $results = self::$link->query(SQLite3::escapeString("SElECT  topic as page,content,tags,people  FROM diarylogv2
       where (tags MATCH \"$topicFmt\" or topic MATCH \"$topicFmt\" or content MATCH \"$topicFmt\" or people MATCH \"$topicFmt\") ORDER BY rank"));
 
 
-        if (!$results) {  // No match, will return a list of current memories
+        if (!$results) { // No match, will return a list of current memories
             $results = self::$link->query(SQLite3::escapeString("SElECT  topic as page,tags  FROM diarylogv2 order by gamets asc"));
 
             if (!$results) {
-                return  json_encode([]);
+                return json_encode([]);
             }
 
-            $data=[];
+            $data = [];
 
             while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
                 $data[] = $row;
             }
 
-            return json_encode(["return value"=>"Page not found","similar pages"=>$data]);
+            return json_encode(["return value" => "Page not found", "similar pages" => $data]);
 
 
-        } else {       // Return best matching memory
+        } else { // Return best matching memory
 
-            file_put_contents(__DIR__.DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR."logquery.txt", SQLite3::escapeString("\nSElECT  topic,content,tags,people  FROM diarylogv2
+            file_put_contents(__DIR__ . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "logquery.txt", SQLite3::escapeString("\nSElECT  topic,content,tags,people  FROM diarylogv2
         where (tags MATCH \"$topicFmt\" or topic MATCH \"$topicFmt\" or content MATCH \"$topicFmt\" or people MATCH \"$topicFmt\") ORDER BY rank"), FILE_APPEND);
 
-            $data=[];
+            $data = [];
             while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
                 $data[] = $row;
-                break;    // Only space for one memory
+                break; // Only space for one memory
             }
 
         }
 
-        if (sizeof($data)==0) { // No match, will return a list of current memories. Revise limits
+        if (sizeof($data) == 0) { // No match, will return a list of current memories. Revise limits
 
             $results = self::$link->query(SQLite3::escapeString("SElECT  topic as page  FROM diarylogv2 order by rowid asc"));
 
-            $data=[];
+            $data = [];
 
             while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
                 $data[] = $row;
             }
 
-            return json_encode(["return value"=>"Page not found","available pages"=>$data]);
+            return json_encode(["return value" => "Page not found", "available pages" => $data]);
         }
 
         return json_encode($data);
@@ -580,24 +577,24 @@ class sql
     {
 
         //$results = self::$link->query('SElECT  topic,tags  FROM diarylogv2 where tags  MATCH NEAR(\'one two\' \'three four\', 10) order by rank');
-        $preData=  self::fetchAll("SElECT  topic as page,tags,people  FROM diarylogv2 where tags  MATCH 'NEAR(\"$topic\")' or topic  MATCH 'NEAR(\"$topic\")' or people  MATCH 'NEAR(\"$topic\")'  order by rank");
+        $preData = self::fetchAll("SElECT  topic as page,tags,people  FROM diarylogv2 where tags  MATCH 'NEAR(\"$topic\")' or topic  MATCH 'NEAR(\"$topic\")' or people  MATCH 'NEAR(\"$topic\")'  order by rank");
         //$preData=  self::fetchAll("SElECT  topic,tags,people  FROM diarylogv2 where tags  MATCH \"$topic\" order by rank");
-        if (sizeof($preData)==0) {
-            $preData=  self::fetchAll("SElECT  topic as page,tags,people  FROM diarylogv2 where tags  like '%$topic%'  or topic  like '%$topic%' or people  like '%$topic%'");
-            if (sizeof($preData)==0) {
+        if (sizeof($preData) == 0) {
+            $preData = self::fetchAll("SElECT  topic as page,tags,people  FROM diarylogv2 where tags  like '%$topic%'  or topic  like '%$topic%' or people  like '%$topic%'");
+            if (sizeof($preData) == 0) {
                 $results = self::$link->query(SQLite3::escapeString("SElECT  topic as page,tags,people  FROM diarylogv2 order by rowid asc"));
-                $data=[];
+                $data = [];
 
                 while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
                     $data[] = $row;
                 }
             } else {
-                $data=$preData;
+                $data = $preData;
             }
 
         } else {
 
-            $data=$preData;
+            $data = $preData;
 
         }
 
@@ -612,18 +609,18 @@ class sql
 
         $results = self::$link->query("SElECT  description  FROM currentmission order by gamets desc");
         if (!$results) {
-            return  json_encode([]);
+            return json_encode([]);
         }
 
-        $data="";
+        $data = "";
 
-        $n=0;
+        $n = 0;
         while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
 
-            if ($n==0) {
-                $data="Current task/quest/plan: {$row["description"]}.";
-            } elseif ($n==1) {
-                $data.="Previous task/quest/plan: {$row["description"]}.";
+            if ($n == 0) {
+                $data = "Current task/quest/plan: {$row["description"]}.";
+            } elseif ($n == 1) {
+                $data .= "Previous task/quest/plan: {$row["description"]}.";
             } else {
                 break;
             }
