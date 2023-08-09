@@ -3,7 +3,7 @@
 
 $db = new SQLite3('mysqlitedb.db');
 
-//$db->exec("DROP TABLE `eventlog`;");
+$db->exec("DROP TABLE `eventlog`;");
 
 $db->exec("
 CREATE TABLE IF NOT EXISTS `eventlog` (
@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS `openai_token_count` (
   `model` text
 );");
 
-//$db->exec("DROP TABLE `responselog`;");
+
+$db->exec("DROP TABLE `responselog`;");
 
 $db->exec("
 CREATE TABLE IF NOT EXISTS `responselog` (
@@ -40,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `responselog` (
 
 );");
 
-//$db->exec("DROP TABLE `log`;");
+$db->exec("DROP TABLE `log`;");
 
 $db->exec("
 CREATE TABLE IF NOT EXISTS `log` (
@@ -50,7 +51,7 @@ CREATE TABLE IF NOT EXISTS `log` (
   `url` text
 );");
 
-//$db->exec("DROP TABLE `quests`;");
+$db->exec("DROP TABLE `quests`;");
 
 $db->exec("
 CREATE TABLE IF NOT EXISTS `quests` (
@@ -73,7 +74,7 @@ CREATE TABLE IF NOT EXISTS `quests` (
   `status` text
 );");
 
-//$db->exec("DROP TABLE `speech`;");
+$db->exec("DROP TABLE `speech`;");
 
 $db->exec("
 CREATE TABLE IF NOT EXISTS `speech` (
@@ -88,6 +89,7 @@ CREATE TABLE IF NOT EXISTS `speech` (
   `gamets` bigint NOT NULL
 );");
 
+$db->exec("DROP TABLE `diarylog`;");
 
 $db->exec("
 CREATE TABLE IF NOT EXISTS `diarylog` (
@@ -102,6 +104,9 @@ CREATE TABLE IF NOT EXISTS `diarylog` (
   `gamets` bigint NOT NULL
 );");
 
+$db->exec("DROP TABLE `books`;");
+
+
 $db->exec("
 CREATE TABLE IF NOT EXISTS `books` (
   `ts` text NOT NULL,
@@ -112,6 +117,8 @@ CREATE TABLE IF NOT EXISTS `books` (
   `gamets` bigint NOT NULL
 );");
 
+$db->exec("DROP TABLE `currentmission`;");
+
 $db->exec("
 CREATE TABLE IF NOT EXISTS `currentmission` (
   `ts` text NOT NULL,
@@ -121,9 +128,26 @@ CREATE TABLE IF NOT EXISTS `currentmission` (
   `gamets` bigint NOT NULL
 );");
 
+$db->exec("DROP TABLE `diarylogv2`;");
+
+
 $db->exec("
 CREATE VIRTUAL TABLE diarylogv2 
 USING FTS5(topic,content,tags,people,location);");
+
+$db->exec("DROP TABLE `memory`;");
+
+$db->exec("CREATE TABLE IF NOT EXISTS `memory` (
+	`speaker`	TEXT,
+	`message`	TEXT,
+	`session`	TEXT,
+	`uid`	INTEGER,
+	`listener`	TEXT,
+	`localts`	INTEGER,
+    `gamets` bigint NOT NULL,
+	`momentum`	TEXT,
+	PRIMARY KEY(`uid` AUTOINCREMENT)
+);");
 
 @mkdir(__DIR__ .DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR."soundcache");
 

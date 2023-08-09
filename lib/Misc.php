@@ -38,6 +38,11 @@ function cleanReponse($rawResponse)
     $replacement = '';
     $rawResponse = preg_replace($pattern, $replacement, $rawResponse);
 
+    $pattern = '/\[.*?\]/';
+    $replacement = '';
+    $rawResponse = preg_replace($pattern, $replacement, $rawResponse);
+
+
     $rawResponse = strtr($rawResponse, array("{" => "", "}" => ""));
 
     if (strpos($rawResponse, "(Context location") !== false) {
@@ -53,14 +58,11 @@ function cleanReponse($rawResponse)
         $rawResponseSplited = explode(":", $toSplit);
         $toSplit = $rawResponseSplited[1];
     }
+    
+    $toSplit = preg_replace("/{$GLOBALS["HERIKA_NAME"]}\s*:\s*/", '', $toSplit);
+    
 
     $sentences = split_sentences($toSplit);
-
-	if (strpos($toSplit, "{$GLOBALS["HERIKA_NAME"]}:") !== false) {
-		$rawResponseSplited = explode(":", $toSplit);
-		array_shift($rawResponseSplited);
-		$toSplit = implode(":",$rawResponseSplited);
-	}
 
     $sentence = trim((implode(".", $sentences)));
 
@@ -121,6 +123,13 @@ function print_array_as_table($data)
                 */
                 echo "<td style='background-color:{$colors[$colorIndex]}'><span class='foldableCtl' onclick='togglePre(this)' style='cursor:pointer'>[+]</span><pre class='foldable'>" . $cell . "</pre></td>";
 
+            } else if ($n == "rowid") {
+                echo "<td class='$colorClass'>
+                    <a class='icon-link' href='cmd/deleteRow.php?table={$_GET["table"]}&rowid=$cell'>
+                        " . $cell . "
+                        <i class='bi-trash'></i>
+                    </a>
+                </td>";
             } else if (strpos($cell, 'background chat') !== false) {
                 echo "<td class='$colorClass'><em>" . $cell . "</em></td>";
             } else if (strpos($cell, $GLOBALS["PLAYER_NAME"] . ':') !== false) {
@@ -129,6 +138,7 @@ function print_array_as_table($data)
                 echo "<td class='$colorClass'><strong>" . $cell . "</strong></td>";
             } else if (strpos($cell, "{$GLOBALS["HERIKA_NAME"]}:") !== false) {
                 echo "<td  class='$colorClass'>" . $cell . "</td>";
+
             } else if ($n == "cost_USD" || $n == "total_cost_so_far_USD") {
                 $formatted_cell = (is_numeric($cell)) ? number_format($cell, 6) : $cell;
                 echo "<td class='$colorClass'>" . $formatted_cell . "</td>";
@@ -139,6 +149,7 @@ function print_array_as_table($data)
                         <i class='bi-trash'></i>
                     </a>
                 </td>";
+
             } else {
                 echo "<td class='$colorClass'>" . $cell . "</td>";
             }

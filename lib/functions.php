@@ -19,7 +19,8 @@ $ENABLED_FUNCTIONS=[
     'SetSpeed',
     'GetDateTime',
     'SearchDiary',
-    'SetCurrentTask'
+    'SetCurrentTask',
+    'StopWalk'
 ];
 
 
@@ -33,7 +34,7 @@ $F_TRANSLATIONS["Attack"]="Attacks actor, npc or being. but always avoid the dea
 $F_TRANSLATIONS["Follow"]="Moves to and follow a NPC, an actor or being";
 $F_TRANSLATIONS["CheckInventory"]="Search in {$GLOBALS["HERIKA_NAME"]}\'s inventory, backpack or pocket";
 $F_TRANSLATIONS["SheatheWeapon"]="Sheates current weapon";
-$F_TRANSLATIONS["Relax"]="Makes{$GLOBALS["HERIKA_NAME"]} to stop current action and relax herself";
+$F_TRANSLATIONS["Relax"]="Makes {$GLOBALS["HERIKA_NAME"]} to stop current action and relax herself";
 $F_TRANSLATIONS["LeadTheWayTo"]="Only use if {$GLOBALS["PLAYER_NAME"]} explicitly orders it. Guide {$GLOBALS["PLAYER_NAME"]} to a Town o City. ";
 $F_TRANSLATIONS["TakeASeat"]="{$GLOBALS["HERIKA_NAME"]} seats in nearby chair or furniture ";
 $F_TRANSLATIONS["ReadQuestJournal"]="Only use if {$GLOBALS["PLAYER_NAME"]} explicitly ask for a quest. Get info about current quests";
@@ -43,6 +44,28 @@ $F_TRANSLATIONS["SearchDiary"]="Read {$GLOBALS["HERIKA_NAME"]}'s diary to make h
 $F_TRANSLATIONS["SetCurrentTask"]="Set the current plan of action or task or quest";
 $F_TRANSLATIONS["WriteIntoDiary"]="Summarize briefly the recent events and dialogues and write them down in Herika's diary.";
 $F_TRANSLATIONS["ReadDiaryPage"]="Read {$GLOBALS["HERIKA_NAME"]}'s diary to access a specific topic";
+$F_TRANSLATIONS["StopWalk"]="Stop all {$GLOBALS["HERIKA_NAME"]}'s actions inmediately";
+
+$F_NAMES["Inspect"]="Inspect";
+$F_NAMES["LookAt"]="LookAt";
+$F_NAMES["InspectSurroundings"]="InspectSurroundings";
+$F_NAMES["MoveTo"]= "MoveTo";
+$F_NAMES["OpenInventory"]="OpenInventory";
+$F_NAMES["Attack"]="Attack";
+$F_NAMES["Follow"]="Follow";
+$F_NAMES["CheckInventory"]="CheckInventory";
+$F_NAMES["SheatheWeapon"]="SheatheWeapon";
+$F_NAMES["Relax"]="Relax";
+$F_NAMES["LeadTheWayTo"]="LeadTheWayTo";
+$F_NAMES["TakeASeat"]="TakeASeat";
+$F_NAMES["ReadQuestJournal"]="ReadQuestJournal";
+$F_NAMES["SetSpeed"]="SetSpeed";
+$F_NAMES["GetDateTime"]="GetDateTime";
+$F_NAMES["SearchDiary"]="SearchDiary";
+$F_NAMES["SetCurrentTask"]="SetCurrentTask";
+$F_NAMES["WriteIntoDiary"]="WriteIntoDiary";
+$F_NAMES["ReadDiaryPage"]="ReadDiaryPage";
+$F_NAMES["StopWalk"]="StopWalk";
 
 if (isset($GLOBALS["CORE_LANG"]))
 	if (file_exists(__DIR__.DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR."lang".DIRECTORY_SEPARATOR.$GLOBALS["CORE_LANG"].DIRECTORY_SEPARATOR."functions.php")) 
@@ -52,7 +75,7 @@ if (isset($GLOBALS["CORE_LANG"]))
     
 $FUNCTIONS = [
     [
-        "name" => "Inspect",
+        "name" => $F_NAMES["Inspect"],
         "description" => $F_TRANSLATIONS["Inspect"],
         "parameters" => [
             "type" => "object",
@@ -68,7 +91,7 @@ $FUNCTIONS = [
         ],
     ],
     [
-        "name" => "InspectSurroundings",
+        "name" => $F_NAMES["InspectSurroundings"],
         "description" => $F_TRANSLATIONS["InspectSurroundings"],
         "parameters" => [
             "type" => "object",
@@ -82,7 +105,7 @@ $FUNCTIONS = [
         ],
     ],
     [
-        "name" => "LookAt",
+        "name" => $F_NAMES["LookAt"],
         "description" => $F_TRANSLATIONS["Inspect"],
         "parameters" => [
             "type" => "object",
@@ -98,7 +121,7 @@ $FUNCTIONS = [
         ],
     ],
     [
-        "name" => "MoveTo",
+        "name" => $F_NAMES["MoveTo"],
         "description" => $F_TRANSLATIONS["MoveTo"],
         "parameters" => [
             "type" => "object",
@@ -113,7 +136,7 @@ $FUNCTIONS = [
         ],
     ],
     [
-        "name" => "OpenInventory",
+        "name" => $F_NAMES["OpenInventory"],
         "description" => $F_TRANSLATIONS["OpenInventory"],
         "parameters" => [
             "type" => "object",
@@ -127,7 +150,7 @@ $FUNCTIONS = [
         ],
     ],
     [
-        "name" => "Attack",
+        "name" => $F_NAMES["Attack"],
         "description" => $F_TRANSLATIONS["Attack"],
         "parameters" => [
             "type" => "object",
@@ -141,7 +164,7 @@ $FUNCTIONS = [
         ]
     ],
     [
-        "name" => "Follow",
+        "name" => $F_NAMES["Follow"],
         "description" => $F_TRANSLATIONS["Follow"],
         "parameters" => [
             "type" => "object",
@@ -155,7 +178,7 @@ $FUNCTIONS = [
         ]
     ],
     [
-        "name" => "CheckInventory",
+        "name" => $F_NAMES["CheckInventory"],
         "description" => $F_TRANSLATIONS["CheckInventory"],
         "parameters" => [
             "type" => "object",
@@ -169,7 +192,7 @@ $FUNCTIONS = [
         ]
     ],
     [
-        "name" => "SheatheWeapon",
+        "name" => $F_NAMES["SheatheWeapon"],
         "description" => $F_TRANSLATIONS["SheatheWeapon"],
         "parameters" => [
             "type" => "object",
@@ -183,7 +206,7 @@ $FUNCTIONS = [
         ]
     ],
     [
-        "name" => "Relax",
+        "name" => $F_NAMES["Relax"],
         "description" => $F_TRANSLATIONS["Relax"],
         "parameters" => [
             "type" => "object",
@@ -197,7 +220,7 @@ $FUNCTIONS = [
         ]
     ],
     [
-        "name" => "LeadTheWayTo",
+        "name" => $F_NAMES["LeadTheWayTo"],
         "description" => $F_TRANSLATIONS["LeadTheWayTo"],
         "parameters" => [
             "type" => "object",
@@ -212,7 +235,7 @@ $FUNCTIONS = [
         ]
     ],
     [
-        "name" => "TakeASeat",
+        "name" => $F_NAMES["TakeASeat"],
         "description" => $F_TRANSLATIONS["TakeASeat"],
         "parameters" => [
             "type" => "object",
@@ -226,7 +249,7 @@ $FUNCTIONS = [
         ]
     ],
     [
-        "name" => "ReadQuestJournal",
+        "name" => $F_NAMES["ReadQuestJournal"],
         "description" => $F_TRANSLATIONS["ReadQuestJournal"],
         "parameters" => [
             "type" => "object",
@@ -240,7 +263,7 @@ $FUNCTIONS = [
         ]
     ],
     [
-        "name" => "SetSpeed",
+        "name" => $F_NAMES["SetSpeed"],
         "description" => $F_TRANSLATIONS["SetSpeed"],
         "parameters" => [
             "type" => "object",
@@ -256,7 +279,7 @@ $FUNCTIONS = [
         ]
     ],
     [
-        "name" => "GetDateTime",
+        "name" => $F_NAMES["GetDateTime"],
         "description" => $F_TRANSLATIONS["GetDateTime"],
         "parameters" => [
             "type" => "object",
@@ -271,7 +294,7 @@ $FUNCTIONS = [
         ]
     ],
     [
-        "name" => "SearchDiary",
+        "name" => $F_NAMES["SearchDiary"],
         "description" => $F_TRANSLATIONS["SearchDiary"],
         "parameters" => [
             "type" => "object",
@@ -285,7 +308,7 @@ $FUNCTIONS = [
         ]
     ],
     [
-        "name" => "SetCurrentTask",
+        "name" => $F_NAMES["SetCurrentTask"],
         "description" => $F_TRANSLATIONS["SetCurrentTask"],
         "parameters" => [
             "type" => "object",
@@ -298,27 +321,27 @@ $FUNCTIONS = [
             "required" => ["description"]
         ]
     ], 
-    /*[
-        "name" => "GetTopicInfo",
-        "description" => "Get information about a topic or character on Herika's long-term memory.",
+    [
+        "name" => $F_NAMES["StopWalk"],
+        "description" => $F_TRANSLATIONS["StopWalk"],
         "parameters" => [
             "type" => "object",
             "properties" => [
-                "topic" => [
+                "target" => [
                     "type" => "string",
-                    "description" => "Topic or Characters",
+                    "description" => "action",
                 ]
             ],
-            "required" =>["topic"]
+            "required" =>[""]
         ]
-    ]*/
+    ]
 ];
 
 
 $FUNCTIONS_SPECIAL_CONTEXT = [
 
     [
-        "name" => "WriteIntoDiary",
+        "name" => $F_NAMES["WriteIntoDiary"],
         "description" => $F_TRANSLATIONS["WriteIntoDiary"],
         "parameters" => [
             "type" => "object",
@@ -353,7 +376,7 @@ $FUNCTIONS_SPECIAL_CONTEXT = [
 
 
 $FUNCTIONS_GHOSTED =  [
-        "name" => "ReadDiaryPage",
+        "name" => $F_NAMES["ReadDiaryPage"],
         "description" => $F_TRANSLATIONS["ReadDiaryPage"],
         "parameters" => [
             "type" => "object",
@@ -368,12 +391,25 @@ $FUNCTIONS_GHOSTED =  [
     ]
     ;
 
+function getFunctionCodeName($key) {
+    
+    $functionCode=array_search($key, $GLOBALS["F_NAMES"]);
+    return $functionCode;
+    
+}
+
+function getFunctionTrlName($key) {
+    return $GLOBALS["F_NAMES"][$key];
+    
+}
+
 // Delete non wanted functions    
 foreach ($FUNCTIONS as $n=>$v)
-    if (!in_array($v["name"],$ENABLED_FUNCTIONS)) {
+    if (!in_array(getFunctionCodeName($v["name"]),$ENABLED_FUNCTIONS)) {
             unset($FUNCTIONS[$n]);
     }
 
+    $FUNCTIONS=array_values($FUNCTIONS); //Get rid of array keys
 
 
 ?>

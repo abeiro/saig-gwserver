@@ -29,8 +29,9 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
     $foot = array();
 
     $head[] = array('role' => 'user', 'content' => '('.$PROMPT_HEAD.$GLOBALS["HERIKA_PERS"].$PROMPT_RULES);
-    $prompt[] = array('role' => 'assistant', 'content' => $request);
-    $foot[] = array('role' => 'user', 'content' => $GLOBALS["PLAYER_NAME"].':' . $preprompt);
+    $prompt[] = array('role' => 'user', 'content' => $request);
+    $foot[] = array('role' => 'user', 'content' =>$preprompt);
+    //$foot[] = array('role' => 'user', 'content' => $GLOBALS["PLAYER_NAME"].':' . $preprompt);
 
 
     if (!$preprompt) {

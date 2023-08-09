@@ -1,12 +1,16 @@
 <?php
 error_reporting(E_ERROR);
 
-define("MAXIMUM_SENTENCE_SIZE", 125);
+define("MAXIMUM_SENTENCE_SIZE", 25);
+
+$MINIMUM_SENTENCE_SIZE=15;
 
 $path = dirname((__FILE__)) . DIRECTORY_SEPARATOR;
 require_once($path . "conf.php");
 require_once($path . "lib/$DRIVER.class.php");
 require_once($path . "lib/Misc.php");
+require_once($path . "lib/vectordb.php");
+require_once($path . "lib/embeddings.php");
 $db = new sql();
 
 while (@ob_end_clean());
@@ -15,7 +19,9 @@ ignore_user_abort(true);
 set_time_limit(1200);
 
 $startTime=time();
-
+$LAST_ROLE="user";
+$ERROR_TRIGGERED=false;
+$momentum=time();
 
 function findDotPosition($string) {
     $dotPosition = strrpos($string, ".");
@@ -55,8 +61,12 @@ function split_sentences_stream($paragraph) {
 
 function returnLines($lines) {
 	
-	global $db,$startTime,$forceMood,$staticMood;
+	global $db,$startTime,$forceMood,$staticMood,$talkedSoFar;
 	foreach ($lines as $n=>$sentence) {
+
+		$output = preg_replace('/\*([^*]+)\*/', '', $sentence); // Remove text bewteen * *
+
+		$sentence = preg_replace('/"/', '', $output); // Remove "
 
 		preg_match_all('/\((.*?)\)/', $sentence, $matches);
 		$responseTextUnmooded = trim(preg_replace('/\((.*?)\)/', '', $sentence));
@@ -70,8 +80,14 @@ function returnLines($lines) {
 			$mood=$staticMood;
 		else
 			$staticMood=$mood;
+		
 		$responseText=$responseTextUnmooded;
 
+		if (preg_match('/^[^a-zA-Z0-9]+$/', $responseText))	// Skip if only non alphanumeric
+			return;
+
+		if (isset($GLOBALS["FORCE_MOOD"]))
+			$mood = $GLOBALS["FORCE_MOOD"];
 		
 		if ($GLOBALS["TTSFUNCTION"] == "azure") {
 			if ($GLOBALS["AZURE_API_KEY"]) {
@@ -101,6 +117,8 @@ function returnLines($lines) {
 			}
 		}
 		
+		if (trim($responseText))
+			$talkedSoFar[] = $responseText;
 		
 		$outBuffer=array(
 						'localts' => time(),
@@ -129,6 +147,29 @@ function returnLines($lines) {
 	}
 	
 }
+
+function logMemory($speaker,$listener,$message,$momentum,$gamets) {
+    global $db;
+    $db->insert(
+	'memory',
+		array(
+				'localts' => time(),
+				'speaker' => (SQLite3::escapeString($speaker)),
+                'listener' => (SQLite3::escapeString($listener)),
+				'message' => (SQLite3::escapeString($message)),
+	  			'gamets' => $gamets,
+				'session' => "pending",
+                'momentum'=>$momentum
+		)
+	);
+    if (isset($GLOBALS["MEMORY_EMBEDDING"]) && $GLOBALS["MEMORY_EMBEDDING"]) {
+		$insertedSeq=$db->fetchAll("SELECT SEQ from sqlite_sequence WHERE name='memory'");
+		$embeddings=getEmbeddingRemote($message);
+		storeMemory($embeddings,$message,$insertedSeq[0]["seq"]);	
+	}
+    
+}
+
 
 $starTime=microtime(true);
 
@@ -183,7 +224,13 @@ if ($finalParsedData[0]=="inputtext_s") {
 	$books=$db->fetchAll("select title from books order by gamets desc");
 	
 	$finalParsedData[3]=$PROMPTS["book"][1]." ".$books[0]["title"];
-} 
+
+}  else if ( (strpos($finalParsedData[0],"chatnf")!==false)) {
+
+	$request = $PROMPTS[$finalParsedData[0]][0];
+
+
+}
 
 $preprompt=preg_replace("/^[^:]*:/", "", $finalParsedData[3]);
 $lastNDataForContext=(isset($GLOBALS["CONTEXT_HISTORY"])) ? ($GLOBALS["CONTEXT_HISTORY"]) : "25";
@@ -191,47 +238,129 @@ $contextData = $db->lastDataFor("",$lastNDataForContext*-1);
 $head = array();
 $foot = array();
 
-$head[] = array('role' => 'user', 'content' => '('.$PROMPT_HEAD.$GLOBALS["HERIKA_PERS"]);
-$prompt[] = array('role' => 'assistant', 'content' => $request);
+
+/* Memory offering */
+if (isset($GLOBALS["MEMORY_EMBEDDING"]) && $GLOBALS["MEMORY_EMBEDDING"]) {
+	if (($finalParsedData[0] == "inputtext") || ($finalParsedData[0] == "inputtext_s")) {
+		$memory=array();
+		
+		$textToEmbed=str_replace($DIALOGUE_TARGET,"",$finalParsedData[3]);
+		$pattern = '/\([^)]+\)/';
+		$textToEmbedFinal = preg_replace($pattern, '', $textToEmbed);
+		$textToEmbedFinal=str_replace("{$GLOBALS["PLAYER_NAME"]}:","",$textToEmbedFinal);
+
+		$embeddings=getEmbeddingRemote($textToEmbedFinal);
+		$memories=queryMemory($embeddings);
+		if ($memories["content"][0]) {
+			//$memories["content"][0]["search_term"]=$textToEmbedFinal;
+			$contextData[]=['role' => 'user', 'content' => "The Narrator: Past related memories of {$GLOBALS["HERIKA_NAME"]}'s :".json_encode($memories["content"]) ];
+		}
+	}
+}
+/**/
+
+$head[] = array('role' => 'system', 'content' => '('.$PROMPT_HEAD.$GLOBALS["HERIKA_PERS"]);
+$prompt[] = array('role' => $LAST_ROLE, 'content' => $request);
 $foot[] = array('role' => 'user', 'content' => $GLOBALS["PLAYER_NAME"].':' . $preprompt);
 
 if (!$preprompt)
 	$parms = array_merge($head, ($contextData), $prompt);
 else
-	$parms = array_merge($head, ($contextData), $foot, $prompt);
+	//$parms = array_merge($head, ($contextData), $foot, $prompt);
+	$parms = array_merge($head, ($contextData),  $prompt);
 
-$GLOBALS["DEBUG_DATA"][]=$parms;
 
 //// DIRECT OPENAI REST API
+
+if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
+	$url = 'https://api.openai.com/v1/chat/completions';
+	$data = array(
+		'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',
+		'messages' => 
+			$parms
+		,
+		'stream' => true,
+		'max_tokens'=>((isset($GLOBALS["OPENAI_MAX_TOKENS"])?$GLOBALS["OPENAI_MAX_TOKENS"]:48)+0)
+		
+	);
+
+
+	$headers = array(
+		'Content-Type: application/json',
+		"Authorization: Bearer {$GLOBALS["OPENAI_API_KEY"]}"
+	);
+
+	$options = array(
+		'http' => array(
+			'method' => 'POST',
+			'header' => implode("\r\n", $headers),
+			'content' => json_encode($data)
+		)
+	);
+	error_reporting(E_ALL);
+	$context = stream_context_create($options);
+	$handle = fopen($url, 'r', false, $context);
+	$GLOBALS["DEBUG_DATA"][]=$parms;
+
+
+} else if ( (isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="koboldcpp")))  {
+	$GLOBALS["DEBUG_DATA"]=[];//reset
+	$url = 'http://172.16.1.111:5001/api/v1/generate/';
+	$context="";
+
+	foreach ($parms as $s_role=>$s_msg) {
+
+		if (empty(trim($s_msg["content"])))
+			continue;
+		else
+			$normalizedContext[]=$s_msg["content"];
+	}	
+
+	foreach ($normalizedContext as $n=>$s_msg) {
+		if ($n==(sizeof($normalizedContext)-1)) {
+			$context.="[Author's notes: ".$s_msg."]";
+			$GLOBALS["DEBUG_DATA"][]="[Author's notes: ".$s_msg."]";
+
+		} else {
+			$s_msg_p = preg_replace('/^(?=.*The Narrator).*$/s', '[Author\'s notes: $0 ]', $s_msg);
+			$context.="$s_msg_p\n";
+			$GLOBALS["DEBUG_DATA"][]=$s_msg_p;
+		}
+		
+	}
+	$context.="\n{$GLOBALS["HERIKA_NAME"]}:";
+	//$GLOBALS["DEBUG_DATA"]=explode("\n",$context);
+	$postData = array(
+		
+		"prompt"=>$context,
+		"temperature"=> 0.9,
+		"top_p"=> 0.9,
+		"max_context_length"=>1024,
+		"max_length"=>80,
+		"rep_pen"=>1.1,
+		"stop_sequence"=>["{$GLOBALS["PLAYER_NAME"]}:","\\n{$GLOBALS["PLAYER_NAME"]} ","The Narrator","\n"]
+	);
+		
 	
-$url = 'https://api.openai.com/v1/chat/completions';
-$data = array(
-    'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',
-    'messages' => 
-        $parms
-    ,
-    'stream' => true,
-    'max_tokens'=>((isset($GLOBALS["OPENAI_MAX_TOKENS"])?$GLOBALS["OPENAI_MAX_TOKENS"]:48)+0)
+
+
+	$headers = array(
+		'Content-Type: application/json'
+	);
+
+	$options = array(
+		'http' => array(
+			'method' => 'POST',
+			'header' => implode("\r\n", $headers),
+			'content' => json_encode($postData)
+		)
+	);
+	error_reporting(E_ALL);
+	$context = stream_context_create($options);
+	$handle = fopen($url, 'r', false, $context);
 	
-);
-
-
-$headers = array(
-    'Content-Type: application/json',
-    "Authorization: Bearer {$GLOBALS["OPENAI_API_KEY"]}"
-);
-
-$options = array(
-    'http' => array(
-        'method' => 'POST',
-        'header' => implode("\r\n", $headers),
-        'content' => json_encode($data)
-    )
-);
-error_reporting(E_ALL);
-$context = stream_context_create($options);
-$handle = fopen($url, 'r', false, $context);
-
+	
+}
 ///////DEBUG CODE
 //$fileLog = fopen("log.txt", 'a');
 /////
@@ -253,21 +382,69 @@ if ($handle === false) {
     // Read and process the response line by line
     $buffer="";
     $totalBuffer="";
-    while (!feof($handle)) {
-        $line = fgets($handle);
-	    
+	$breakFlag=false;
+	$lineCounter=0;
+	$fullContent="";
+    while (true) {
 		
+		if ($breakFlag)
+			break;
 		
-        $data=json_decode(substr($line,6),true);
-        if (isset($data["choices"][0]["delta"]["content"])) {
-            if (strlen(trim($data["choices"][0]["delta"]["content"]))>0)
-                $buffer.=$data["choices"][0]["delta"]["content"];
-        $totalBuffer.=$data["choices"][0]["delta"]["content"];
+		if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
+			$line = fgets($handle);
+			
+
+			file_put_contents("debugStream.log",$line,FILE_APPEND);
+
+			$data=json_decode(substr($line,6),true);
+			if (isset($data["choices"][0]["delta"]["content"])) {
+				if (strlen(trim($data["choices"][0]["delta"]["content"]))>0)
+					$buffer.=$data["choices"][0]["delta"]["content"];
+			$totalBuffer.=$data["choices"][0]["delta"]["content"];
+			}
+
+		} else if ( (isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="koboldcpp")))  {
+			
+			if (empty($fullContent))
+				$fullContent=fread($handle,2048);
+			$data=json_decode($fullContent,true);
+		
+			$dataArray = preg_split('/\R/', $data["results"][0]["text"]);
+
+			$buffer=$dataArray[$lineCounter];
+			foreach ($postData["stop_sequence"] as $keyword) {
+				if (stripos($buffer, $keyword) !== false) {
+					$lineCounter++;
+					$buffer="";
+					continue;
+				}
+			}
+
+			if (substr($buffer, -1) !== '.');
+				$buffer=$buffer."."; // Force final point
+
+			
+			$totalBuffer.=$buffer;
+			file_put_contents("debugStream.log",print_r($dataArray,true),FILE_APPEND);
+			$GLOBALS["DEBUG_DATA"]["response"][]=$dataArray[$lineCounter];	
+
+			$lineCounter++;
+			if ($lineCounter>=sizeof($dataArray))
+				$breakFlag=true;
+
 		}
-       
-       $buffer=strtr($buffer,array("\""=>""));
+
+		$buffer=strtr($buffer,array("\""=>""));
 	   
-		if (strlen($buffer)<MAXIMUM_SENTENCE_SIZE)	// Avoid too short buffers
+		if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
+			if (feof($handle))
+				$breakFlag=true;
+		} else if ( (isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="koboldcpp")))  {
+
+				
+		}
+		
+		if (strlen($buffer)<$MINIMUM_SENTENCE_SIZE)	// Avoid too short buffers
 			continue;
 		
 		$position = findDotPosition($buffer);
@@ -283,17 +460,26 @@ if ($handle === false) {
             $buffer=$remainingData;
             
         }
+		
     }
     if (trim($buffer)) {
 		 $sentences=split_sentences_stream(cleanReponse(trim($buffer)));
 		 $GLOBALS["DEBUG_DATA"][]=(microtime(true) - $starTime)." secs in openai stream";
          returnLines($sentences);
+		 $totalBuffer.=trim($buffer);
 		
 	}
     fclose($handle);
 	//fwrite($fileLog, $totalBuffer . PHP_EOL); // Write the line to the file with a line break // DEBUG CODE
 }
 
+if (!$ERROR_TRIGGERED) {
+		$lastPlayerLine=$db->fetchAll("SELECT data from eventlog where type in ('inputtext','inputtext_s') order by gamets desc limit 0,1");
+		logMemory($GLOBALS["HERIKA_NAME"],$GLOBALS["PLAYER_NAME"],"{$lastPlayerLine[0]["data"]} \n\r {$GLOBALS["HERIKA_NAME"]}:".implode(" ",$talkedSoFar),$momentum,$finalParsedData[2]);
+	}
+
+file_put_contents("log_stream.txt",$totalBuffer,FILE_APPEND);
+	
 
 echo 'X-CUSTOM-CLOSE';
 //echo "\r\n<$totalBuffer>";

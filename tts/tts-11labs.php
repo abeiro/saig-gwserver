@@ -60,7 +60,7 @@ function tts($textString, $mood = "default", $stringforhash) {
 
             file_put_contents(dirname((__FILE__)) . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "soundcache/" . md5(trim($stringforhash)) . ".txt", trim($textString) . "\n\rCache:$cacheUsed\n\rtotal call time:" . (microtime(true) - $starTime) . " ms\n\rsize of wav ($size)\n\rfunction tts($textString,$mood=\"cheerful\",$stringforhash)");
 			$GLOBALS["DEBUG_DATA"][]=(microtime(true) - $starTime)." secs in 11labs call and mp3riffer";
-			return true;
+			return "soundcache/" . md5(trim($stringforhash)) . ".wav";
 			
 		} else {
 			$textString.=print_r($http_response_header,true);

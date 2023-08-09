@@ -1,26 +1,32 @@
 <?php
-error_reporting(E_ERROR);
+error_reporting(E_ALL);
 
 define("MAXIMUM_SENTENCE_SIZE", 125);
 
 date_default_timezone_set('Europe/Madrid');
 
+
 $path = dirname((__FILE__)) . DIRECTORY_SEPARATOR;
 require_once($path . "conf.php");
 require_once($path . "lib/$DRIVER.class.php");
 require_once($path . "lib/Misc.php");
+require_once($path . "lib/vectordb.php");
+require_once($path . "lib/embeddings.php");
 $db = new sql();
 
-while (@ob_end_clean())
-	;
+while (@ob_end_clean())	;
 
 ignore_user_abort(true);
 set_time_limit(1200);
 
 $startTime = time();
+$momentum=time();
 
 $talkedSoFar = array();
 $alreadysent = array();
+
+$ERROR_TRIGGERED=false;
+$LAST_ROLE="user";
 
 function findDotPosition($string)
 {
@@ -100,6 +106,7 @@ function returnLines($lines)
 
 		if ($scoring >= 3) { // Catch OpenAI brekaing policies stuff
 			$responseTextUnmooded = $ERROR_OPENAI_POLICY; // Key phrase to indicate OpenAI triggered warning
+			$ERROR_TRIGGERED=true;
 			$FORCED_STOP = true;
 		} else {
 			if (isset($TRANSFORMER_FUNCTION)) {
@@ -112,7 +119,7 @@ function returnLines($lines)
 
 		if (isset($forceMood)) {
 			$mood = $forceMood;
-		} else if (isset($matches[1][0]))
+		} else if (!empty($matches) && !empty($matches[1]) && isset($matches[1][0]))
 			$mood = $matches[1][0];
 		else
 			$mood = "default";
@@ -125,16 +132,20 @@ function returnLines($lines)
 		if (isset($GLOBALS["FORCE_MOOD"]))
 			$mood = $GLOBALS["FORCE_MOOD"];
 
-		$responseText = $responseTextUnmooded;
 
-		if (strlen($responseText) < 2) // Avoid too short reponses
+		if (strlen($responseTextUnmooded) < 2) // Avoid too short reponses
 			return;
 
 
-		if (strpos($responseText, "The Narrator:") !== false) { // Force not impersonating the narrator.
+		if (strpos($responseTextUnmooded, "The Narrator:") !== false) { // Force not impersonating the narrator.
 			return;
 		}
 
+		$responseTextUnmooded = preg_replace("/{$GLOBALS["HERIKA_NAME"]}\s*:\s*/", '', $responseTextUnmooded);	// Should not happen
+		
+		$responseText = $responseTextUnmooded;
+
+			
 		if ($responseText) {
 			if ($GLOBALS["TTSFUNCTION"] == "azure") {
 				if ($GLOBALS["AZURE_API_KEY"]) {
@@ -193,6 +204,28 @@ function returnLines($lines)
 		);
 	}
 
+}
+
+function logMemory($speaker,$listener,$message,$momentum,$gamets) {
+    global $db;
+    $db->insert(
+	'memory',
+		array(
+				'localts' => time(),
+				'speaker' => (SQLite3::escapeString($speaker)),
+                'listener' => (SQLite3::escapeString($listener)),
+				'message' => (SQLite3::escapeString($message)),
+	  			'gamets' => $gamets,
+				'session' => "pending",
+                'momentum'=>$momentum
+		)
+	);
+    if (isset($GLOBALS["MEMORY_EMBEDDING"]) && $GLOBALS["MEMORY_EMBEDDING"]) {
+		$insertedSeq=$db->fetchAll("SELECT SEQ from sqlite_sequence WHERE name='memory'");
+		$embeddings=getEmbeddingRemote($message);
+		storeMemory($embeddings,$message,$insertedSeq[0]["seq"]);	
+	}
+    
 }
 
 /*********** MAIN FLOW **************/
@@ -294,10 +327,13 @@ if (!isset($PROMPTS["afterattack"]))
 
 
 if ($finalParsedData[0] == "funcret") { // Take out the functions part
+
 	$returnFunction = explode("@", $finalParsedData[3]); // Function returns here
+	$functionCodeName=$returnFunction[1];
+		
 	//$request = str_replace("call function if needed,", "continue chat as $HERIKA_NAME,", $PROMPTS["inputtext"][0]); 
-	if (isset($PROMPTS["afterfunc"][$returnFunction[1]])) {
-		$request =$PROMPTS["afterfunc"][$returnFunction[1]];
+	if (isset($PROMPTS["afterfunc"][$functionCodeName])) {
+		$request =$PROMPTS["afterfunc"][$functionCodeName];
 	
 	} else 
 		$request =$PROMPTS["afterfunc"][0];
@@ -327,10 +363,11 @@ if ($finalParsedData[0] == "inputtext_s") {
 
 if ($finalParsedData[0] == "funcret") { // Overwrite funrect with info from database when topic requested
 	
-	if ($returnFunction[1] == "GetTopicInfo") {
+	
+	if ($functionCodeName == "GetTopicInfo") {
 
 
-	} else if ($returnFunction[1] == "ReadQuestJournal") {
+	} else if ($functionCodeName == "ReadQuestJournal") {
 		$returnFunction[3] = $db->questJournal($returnFunction[2]); // Overwrite funrect content with info from database
 		$finalParsedData[3] .= $returnFunction[3];
 	
@@ -348,13 +385,13 @@ if ($finalParsedData[0] == "funcret") { // Overwrite funrect with info from data
 		);
 		
 		
-	} else if ($returnFunction[1] == "SearchDiary") {
+	} else if ($functionCodeName == "SearchDiary") {
 		
 		$returnFunction[3] = $db->diaryLogIndex($returnFunction[2]); // Overwrite funrect content with info from database
 		$finalParsedData[3] .= $returnFunction[3];
 		
 		
-	}  else if ($returnFunction[1] == "ReadDiaryPage") {
+	}  else if ($functionCodeName == "ReadDiaryPage") {
 		
 		$returnFunction[3] = $db->diaryLog($returnFunction[2]); // Overwrite funrect content with info from database
 		$finalParsedData[3] .= $returnFunction[3];
@@ -368,7 +405,7 @@ if ($finalParsedData[0] == "funcret") { // Overwrite funrect with info from data
 			$GLOBALS["OPENAI_MAX_TOKENS"]="150";	// Because probably we want a detailed reponse base on diary.
 		
 		
-	} else if ($returnFunction[1] == "SetCurrentTask") {
+	} else if ($functionCodeName == "SetCurrentTask") {
 		
 		$returnFunction[3] .= "ok"; // This is always ok
 		$finalParsedData[3].="done";
@@ -388,7 +425,7 @@ if ($finalParsedData[0] == "funcret") { // Overwrite funrect with info from data
 
 	
 } else if ($finalParsedData[0] == "diary") {
-	$GLOBALS["CONTEXT_HISTORY"] = ($GLOBALS["CONTEXT_HISTORY"]<50)?50:$GLOBALS["CONTEXT_HISTORY"];		// Forced to obtain high history volume;
+	$GLOBALS["CONTEXT_HISTORY"] = ($GLOBALS["CONTEXT_HISTORY"]<35)?35:$GLOBALS["CONTEXT_HISTORY"];		// Forced to obtain high history volume;
 	$finalParsedData[3]=$GLOBALS["PROMPTS"]["diary"][1];
 
 }
@@ -417,9 +454,54 @@ $lastNDataForContext = (isset($GLOBALS["CONTEXT_HISTORY"])) ? ($GLOBALS["CONTEXT
 $contextData = $db->lastDataFor("", $lastNDataForContext * -1); // Context (last dialogues, events,...)
 $contextData2 = $db->lastInfoFor("", -2); // Infot about location and npcs in first position
 
-$contextCurrentPlan[]=  array('role' => 'user', 'content' => 'The Narrator: ('.$db->get_current_task().')');
+//$contextCurrentPlan[]=  array('role' => 'user', 'content' => 'The Narrator: ('.$db->get_current_task().')');
+$COMMAND_PROMPT.=$db->get_current_task();
 
-$contextDataFull = array_merge($contextData2, $contextCurrentPlan,$contextData);
+
+/* Memory offering */
+
+if (isset($GLOBALS["MEMORY_EMBEDDING"]) && $GLOBALS["MEMORY_EMBEDDING"]) {
+	if (($finalParsedData[0] == "inputtext") || ($finalParsedData[0] == "inputtext_s")) {
+		$memory=array();
+		
+		$textToEmbed=str_replace($DIALOGUE_TARGET,"",$finalParsedData[3]);
+		$pattern = '/\([^)]+\)/';
+		$textToEmbedFinal = preg_replace($pattern, '', $textToEmbed);
+		$textToEmbedFinal=str_replace("{$GLOBALS["PLAYER_NAME"]}:","",$textToEmbedFinal);
+
+		$embeddings=getEmbeddingRemote($textToEmbedFinal);
+		$memories=queryMemory($embeddings);
+		if ($memories["content"][0]) {
+			//$memories["content"][0]["search_term"]=$textToEmbedFinal;
+			//$contextData[]=['role' => 'user', 'content' =>$GLOBALS["MEMORY_OFFERING"].json_encode($memories["content"])."" ];
+			$COMMAND_PROMPT.=$GLOBALS["MEMORY_OFFERING"].json_encode($memories["content"]);
+			$GLOBALS["DEBUG_DATA"]["memories"]=$textToEmbedFinal;
+		}
+	} else if (($finalParsedData[0] == "funcret") ) {
+		$memory=array();
+		$lastPlayerLine=$db->fetchAll("SELECT data from eventlog where type in ('inputtext','inputtext_s') order by gamets desc limit 0,1");
+
+		$textToEmbed=str_replace($DIALOGUE_TARGET,"",$lastPlayerLine);
+		$pattern = '/\([^)]+\)/';
+		$textToEmbedFinal = preg_replace($pattern, '', $textToEmbed);
+		$textToEmbedFinal=str_replace("{$GLOBALS["PLAYER_NAME"]}:","",$textToEmbedFinal);
+
+		$embeddings=getEmbeddingRemote($textToEmbedFinal);
+		$memories=queryMemory($embeddings);
+		if ($memories["content"][0]) {
+			//$memories["content"][0]["search_term"]=$textToEmbedFinal;
+			//$contextData[]=['role' => 'user', 'content' => $GLOBALS["MEMORY_OFFERING"].json_encode($memories["content"])."" ];
+			$COMMAND_PROMPT.=$GLOBALS["MEMORY_OFFERING"].json_encode($memories["content"]);
+			$GLOBALS["DEBUG_DATA"]["memories"]=$textToEmbedFinal;
+		}
+	}
+}
+
+
+
+//$contextDataFull = array_merge($contextData2, $contextCurrentPlan,$contextData);
+$contextDataFull = array_merge($contextData2, $contextData);
+
 
 $head = array();
 $foot = array();
@@ -441,70 +523,85 @@ if ($finalParsedData[0] == "funcret") {
 
 	$returnFunction = explode("@", $finalParsedData[3]); // Function returns here
 
+	$functionLocaleName=getFunctionTrlName($functionCodeName);
+
 	$useFunctionsAgain = false;
+	
 	if (isset($returnFunction[2])) {
-		if ($returnFunction[1] == "GetTopicInfo") {
+		if ($functionCodeName == "GetTopicInfo") {
 			$argName = "topic";
 			// Lets overwrite this
 			// Get info about $returnFunction[2]}
 			$returnFunction[3] = "";
 
 			//
-		} else if ($returnFunction[1] == "LeadTheWayTo") {
+		} else if ($functionCodeName == "LeadTheWayTo") {
 			$argName = "location";
 			$GLOBALS["OPENAI_MAX_TOKENS"]="64";	// Force a short response, as IA here tends to simulate the whole travel
+			
+			$db->insert(
+			'currentmission',
+				array(
+					'ts' => $finalParsedData[1],
+					'gamets' => $finalParsedData[2],
+					'description' => SQLite3::escapeString("Travel to {$returnFunction[2]}"),
+					'sess' => 'pending',
+					'localts' => time()
+				)
+			);
+			
 
-		} else if ($returnFunction[1] == "MoveTo") {
+		} else if ($functionCodeName== "MoveTo") {
 			if (strpos($finalParsedData[3], "LeadTheWayTo") !== false) {// PatchHack. If Moving returning Shoud use TravelTo, enable functions again
 				$useFunctionsAgain = true;
-				$request="(use function LeadTheWayTo to travel) $request";
+				$request="(use function ".getFunctionTrlName("LeadTheWayTo")." to travel) $request";
 			}
 			$argName = "target";
 
 
-		} else if ($returnFunction[1] == "Attack") {
+		} else if ($functionCodeName == "Attack") {
 			//$useFunctionsAgain=true;
 			$forceAttackingText = true;
 			$argName = "target";
 
-		} else if ($returnFunction[1] == "ReadQuestJournal") {
+		} else if ($functionCodeName == "ReadQuestJournal") {
 			//$useFunctionsAgain=true;
-			$request="(use function SetCurrentTask to update current quest if needed) $request";
+			$request="(use function ".getFunctionTrlName("SetCurrentTask")." to update current quest if needed) $request";
 			$argName = "id_quest";
 			$useFunctionsAgain=true;
 
-		} else if ($returnFunction[1] == "ReadDiaryPage") {
+		} else if ($functionCodeName == "ReadDiaryPage") {
 			//$useFunctionsAgain=true;
 			$argName = "page";
 
 
-		} else if ($returnFunction[1] == "SearchDiary") {
+		} else if ($functionCodeName== "SearchDiary") {
 			//$useFunctionsAgain=true;
-			$request="(use function ReadDiaryPage to access the specific page provided by SearchDiary) $request";
+			$request="(use function ".getFunctionTrlName("ReadDiaryPage")." to access the specific page provided by SearchDiary) $request";
 			$argName = "keyword";
 			$useFunctionsAgain=true;
 			$GLOBALS["FUNCTIONS"][]=$GLOBALS["FUNCTIONS_GHOSTED"];// We provide here the ReadDiaryPage function
 			
 
-		} else if ($returnFunction[1] == "GetTime") {
+		} else if ($functionCodeName == "GetTime") {
 			//$useFunctionsAgain=true;
 			$argName = "datestring";
 			//$useFunctionsAgain=true;
 
 
-		} else if ($returnFunction[1] == "get_current_mission") {		// Disabled, current task is always provided.
+		} else if ($functionCodeName == "get_current_mission") {		// Disabled, current task is always provided.
 			//$useFunctionsAgain=true;
 			$argName = "description";
 			//$useFunctionsAgain=true;
 
 
-		} else if ($returnFunction[1] == "SetCurrentTask") {
+		} else if ($functionCodeName == "SetCurrentTask") {
 			//$useFunctionsAgain=true;
 			$argName = "description";
 			//$useFunctionsAgain=true;
 
 
-		} else if ($returnFunction[1] == "CheckInventory") {
+		} else if ($functionCodeName == "CheckInventory") {
 			//$useFunctionsAgain=true;
 			$argName = "target";
 			//$useFunctionsAgain=true;
@@ -514,17 +611,17 @@ if ($finalParsedData[0] == "funcret") {
 			$argName = "target";
 
 		}
-		$functionCalled[] = array('role' => 'assistant', 'content' => null, 'function_call' => array("name" => $returnFunction[1], "arguments" => "{\"$argName\":\"{$returnFunction[2]}\"}"));
+		$functionCalled[] = array('role' => 'assistant', 'content' => null, 'function_call' => array("name" => $functionLocaleName, "arguments" => "{\"$argName\":\"{$returnFunction[2]}\"}"));
 
 	} else
-		$functionCalled[] = array('role' => 'assistant', 'content' => null, 'function_call' => ["name" => $returnFunction[1], "arguments" => "\"{}\""]);
+		$functionCalled[] = array('role' => 'assistant', 'content' => null, 'function_call' => ["name" => $functionLocaleName, "arguments" => "\"{}\""]);
 
-	$returnFunctionArray[] = array('role' => 'function', 'name' => $returnFunction[1], 'content' => "{$returnFunction[3]}");
+	$returnFunctionArray[] = array('role' => 'function', 'name' => $functionLocaleName, 'content' => "{$returnFunction[3]}");
 
 	if ($forceAttackingText)
-		$returnFunctionArray[] = array('role' => 'assistant', 'content' => "{$PROMPTS["afterattack"][0]} {$GLOBALS["HERIKA_NAME"]}: ");
+		$returnFunctionArray[] = array('role' => $LAST_ROLE, 'content' => "{$PROMPTS["afterattack"][0]} {$GLOBALS["HERIKA_NAME"]}: ");
 	else
-		$returnFunctionArray[] = array('role' => 'assistant', 'content' => $request);
+		$returnFunctionArray[] = array('role' => $LAST_ROLE, 'content' => $request);
 
 
 	$parms = array_merge($head, ($contextDataFull), $functionCalled, $returnFunctionArray);
@@ -578,13 +675,13 @@ if ($finalParsedData[0] == "funcret") {
 		'temperature' => 1,
 		'presence_penalty' => 1,
 		'functions' => $GLOBALS["FUNCTIONS_SPECIAL_CONTEXT"],
-		'function_call' => ["name"=>"WriteIntoDiary"]	// Should be '{"name":\ "WriteIntoDiary"}'
+		'function_call' => ["name"=>getFunctionTrlName("WriteIntoDiary")]	// Should be '{"name":\ "WriteIntoDiary"}'
 	);
 
 
 } else {
 
-	$prompt[] = array('role' => 'assistant', 'content' => $request);
+	$prompt[] = array('role' => $LAST_ROLE, 'content' => $request);
 	$parms = array_merge($head, ($contextDataFull), $prompt);
 	$data = array(
 		'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',
@@ -596,7 +693,8 @@ if ($finalParsedData[0] == "funcret") {
 		'temperature' => 1,
 		'presence_penalty' => 1,
 		'functions' => $GLOBALS["FUNCTIONS"],
-		'function_call' => 'auto'
+		'function_call' => 'auto',
+		'stop'=>["{$GLOBALS["PLAYER_NAME"]}:","The Narrator:"]
 	);
 }
 
@@ -653,6 +751,7 @@ if ($handle === false) {
 		)
 	);
 	returnLines([$GLOBALS["ERROR_OPENAI"]]);
+	$ERROR_TRIGGERED=true;
 	@ob_end_flush();
 
 	print_r(error_get_last(), true);
@@ -746,6 +845,7 @@ if ($handle === false) {
 			if (isset($data["error"])) {
 				$GLOBALS["DEBUG_DATA"][] = $data["error"];
 				returnLines([$ERROR_OPENAI_REQLIMIT]);
+				$ERROR_TRIGGERED=true;
 				break;
 			}
 
@@ -757,7 +857,8 @@ if ($handle === false) {
 				$parameter = current($parameterArr); // Only support for one parameter
 
 				if (!isset($alreadysent[md5("Herika|command|$functionName@$parameter\r\n")])) {
-					echo "Herika|command|$functionName@$parameter\r\n";
+					$functionCodeName=getFunctionCodeName($functionName);
+					echo "Herika|command|$functionCodeName@$parameter\r\n";
 					$db->insert(
 						'eventlog',
 						array(
@@ -777,9 +878,6 @@ if ($handle === false) {
 			}
 
 			$buffer = strtr($buffer, array("\"" => ""));
-
-			$pattern = "/\([^()]*\)/"; // Modified pattern to remove unmatched opening parentheses
-			$buffer = preg_replace($pattern, "", $buffer);
 
 			if (strlen($buffer) < MAXIMUM_SENTENCE_SIZE) // Avoid too short buffers
 				continue;
@@ -847,9 +945,24 @@ if (sizeof($talkedSoFar) == 0) {
 		);
 
 	}
-
-
-
+} else {
+	
+	if (sizeof($alreadysent) > 0) { // AI only issued commands
+		$db->insert(
+			'log',
+			array(
+				'localts' => time(),
+				'prompt' => nl2br(SQLite3::escapeString(json_encode($GLOBALS["DEBUG_DATA"], JSON_PRETTY_PRINT))),
+				'response' => SQLite3::escapeString(print_r($alreadysent, true)),
+				'url' => nl2br(SQLite3::escapeString(print_r(base64_decode(stripslashes($_GET["DATA"])), true) . " in " . (time() - $startTime) . " secs "))
+			)
+		);
+	}
+	
+	if (!$ERROR_TRIGGERED) {
+		$lastPlayerLine=$db->fetchAll("SELECT data from eventlog where type in ('inputtext','inputtext_s') order by gamets desc limit 0,1");
+		logMemory($GLOBALS["HERIKA_NAME"],$GLOBALS["PLAYER_NAME"],"{$lastPlayerLine[0]["data"]} \n\r {$GLOBALS["HERIKA_NAME"]}:".implode(" ",$talkedSoFar),$momentum,$finalParsedData[2]);
+	}
 }
 echo 'X-CUSTOM-CLOSE';
 $stamp = "@STAMP END ################# " . date('h:i:s', time());

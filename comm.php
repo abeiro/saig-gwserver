@@ -231,6 +231,7 @@ try {
 		$db->delete("currentmission", "gamets>{$finalParsedData[2]}  ");
 		$db->delete("diarylog", "gamets>{$finalParsedData[2]}  ");
 		$db->delete("books", "gamets>{$finalParsedData[2]}  ");
+		$db->delete("memory", "gamets>{$finalParsedData[2]}  ");
 
 		$db->delete("diarylogv2", "true");
 		$db->execQuery("insert into diarylogv2 select topic,content,tags,people,location from diarylog");
