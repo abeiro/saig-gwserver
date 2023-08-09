@@ -1,5 +1,5 @@
 <?php
-error_reporting(E_ERROR);
+error_reporting(E_ALL);
 
 define("MAXIMUM_SENTENCE_SIZE", 125);
 
@@ -26,7 +26,7 @@ $talkedSoFar = array();
 $alreadysent = array();
 
 $ERROR_TRIGGERED=false;
-$LAST_ROLE="assistant";
+$LAST_ROLE="user";
 
 function findDotPosition($string)
 {
@@ -132,16 +132,20 @@ function returnLines($lines)
 		if (isset($GLOBALS["FORCE_MOOD"]))
 			$mood = $GLOBALS["FORCE_MOOD"];
 
-		$responseText = $responseTextUnmooded;
 
-		if (strlen($responseText) < 2) // Avoid too short reponses
+		if (strlen($responseTextUnmooded) < 2) // Avoid too short reponses
 			return;
 
 
-		if (strpos($responseText, "The Narrator:") !== false) { // Force not impersonating the narrator.
+		if (strpos($responseTextUnmooded, "The Narrator:") !== false) { // Force not impersonating the narrator.
 			return;
 		}
 
+		$responseTextUnmooded = preg_replace("/{$GLOBALS["HERIKA_NAME"]}\s*:\s*/", '', $responseTextUnmooded);	// Should not happen
+		
+		$responseText = $responseTextUnmooded;
+
+			
 		if ($responseText) {
 			if ($GLOBALS["TTSFUNCTION"] == "azure") {
 				if ($GLOBALS["AZURE_API_KEY"]) {
@@ -323,10 +327,13 @@ if (!isset($PROMPTS["afterattack"]))
 
 
 if ($finalParsedData[0] == "funcret") { // Take out the functions part
+
 	$returnFunction = explode("@", $finalParsedData[3]); // Function returns here
+	$functionCodeName=$returnFunction[1];
+		
 	//$request = str_replace("call function if needed,", "continue chat as $HERIKA_NAME,", $PROMPTS["inputtext"][0]); 
-	if (isset($PROMPTS["afterfunc"][$returnFunction[1]])) {
-		$request =$PROMPTS["afterfunc"][$returnFunction[1]];
+	if (isset($PROMPTS["afterfunc"][$functionCodeName])) {
+		$request =$PROMPTS["afterfunc"][$functionCodeName];
 	
 	} else 
 		$request =$PROMPTS["afterfunc"][0];
@@ -356,10 +363,11 @@ if ($finalParsedData[0] == "inputtext_s") {
 
 if ($finalParsedData[0] == "funcret") { // Overwrite funrect with info from database when topic requested
 	
-	if ($returnFunction[1] == "GetTopicInfo") {
+	
+	if ($functionCodeName == "GetTopicInfo") {
 
 
-	} else if ($returnFunction[1] == "ReadQuestJournal") {
+	} else if ($functionCodeName == "ReadQuestJournal") {
 		$returnFunction[3] = $db->questJournal($returnFunction[2]); // Overwrite funrect content with info from database
 		$finalParsedData[3] .= $returnFunction[3];
 	
@@ -377,13 +385,13 @@ if ($finalParsedData[0] == "funcret") { // Overwrite funrect with info from data
 		);
 		
 		
-	} else if ($returnFunction[1] == "SearchDiary") {
+	} else if ($functionCodeName == "SearchDiary") {
 		
 		$returnFunction[3] = $db->diaryLogIndex($returnFunction[2]); // Overwrite funrect content with info from database
 		$finalParsedData[3] .= $returnFunction[3];
 		
 		
-	}  else if ($returnFunction[1] == "ReadDiaryPage") {
+	}  else if ($functionCodeName == "ReadDiaryPage") {
 		
 		$returnFunction[3] = $db->diaryLog($returnFunction[2]); // Overwrite funrect content with info from database
 		$finalParsedData[3] .= $returnFunction[3];
@@ -397,7 +405,7 @@ if ($finalParsedData[0] == "funcret") { // Overwrite funrect with info from data
 			$GLOBALS["OPENAI_MAX_TOKENS"]="150";	// Because probably we want a detailed reponse base on diary.
 		
 		
-	} else if ($returnFunction[1] == "SetCurrentTask") {
+	} else if ($functionCodeName == "SetCurrentTask") {
 		
 		$returnFunction[3] .= "ok"; // This is always ok
 		$finalParsedData[3].="done";
@@ -446,7 +454,9 @@ $lastNDataForContext = (isset($GLOBALS["CONTEXT_HISTORY"])) ? ($GLOBALS["CONTEXT
 $contextData = $db->lastDataFor("", $lastNDataForContext * -1); // Context (last dialogues, events,...)
 $contextData2 = $db->lastInfoFor("", -2); // Infot about location and npcs in first position
 
-$contextCurrentPlan[]=  array('role' => 'user', 'content' => 'The Narrator: ('.$db->get_current_task().')');
+//$contextCurrentPlan[]=  array('role' => 'user', 'content' => 'The Narrator: ('.$db->get_current_task().')');
+$COMMAND_PROMPT.=$db->get_current_task();
+
 
 /* Memory offering */
 
@@ -463,14 +473,35 @@ if (isset($GLOBALS["MEMORY_EMBEDDING"]) && $GLOBALS["MEMORY_EMBEDDING"]) {
 		$memories=queryMemory($embeddings);
 		if ($memories["content"][0]) {
 			//$memories["content"][0]["search_term"]=$textToEmbedFinal;
-			$contextData[]=['role' => 'user', 'content' => "The Narrator: Past related memories of {$GLOBALS["HERIKA_NAME"]}'s :".json_encode($memories["content"]) ];
+			//$contextData[]=['role' => 'user', 'content' =>$GLOBALS["MEMORY_OFFERING"].json_encode($memories["content"])."" ];
+			$COMMAND_PROMPT.=$GLOBALS["MEMORY_OFFERING"].json_encode($memories["content"]);
+			$GLOBALS["DEBUG_DATA"]["memories"]=$textToEmbedFinal;
+		}
+	} else if (($finalParsedData[0] == "funcret") ) {
+		$memory=array();
+		$lastPlayerLine=$db->fetchAll("SELECT data from eventlog where type in ('inputtext','inputtext_s') order by gamets desc limit 0,1");
+
+		$textToEmbed=str_replace($DIALOGUE_TARGET,"",$lastPlayerLine);
+		$pattern = '/\([^)]+\)/';
+		$textToEmbedFinal = preg_replace($pattern, '', $textToEmbed);
+		$textToEmbedFinal=str_replace("{$GLOBALS["PLAYER_NAME"]}:","",$textToEmbedFinal);
+
+		$embeddings=getEmbeddingRemote($textToEmbedFinal);
+		$memories=queryMemory($embeddings);
+		if ($memories["content"][0]) {
+			//$memories["content"][0]["search_term"]=$textToEmbedFinal;
+			//$contextData[]=['role' => 'user', 'content' => $GLOBALS["MEMORY_OFFERING"].json_encode($memories["content"])."" ];
+			$COMMAND_PROMPT.=$GLOBALS["MEMORY_OFFERING"].json_encode($memories["content"]);
+			$GLOBALS["DEBUG_DATA"]["memories"]=$textToEmbedFinal;
 		}
 	}
 }
 
 
 
-$contextDataFull = array_merge($contextData2, $contextCurrentPlan,$contextData);
+//$contextDataFull = array_merge($contextData2, $contextCurrentPlan,$contextData);
+$contextDataFull = array_merge($contextData2, $contextData);
+
 
 $head = array();
 $foot = array();
@@ -492,16 +523,19 @@ if ($finalParsedData[0] == "funcret") {
 
 	$returnFunction = explode("@", $finalParsedData[3]); // Function returns here
 
+	$functionLocaleName=getFunctionTrlName($functionCodeName);
+
 	$useFunctionsAgain = false;
+	
 	if (isset($returnFunction[2])) {
-		if ($returnFunction[1] == "GetTopicInfo") {
+		if ($functionCodeName == "GetTopicInfo") {
 			$argName = "topic";
 			// Lets overwrite this
 			// Get info about $returnFunction[2]}
 			$returnFunction[3] = "";
 
 			//
-		} else if ($returnFunction[1] == "LeadTheWayTo") {
+		} else if ($functionCodeName == "LeadTheWayTo") {
 			$argName = "location";
 			$GLOBALS["OPENAI_MAX_TOKENS"]="64";	// Force a short response, as IA here tends to simulate the whole travel
 			
@@ -517,57 +551,57 @@ if ($finalParsedData[0] == "funcret") {
 			);
 			
 
-		} else if ($returnFunction[1] == "MoveTo") {
+		} else if ($functionCodeName== "MoveTo") {
 			if (strpos($finalParsedData[3], "LeadTheWayTo") !== false) {// PatchHack. If Moving returning Shoud use TravelTo, enable functions again
 				$useFunctionsAgain = true;
-				$request="(use function LeadTheWayTo to travel) $request";
+				$request="(use function ".getFunctionTrlName("LeadTheWayTo")." to travel) $request";
 			}
 			$argName = "target";
 
 
-		} else if ($returnFunction[1] == "Attack") {
+		} else if ($functionCodeName == "Attack") {
 			//$useFunctionsAgain=true;
 			$forceAttackingText = true;
 			$argName = "target";
 
-		} else if ($returnFunction[1] == "ReadQuestJournal") {
+		} else if ($functionCodeName == "ReadQuestJournal") {
 			//$useFunctionsAgain=true;
-			$request="(use function SetCurrentTask to update current quest if needed) $request";
+			$request="(use function ".getFunctionTrlName("SetCurrentTask")." to update current quest if needed) $request";
 			$argName = "id_quest";
 			$useFunctionsAgain=true;
 
-		} else if ($returnFunction[1] == "ReadDiaryPage") {
+		} else if ($functionCodeName == "ReadDiaryPage") {
 			//$useFunctionsAgain=true;
 			$argName = "page";
 
 
-		} else if ($returnFunction[1] == "SearchDiary") {
+		} else if ($functionCodeName== "SearchDiary") {
 			//$useFunctionsAgain=true;
-			$request="(use function ReadDiaryPage to access the specific page provided by SearchDiary) $request";
+			$request="(use function ".getFunctionTrlName("ReadDiaryPage")." to access the specific page provided by SearchDiary) $request";
 			$argName = "keyword";
 			$useFunctionsAgain=true;
 			$GLOBALS["FUNCTIONS"][]=$GLOBALS["FUNCTIONS_GHOSTED"];// We provide here the ReadDiaryPage function
 			
 
-		} else if ($returnFunction[1] == "GetTime") {
+		} else if ($functionCodeName == "GetTime") {
 			//$useFunctionsAgain=true;
 			$argName = "datestring";
 			//$useFunctionsAgain=true;
 
 
-		} else if ($returnFunction[1] == "get_current_mission") {		// Disabled, current task is always provided.
+		} else if ($functionCodeName == "get_current_mission") {		// Disabled, current task is always provided.
 			//$useFunctionsAgain=true;
 			$argName = "description";
 			//$useFunctionsAgain=true;
 
 
-		} else if ($returnFunction[1] == "SetCurrentTask") {
+		} else if ($functionCodeName == "SetCurrentTask") {
 			//$useFunctionsAgain=true;
 			$argName = "description";
 			//$useFunctionsAgain=true;
 
 
-		} else if ($returnFunction[1] == "CheckInventory") {
+		} else if ($functionCodeName == "CheckInventory") {
 			//$useFunctionsAgain=true;
 			$argName = "target";
 			//$useFunctionsAgain=true;
@@ -577,12 +611,12 @@ if ($finalParsedData[0] == "funcret") {
 			$argName = "target";
 
 		}
-		$functionCalled[] = array('role' => 'assistant', 'content' => null, 'function_call' => array("name" => $returnFunction[1], "arguments" => "{\"$argName\":\"{$returnFunction[2]}\"}"));
+		$functionCalled[] = array('role' => 'assistant', 'content' => null, 'function_call' => array("name" => $functionLocaleName, "arguments" => "{\"$argName\":\"{$returnFunction[2]}\"}"));
 
 	} else
-		$functionCalled[] = array('role' => 'assistant', 'content' => null, 'function_call' => ["name" => $returnFunction[1], "arguments" => "\"{}\""]);
+		$functionCalled[] = array('role' => 'assistant', 'content' => null, 'function_call' => ["name" => $functionLocaleName, "arguments" => "\"{}\""]);
 
-	$returnFunctionArray[] = array('role' => 'function', 'name' => $returnFunction[1], 'content' => "{$returnFunction[3]}");
+	$returnFunctionArray[] = array('role' => 'function', 'name' => $functionLocaleName, 'content' => "{$returnFunction[3]}");
 
 	if ($forceAttackingText)
 		$returnFunctionArray[] = array('role' => $LAST_ROLE, 'content' => "{$PROMPTS["afterattack"][0]} {$GLOBALS["HERIKA_NAME"]}: ");
@@ -641,7 +675,7 @@ if ($finalParsedData[0] == "funcret") {
 		'temperature' => 1,
 		'presence_penalty' => 1,
 		'functions' => $GLOBALS["FUNCTIONS_SPECIAL_CONTEXT"],
-		'function_call' => ["name"=>"WriteIntoDiary"]	// Should be '{"name":\ "WriteIntoDiary"}'
+		'function_call' => ["name"=>getFunctionTrlName("WriteIntoDiary")]	// Should be '{"name":\ "WriteIntoDiary"}'
 	);
 
 
@@ -659,7 +693,8 @@ if ($finalParsedData[0] == "funcret") {
 		'temperature' => 1,
 		'presence_penalty' => 1,
 		'functions' => $GLOBALS["FUNCTIONS"],
-		'function_call' => 'auto'
+		'function_call' => 'auto',
+		'stop'=>["{$GLOBALS["PLAYER_NAME"]}:","The Narrator:"]
 	);
 }
 
@@ -816,7 +851,8 @@ if ($handle === false) {
 				$parameter = current($parameterArr); // Only support for one parameter
 
 				if (!isset($alreadysent[md5("Herika|command|$functionName@$parameter\r\n")])) {
-					echo "Herika|command|$functionName@$parameter\r\n";
+					$functionCodeName=getFunctionCodeName($functionName);
+					echo "Herika|command|$functionCodeName@$parameter\r\n";
 					$db->insert(
 						'eventlog',
 						array(

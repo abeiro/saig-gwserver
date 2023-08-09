@@ -19,6 +19,7 @@ function getCollectionUID() {
 
 		$requestData = array(
 			'name' => $VECTORDB_URL_COLLECTION_NAME,
+			'metadata'=>["hnsw:space"=>"cosine"]
 		);
 		
 		$jsonData = json_encode($requestData);
@@ -195,7 +196,7 @@ function queryMemory($embeddings) {
 	
 	$requestData = array(
 		'query_embeddings' => [$embeddings],
-		'n_results'=>2
+		'n_results'=>5
 	);
 
 	// Convert the request data to JSON
@@ -236,20 +237,34 @@ function queryMemory($embeddings) {
 	foreach ($responseData["ids"][0] as $n=>$id) {
 		$results = $link->query("select message as content,uid,localts,momentum from memory where uid=$id order by uid asc");	
 			while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
-				if (($responseData["distances"][0][$n]+0)>0.35)
+
+				if ($row["localts"]>(time()- 60*10 ))	// Ten minutes to get things as memories
 					continue;
-				
 				$dbResults[]=[
 						"memory_id"=>$row["uid"],
 						"briefing"=>$row["content"],
 						"timestamp"=>$row["localts"],
 						"distance"=>$responseData["distances"][0][$n]
 				];
-				break;
+				
 			}	
 
 	}
-	return ["item"=>"{$GLOBALS["HERIKA_NAME"]}'s memories","content"=>$dbResults];
+	
+	if (sizeof($dbResults)>0) {
+		function cmp($a, $b) {
+			if ($a["distance"] == $b["distance"]) {
+				return 0;
+			}
+			return ($a["distance"] < $b["distance"]) ? -1 : 1;
+		}
+		uasort($dbResults, 'cmp');
+		
+		return ["item"=>"{$GLOBALS["HERIKA_NAME"]}'s memories","content"=>$dbResults[0]];
+		
+	} else {
+		return null;
+	}
 }
 
 

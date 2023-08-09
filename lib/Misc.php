@@ -58,14 +58,11 @@ function cleanReponse($rawResponse)
         $rawResponseSplited = explode(":", $toSplit);
         $toSplit = $rawResponseSplited[1];
     }
+    
+    $toSplit = preg_replace("/{$GLOBALS["HERIKA_NAME"]}\s*:\s*/", '', $toSplit);
+    
 
     $sentences = split_sentences($toSplit);
-
-	if (strpos($toSplit, "{$GLOBALS["HERIKA_NAME"]}:") !== false) {
-		$rawResponseSplited = explode(":", $toSplit);
-		array_shift($rawResponseSplited);
-		$toSplit = implode(":",$rawResponseSplited);
-	}
 
     $sentence = trim((implode(".", $sentences)));
 

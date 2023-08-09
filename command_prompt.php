@@ -1,6 +1,6 @@
 <?php
 
-$GLOBALS["HERIKA_PERS"].="{$GLOBALS["HERIKA_NAME"]} has memory problems, needs to read her diary to remember things. ";
+//$GLOBALS["HERIKA_PERS"].="{$GLOBALS["HERIKA_NAME"]} has memory problems, needs to read her diary to remember things. ";
 
 $COMMAND_PROMPT = "
 The following rules apply to this roleplay game
@@ -30,6 +30,7 @@ Rule 7. Don't create characters, enemies, or objects; the Narrator will do it.
 ";
 
 $DIALOGUE_TARGET="(Talking to {$GLOBALS["HERIKA_NAME"]})";
+$MEMORY_OFFERING="{$GLOBALS["HERIKA_NAME"]} remembers mentally:";
 
 $RESPONSE_OK_NOTED="Okey, noted.";
 
