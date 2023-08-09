@@ -451,7 +451,7 @@ $db->insert(
 
 $preprompt = preg_replace("/^[^:]*:/", "", $finalParsedData[3]);
 $lastNDataForContext = (isset($GLOBALS["CONTEXT_HISTORY"])) ? ($GLOBALS["CONTEXT_HISTORY"]) : "25";
-$contextData = $db->lastDataFor("", $lastNDataForContext * -1); // Context (last dialogues, events,...)
+$contextData = $db->lastDataNewFor("", $lastNDataForContext * -1); // Context (last dialogues, events,...)
 $contextData2 = $db->lastInfoFor("", -2); // Infot about location and npcs in first position
 
 //$contextCurrentPlan[]=  array('role' => 'user', 'content' => 'The Narrator: ('.$db->get_current_task().')');
@@ -773,6 +773,29 @@ if ($handle === false) {
 		fwrite($fileLogSent, print_r($rawResponse,true) . PHP_EOL); // Write the line to the file with a line break // DEBUG CODE
 		// Do something with the response;
 
+		
+		if (isset($GLOBALS["GPTMODEL"]) && isset($GLOBALS["COST_MONITOR_ENABLED"]) && $GLOBALS["COST_MONITOR_ENABLED"]) {
+			$costPerThousandOutputTokens = getCostPerThousandOutputTokens();
+			$costPerThousandInputTokens = getCostPerThousandInputTokens();
+
+			$numInputTokens=$response["usage"]["prompt_tokens"];
+			$numOutputTokens=$response["usage"]["completion_tokens"];
+			
+			$cost = ($numOutputTokens * $costPerThousandOutputTokens * 0.001)+($numInputTokens * $costPerThousandInputTokens * 0.001);
+			
+			$db->insert_and_calc_totals(
+				'openai_token_count',
+				array(
+					'input_tokens' => $numInputTokens,
+					'output_tokens' => $numOutputTokens,
+					'cost_USD' => $cost,
+					'localts' => time(),
+					'datetime' => date("Y-m-d H:i:s"),
+					'model' => $GLOBALS["GPTMODEL"]
+				)
+			);
+		}
+		
 		$db->insert(
 			'diarylog',
 			array(

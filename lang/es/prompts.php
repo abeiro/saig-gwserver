@@ -51,15 +51,15 @@ $PROMPTS=array(
     ],
 
     "inputtext"=>[
-        "(Usa funciones sólo para cumplir ordenes de {$GLOBALS["PLAYER_NAME"]}. Pon el tono de voz entre parentesis,tonos validos:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ". Completa el dialogo como $HERIKA_NAME )" // Prompt is implicit
+        "(Pon el tono de voz entre parentesis,tonos validos:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ". Completa el dialogo como $HERIKA_NAME )" // Prompt is implicit
 
     ],
     "inputtext_s"=>[
-        "(Usa funciones sólo para cumplir ordenes de {$GLOBALS["PLAYER_NAME"]}. Completa el dialogo como $HERIKA_NAME.)", // Prompt is implicit
+        "(Completa el dialogo como $HERIKA_NAME.)", // Prompt is implicit
         "extra"=>["mood"=>"whispering"]
     ],
     "afterfunc"=>[
-        "($HERIKA_NAME continua hablando a {$GLOBALS["PLAYER_NAME"]}, pon el tono de voz entre parentesis,tonos validos:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . " ,solo completa el texto de $HERIKA_NAME)",
+        "($HERIKA_NAME responde a {$GLOBALS["PLAYER_NAME"]}, pon el tono de voz entre parentesis,tonos validos:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . " ,solo completa el texto de $HERIKA_NAME)",
         "extra"=>[]
     ],
     "lockpicked"=>[

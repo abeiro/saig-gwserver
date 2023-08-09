@@ -11,15 +11,16 @@ function split_sentences($paragraph)
     $sentences = $matches[0];
     // Check if the last sentence is truncated (i.e., doesn't end with a period)
     /*$last_sentence = end($sentences);
-	if (!preg_match('/[.?|]$/', $last_sentence)) {
-		// Remove the last sentence if it's truncated
-		array_pop($sentences);
-	}*/
+    if (!preg_match('/[.?|]$/', $last_sentence)) {
+        // Remove the last sentence if it's truncated
+        array_pop($sentences);
+    }*/
 
-    if (is_array($sentences))
+    if (is_array($sentences)) {
         return $sentences;
-    else
+    } else {
         return array($sentences);
+    }
 }
 
 function br2nl($string)
@@ -48,19 +49,20 @@ function cleanReponse($rawResponse)
     if (strpos($rawResponse, "(Context location") !== false) {
         $rawResponseSplited = explode(":", $rawResponse);
         $toSplit = $rawResponseSplited[2];
-    } else if (strpos($rawResponse, "(Context new location") !== false) {
+    } elseif (strpos($rawResponse, "(Context new location") !== false) {
         $rawResponseSplited = explode(":", $rawResponse);
         $toSplit = $rawResponseSplited[2];
-    } else
+    } else {
         $toSplit = $rawResponse;
+    }
 
     if (strpos($toSplit, "{$GLOBALS["HERIKA_NAME"]}:") !== false) {
         $rawResponseSplited = explode(":", $toSplit);
         $toSplit = $rawResponseSplited[1];
     }
-    
+
     $toSplit = preg_replace("/{$GLOBALS["HERIKA_NAME"]}\s*:\s*/", '', $toSplit);
-    
+
 
     $sentences = split_sentences($toSplit);
 
@@ -88,8 +90,9 @@ function print_array_as_table($data)
 {
     // Start the HTML table
 
-    if (sizeof($data) < 1)
+    if (sizeof($data) < 1) {
         return;
+    }
     echo "<div class='datatable'>";
     echo "<table border='1' width='100%' class='table table-striped table-bordered table-sm'>";
 
@@ -123,26 +126,26 @@ function print_array_as_table($data)
                 */
                 echo "<td style='background-color:{$colors[$colorIndex]}'><span class='foldableCtl' onclick='togglePre(this)' style='cursor:pointer'>[+]</span><pre class='foldable'>" . $cell . "</pre></td>";
 
-            } else if ($n == "rowid") {
+            } elseif ($n == "rowid") {
                 echo "<td class='$colorClass'>
                     <a class='icon-link' href='cmd/deleteRow.php?table={$_GET["table"]}&rowid=$cell'>
                         " . $cell . "
                         <i class='bi-trash'></i>
                     </a>
                 </td>";
-            } else if (strpos($cell, 'background chat') !== false) {
+            } elseif (strpos($cell, 'background chat') !== false) {
                 echo "<td class='$colorClass'><em>" . $cell . "</em></td>";
-            } else if (strpos($cell, $GLOBALS["PLAYER_NAME"] . ':') !== false) {
+            } elseif (strpos($cell, $GLOBALS["PLAYER_NAME"] . ':') !== false) {
                 echo "<td class='$colorClass'>" . $cell . "</td>";
-            } else if (strpos($cell, 'obtains a quest') !== false) {
+            } elseif (strpos($cell, 'obtains a quest') !== false) {
                 echo "<td class='$colorClass'><strong>" . $cell . "</strong></td>";
-            } else if (strpos($cell, "{$GLOBALS["HERIKA_NAME"]}:") !== false) {
+            } elseif (strpos($cell, "{$GLOBALS["HERIKA_NAME"]}:") !== false) {
                 echo "<td  class='$colorClass'>" . $cell . "</td>";
 
-            } else if ($n == "cost_USD" || $n == "total_cost_so_far_USD") {
+            } elseif ($n == "cost_USD" || $n == "total_cost_so_far_USD") {
                 $formatted_cell = (is_numeric($cell)) ? number_format($cell, 6) : $cell;
                 echo "<td class='$colorClass'>" . $formatted_cell . "</td>";
-            } else if ($n == "rowid") {
+            } elseif ($n == "rowid") {
                 echo "<td class='$colorClass'>
                     <a class='icon-link' href='cmd/deleteRow.php?table={$_GET["table"]}&rowid=$cell'>
                         " . $cell . "
@@ -202,8 +205,9 @@ function parseResponseV2($responseText, $forceMood = "", $topicQueue = "")
 
         if ($forceMood) {
             $mood = $forceMood;
-        } else
+        } else {
             $mood = $matches[1][0];
+        }
 
         $responseText = $responseTextUnmooded;
 
@@ -304,13 +308,15 @@ function parseResponseV2($responseText, $forceMood = "", $topicQueue = "")
 
         if ($forceMood) {
             $mood = $forceMood;
-        } else
+        } else {
             $mood = $matches[1][0];
+        }
 
         $responseText = $responseTextUnmooded;
 
-        if ($n == 0) //First sentence was genetared
+        if ($n == 0) { //First sentence was genetared
             continue;
+        }
 
         if ($GLOBALS["TTSFUNCTION"] == "azure") {
             if ($GLOBALS["AZURE_API_KEY"]) {
@@ -399,6 +405,10 @@ function getCostPerThousandOutputTokens()
 
 function tokenizePrompt($jsonEncodedData)
 {
+    // This function goes to background.php. We pass arguments as post request
+    // Will by call limiting reponse buffer, so request will return in "no time"
+    
+    /*
     global $db;
 
     if (isset($GLOBALS["GPTMODEL"]) && isset($GLOBALS["COST_MONITOR_ENABLED"]) && $GLOBALS["COST_MONITOR_ENABLED"]) {
@@ -436,6 +446,38 @@ function tokenizePrompt($jsonEncodedData)
             error_log("error: tokenizer buf false\n");
         }
     }
+    */
+    if (isset($GLOBALS["GPTMODEL"]) && isset($GLOBALS["COST_MONITOR_ENABLED"]) && $GLOBALS["COST_MONITOR_ENABLED"]) {
+        $data =http_build_query(
+            array(
+                'jsonEncodedData' => $jsonEncodedData,
+            )
+        );
+
+        
+        $headers = array(
+                'Content-Type: application/x-www-form-urlencoded',
+                "Content-Length: " . strlen($data) . "\r\n",
+        );
+
+        $options = array(
+                'http' => array(
+                    'method' => 'POST',
+                    'header' => implode("\r\n", $headers),
+                    'content' => $data
+                )
+            );
+
+        $context = stream_context_create($options);
+
+        $protocol = (!empty($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['HTTPS'] == '1')) ? 'https://' : 'http://';
+        $server = $_SERVER['SERVER_NAME'];
+        $port = $_SERVER['SERVER_PORT'] ? ':'.$_SERVER['SERVER_PORT'] : '';
+
+        // Send the request and forget about
+        $response = file_get_contents("{$protocol}{$server}{$port}/saig-gwserver/background.php?action=tokenizePrompt", false, $context, 0, 1);
+    }
+
 }
 
 function tokenizeResponse($numOutputTokens)
@@ -463,44 +505,63 @@ function checkOAIComplains($responseTextUnmooded)
 {
 
     $scoring = 0;
-    if (stripos($responseTextUnmooded, "can't") !== false)
+    if (stripos($responseTextUnmooded, "can't") !== false) {
         $scoring++;
-    if (stripos($responseTextUnmooded, "apologi") !== false)
+    }
+    if (stripos($responseTextUnmooded, "apologi") !== false) {
         $scoring++;
-    if (stripos($responseTextUnmooded, "sorry") !== false)
+    }
+    if (stripos($responseTextUnmooded, "sorry") !== false) {
         $scoring++;
-    if (stripos($responseTextUnmooded, "not able") !== false)
+    }
+    if (stripos($responseTextUnmooded, "not able") !== false) {
         $scoring++;
-    if (stripos($responseTextUnmooded, "won't be able") !== false)
+    }
+    if (stripos($responseTextUnmooded, "won't be able") !== false) {
         $scoring++;
-    if (stripos($responseTextUnmooded, "that direction") !== false)
+    }
+    if (stripos($responseTextUnmooded, "that direction") !== false) {
         $scoring += 2;
-    if (stripos($responseTextUnmooded, "AI language model") !== false)
+    }
+    if (stripos($responseTextUnmooded, "AI language model") !== false) {
         $scoring += 4;
-    if (stripos($responseTextUnmooded, "openai") !== false)
+    }
+    if (stripos($responseTextUnmooded, "openai") !== false) {
         $scoring += 3;
-    if (stripos($responseTextUnmooded, "generate") !== false)
+    }
+    if (stripos($responseTextUnmooded, "generate") !== false) {
         $scoring += 1;
-    if (stripos($responseTextUnmooded, "request") !== false)
+    }
+    if (stripos($responseTextUnmooded, "request") !== false) {
         $scoring += 1;
-    if (stripos($responseTextUnmooded, "policy") !== false)
+    }
+    if (stripos($responseTextUnmooded, "policy") !== false) {
         $scoring += 1;
-    if (stripos($responseTextUnmooded, "to provide") !== false)
+    }
+    if (stripos($responseTextUnmooded, "to provide") !== false) {
         $scoring += 1;
-    if (stripos($responseTextUnmooded, "context") !== false)
+    }
+    if (stripos($responseTextUnmooded, "context") !== false) {
         $scoring += 1;
-    if (stripos($responseTextUnmooded, "unable") !== false)
+    }
+    if (stripos($responseTextUnmooded, "unable") !== false) {
         $scoring += 1;
-    if (stripos($responseTextUnmooded, "assist") !== false)
+    }
+    if (stripos($responseTextUnmooded, "assist") !== false) {
         $scoring += 1;
-    if (stripos($responseTextUnmooded, "inappropriate") !== false)
+    }
+    if (stripos($responseTextUnmooded, "inappropriate") !== false) {
         $scoring += 1;
-    if (stripos($responseTextUnmooded, "explicit") !== false)
+    }
+    if (stripos($responseTextUnmooded, "explicit") !== false) {
         $scoring += 1;
-    if (stripos($responseTextUnmooded, "roleplay") !== false)
+    }
+    if (stripos($responseTextUnmooded, "roleplay") !== false) {
         $scoring += 1;
-    if (stripos($responseTextUnmooded, "please provide an alternative scenario") !== false)
+    }
+    if (stripos($responseTextUnmooded, "please provide an alternative scenario") !== false) {
         $scoring += 3;
+    }
 
     return $scoring;
 }
