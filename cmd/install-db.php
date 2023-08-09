@@ -15,6 +15,19 @@ CREATE TABLE IF NOT EXISTS `eventlog` (
   `localts` bigint NOT NULL
 );");
 
+$db->exec("
+CREATE TABLE IF NOT EXISTS `openai_token_count` (
+  `input_tokens` bigint NOT NULL,
+  `output_tokens` bigint NOT NULL ,
+  `total_tokens_so_far` bigint NOT NULL ,
+  `cost_USD` float ,
+  `total_cost_so_far_USD` float,
+  `localts` bigint NOT NULL,
+  `datetime` text,
+  `model` text
+);");
+
+
 $db->exec("DROP TABLE `responselog`;");
 
 $db->exec("

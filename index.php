@@ -186,6 +186,14 @@ include("tmpl/navbar.php");
         echo "<h3 class='my-2'>Book log</h3>";
         print_array_as_table($results);
     } 
+
+
+    if ($_GET["table"] == "openai_token_count") {
+        $results = $db->fetchAll("select  A.*,ROWID FROM openai_token_count A order by rowid desc");
+        echo "<h3 class='my-2'>OpenAI token pricing</h3>";
+        print_array_as_table($results);
+    }
+
     
     if ($_GET["table"] == "memory") {
         $results = $db->fetchAll("select  A.*,ROWID as rowid FROM memory A order by gamets desc,rowid desc");
@@ -193,6 +201,7 @@ include("tmpl/navbar.php");
         print_array_as_table($results);
     }
     
+
         
     if ($_GET["notes"]) {
         echo file_get_contents(__DIR__."/notes.html");

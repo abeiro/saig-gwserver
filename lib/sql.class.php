@@ -29,9 +29,35 @@ class sql
     public function query($query)
     {
 
+
+  // used for openai_token_count table
+  function insert_and_calc_totals($table, $data)
+  {
+      // Fetch the last row
+      $latestRowQuery = "SELECT * FROM $table ORDER BY ROWID DESC LIMIT 1";
+      $latestRowResult = self::fetchAll($latestRowQuery);
+
+      if (!empty($latestRowResult)) {
+          // If the table is not empty
+          $latestRow = $latestRowResult[0];
+
+          // Calculate totals
+          $data['total_tokens_so_far'] = $latestRow['total_tokens_so_far'] + $data['input_tokens'] + $data['output_tokens'];
+          $data['total_cost_so_far_USD'] = $latestRow['total_cost_so_far_USD'] + $data['cost_USD'];
+      } else {
+          // If the table is empty
+          $data['total_tokens_so_far'] = $data['input_tokens'] + $data['output_tokens'];
+          $data['total_cost_so_far_USD'] = $data['cost_USD'];
+      }
+
+      // Insert new row
+      self::$link->exec("INSERT INTO $table (" . implode(",", array_keys($data)) . ") VALUES ('" . implode("','", $data) . "')");
+  }
+
+  function query($query)
+  {
+
         return self::$link->query($query);
-
-
     }
 
     public function delete($table, $where = " false ")
