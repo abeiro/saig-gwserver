@@ -6,7 +6,7 @@ $F_TRANSLATIONS["InspectSurroundings"]="Mira alrededor";
 $F_TRANSLATIONS["MoveTo"]= "Caminar hacia un personaje o un edificio, pero sólo si {$GLOBALS["PLAYER_NAME"]} lo ordena.";
 $F_TRANSLATIONS["OpenInventory"]="Abre el inventario para intercambiar cosas con {$GLOBALS["PLAYER_NAME"]}";
 $F_TRANSLATIONS["Attack"]="Ataca a un personaje, pero siempre se debe evitar atacar a personajes inocentes";
-$F_TRANSLATIONS["Follow"]="Sigue a un personaje o a {$GLOBALS["PLAYER_NAME"]}";
+$F_TRANSLATIONS["Follow"]="Hace que {$GLOBALS["HERIKA_NAME"]} siga o escolte o acompañe a un personaje o a {$GLOBALS["PLAYER_NAME"]}";
 $F_TRANSLATIONS["CheckInventory"]="Busca en el inventario de {$GLOBALS["HERIKA_NAME"]}, en su mochila y een sus bolsillos";
 $F_TRANSLATIONS["SheatheWeapon"]="Envaina las armas. Guarda las armas.";
 $F_TRANSLATIONS["Relax"]="Hace que {$GLOBALS["HERIKA_NAME"]} pare de hacer lo ques esta haciendo y se relaje";
@@ -22,25 +22,25 @@ $F_TRANSLATIONS["ReadDiaryPage"]="Lee una pagina especifica del diario de {$GLOB
 $F_TRANSLATIONS["StopWalk"]="Detiene la marcha y detiene todas las acciones de {$GLOBALS["HERIKA_NAME"]} inmediatamente, hacer que se pare.";
 
 
-$F_NAMES["Inspect"]="HerikaInspeccionaA";
-$F_NAMES["LookAt"]="HerikaMiraA";
-$F_NAMES["InspectSurroundings"]="HerikaMiraAlrededor";
-$F_NAMES["MoveTo"]= "CumplirOrdenCaminarA";
+$F_NAMES["Inspect"]="InspeccionarA";
+$F_NAMES["LookAt"]="ObservarA";
+$F_NAMES["InspectSurroundings"]="MirarAlrededor";
+$F_NAMES["MoveTo"]= "CaminarA";
 $F_NAMES["OpenInventory"]="AbrirInventario";
 $F_NAMES["Attack"]="Atacar";
-$F_NAMES["Follow"]="CaminarDetrasDe";
+$F_NAMES["Follow"]="SeguirAPersonaje";
 $F_NAMES["CheckInventory"]="RevisarInventario";
 $F_NAMES["SheatheWeapon"]="EnvainarArma";
 $F_NAMES["Relax"]="Relajarse";
-$F_NAMES["LeadTheWayTo"]="CumplirOrdenLiderarLaMarcha";
+$F_NAMES["LeadTheWayTo"]="LiderarLaMarcha";
 $F_NAMES["TakeASeat"]="TomarAsiento";
 $F_NAMES["ReadQuestJournal"]="LeerDiarioMisiones";
-$F_NAMES["SetSpeed"]="CumplirOrdenCambiarVelocidad";
-$F_NAMES["GetDateTime"]="ObtenerLaFechaYHora";
+$F_NAMES["SetSpeed"]="CambiarVelocidaddeMarcha";
+$F_NAMES["GetDateTime"]="ObtenerFechaYHora";
 $F_NAMES["SearchDiary"]="BuscarEnElDiarioPersonal";
 $F_NAMES["SetCurrentTask"]="EstablecerTareaActual";
 $F_NAMES["WriteIntoDiary"]="EscribirEnDiarioPersonal";
 $F_NAMES["ReadDiaryPage"]="LeerPaginaDiarioPersonal";
-$F_NAMES["StopWalk"]="CumplirOrdenDetenerMarcha";
+$F_NAMES["StopWalk"]="DetenerLaMarcha";
 
 ?>

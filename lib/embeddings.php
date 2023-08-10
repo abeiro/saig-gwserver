@@ -1,5 +1,10 @@
 <?php
 
+$path = dirname((__FILE__)) . DIRECTORY_SEPARATOR;
+require_once($path . "..".DIRECTORY_SEPARATOR."conf.php");
+require_once($path . "$DRIVER.class.php");
+require_once($path . "Misc.php");
+
 
 function getEmbeddingLocal($text) {
 
@@ -51,6 +56,11 @@ function getEmbeddingLocal($text) {
 
 function getEmbeddingRemote($text) {
 
+	global $db;
+	
+	if (!$db) {
+		$db = new sql();
+	}
     //// OPENAI CODE
     $data = [
 		"model"=> "text-embedding-ada-002",
@@ -78,8 +88,24 @@ function getEmbeddingRemote($text) {
 
     $context = stream_context_create($options);
     $response = file_get_contents($url, false, $context);
-	//print_r($response);
 	$responseParsed=json_decode($response,true);
+
+	$costPerThousandInputTokens = 0.0001;
+	$numInputTokens=$responseParsed["usage"]["total_tokens"];
+			
+	$cost = ($numInputTokens * 0.0001 * 0.001);
+	$db->insert_and_calc_totals(
+				'openai_token_count',
+				array(
+					'input_tokens' => $numInputTokens,
+					'output_tokens' => 0,
+					'cost_USD' => $cost,
+					'localts' => time(),
+					'datetime' => date("Y-m-d H:i:s"),
+					'model' => 'text-embedding-ada-002'
+				)
+			);
+	
 	
 	//print_r($responseParsed);
 	$embedData=$responseParsed["data"][0]["embedding"];

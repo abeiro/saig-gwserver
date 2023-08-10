@@ -308,7 +308,7 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 	$url = 'http://172.16.1.111:5001/api/v1/generate/';
 	$context="";
 
-	foreach ($parms as $s_role=>$s_msg) {
+	foreach ($parms as $s_role=>$s_msg) {	// Have to mangle context format
 
 		if (empty(trim($s_msg["content"])))
 			continue;

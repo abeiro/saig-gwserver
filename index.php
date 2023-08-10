@@ -137,7 +137,7 @@ include("tmpl/navbar.php");
     }
 
     if ($_GET["table"] == "eventlog") {
-        $results = $db->fetchAll("select  A.*,ROWID FROM eventlog a order by gamets desc,ts  desc,localts desc");
+        $results = $db->fetchAll("select  A.*,ROWID FROM eventlog a order by gamets desc,ts  desc,localts desc LIMIT 0,100");
         echo "<h3 class='my-2'>Event log</h3>";
         print_array_as_table($results);
         if ($_GET["autorefresh"]) {
@@ -189,7 +189,7 @@ include("tmpl/navbar.php");
 
 
     if ($_GET["table"] == "openai_token_count") {
-        $results = $db->fetchAll("select  A.*,ROWID FROM openai_token_count A order by rowid desc");
+        $results = $db->fetchAll("select  A.*,ROWID FROM openai_token_count A order by rowid desc limit 0,50");
         echo "<h3 class='my-2'>OpenAI token pricing</h3>";
         print_array_as_table($results);
     }

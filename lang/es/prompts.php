@@ -51,11 +51,11 @@ $PROMPTS=array(
     ],
 
     "inputtext"=>[
-        "(Pon el tono de voz entre parentesis,tonos validos:" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . ". Completa el dialogo como $HERIKA_NAME )" // Prompt is implicit
+        "(Especifica una accion para $HERIKA_NAME o completa el dialogo de $HERIKA_NAME usando este formato: '$HERIKA_NAME: (elige tono de voz de esta lista [" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . "]) ...'" // Prompt is implicit
 
     ],
     "inputtext_s"=>[
-        "(Completa el dialogo como $HERIKA_NAME.)", // Prompt is implicit
+        "(Especifica una accion para $HERIKA_NAME o completa el dialogo de $HERIKA_NAME usando este formato: '$HERIKA_NAME: ...'", // Prompt is implicit
         "extra"=>["mood"=>"whispering"]
     ],
     "afterfunc"=>[

@@ -475,7 +475,7 @@ function tokenizePrompt($jsonEncodedData)
         $port = $_SERVER['SERVER_PORT'] ? ':'.$_SERVER['SERVER_PORT'] : '';
 
         // Send the request and forget about
-        $response = file_get_contents("{$protocol}{$server}{$port}/saig-gwserver/background.php?action=tokenizePrompt", false, $context, 0, 1);
+        $response = file_get_contents("{$protocol}{$server}{$port}/saig-gwserver/background.php?action=tokenizePrompt", false, $context, 0, 0);
     }
 
 }

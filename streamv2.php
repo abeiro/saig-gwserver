@@ -78,6 +78,7 @@ function returnLines($lines)
 		if ($FORCED_STOP)
 			return;
 		// Remove actions
+		$elapsedTimeAI=time() - $startTime;
 		
 		$pattern = '/<[^>]+>/';
 		$output = str_replace("#CHAT#","",preg_replace($pattern, '', $sentence));
@@ -178,6 +179,8 @@ function returnLines($lines)
 				$talkedSoFar[] = $responseText;
 		}
 
+		$elapsedTimeTTS=time() - $startTime;
+		
 		$outBuffer = array(
 			'localts' => time(),
 			'sent' => 1,
@@ -197,7 +200,7 @@ function returnLines($lines)
 				'localts' => time(),
 				'prompt' => nl2br(SQLite3::escapeString(json_encode($GLOBALS["DEBUG_DATA"], JSON_PRETTY_PRINT))),
 				'response' => (SQLite3::escapeString($responseTextUnmooded)),
-				'url' => nl2br(SQLite3::escapeString(print_r(base64_decode(stripslashes($_GET["DATA"])), true) . " in " . (time() - $startTime) . " secs "))
+				'url' => nl2br(SQLite3::escapeString(print_r(base64_decode(stripslashes($_GET["DATA"])), true) . "[AI secs] $elapsedTimeAI  [TTS secs] $elapsedTimeTTS"))
 
 
 			)
@@ -454,6 +457,9 @@ $lastNDataForContext = (isset($GLOBALS["CONTEXT_HISTORY"])) ? ($GLOBALS["CONTEXT
 $contextData = $db->lastDataNewFor("", $lastNDataForContext * -1); // Context (last dialogues, events,...)
 $contextData2 = $db->lastInfoFor("", -2); // Infot about location and npcs in first position
 
+//$contextData[sizeof($contextData)-1]['content'].="(**Usa funciones sólo si la ultima frase de {$GLOBALS["PLAYER_NAME"]} es imperativa **)";
+
+
 //$contextCurrentPlan[]=  array('role' => 'user', 'content' => 'The Narrator: ('.$db->get_current_task().')');
 $COMMAND_PROMPT.=$db->get_current_task();
 
@@ -471,7 +477,7 @@ if (isset($GLOBALS["MEMORY_EMBEDDING"]) && $GLOBALS["MEMORY_EMBEDDING"]) {
 
 		$embeddings=getEmbeddingRemote($textToEmbedFinal);
 		$memories=queryMemory($embeddings);
-		if ($memories["content"][0]) {
+		if ($memories["content"]) {
 			//$memories["content"][0]["search_term"]=$textToEmbedFinal;
 			//$contextData[]=['role' => 'user', 'content' =>$GLOBALS["MEMORY_OFFERING"].json_encode($memories["content"])."" ];
 			$COMMAND_PROMPT.=$GLOBALS["MEMORY_OFFERING"].json_encode($memories["content"]);
@@ -488,7 +494,7 @@ if (isset($GLOBALS["MEMORY_EMBEDDING"]) && $GLOBALS["MEMORY_EMBEDDING"]) {
 
 		$embeddings=getEmbeddingRemote($textToEmbedFinal);
 		$memories=queryMemory($embeddings);
-		if ($memories["content"][0]) {
+		if ($memories["content"]) {
 			//$memories["content"][0]["search_term"]=$textToEmbedFinal;
 			//$contextData[]=['role' => 'user', 'content' => $GLOBALS["MEMORY_OFFERING"].json_encode($memories["content"])."" ];
 			$COMMAND_PROMPT.=$GLOBALS["MEMORY_OFFERING"].json_encode($memories["content"]);
@@ -508,6 +514,9 @@ $foot = array();
 
 // SHould we use system prompt, or not?
 $head[] = array('role' => 'system', 'content' => '(' . $PROMPT_HEAD . $GLOBALS["HERIKA_PERS"] . $COMMAND_PROMPT);
+
+//$head[] = array('role' => 'system', 'content' => $PROMPT_HEAD.$COMMAND_PROMPT);
+//$head[] = array('role' => 'user', 'content' => $GLOBALS["HERIKA_PERS"]);
 
 
 //$foot[] = array('role' => 'user', 'content' => $GLOBALS["PLAYER_NAME"].':' . $preprompt);
@@ -554,7 +563,7 @@ if ($finalParsedData[0] == "funcret") {
 		} else if ($functionCodeName== "MoveTo") {
 			if (strpos($finalParsedData[3], "LeadTheWayTo") !== false) {// PatchHack. If Moving returning Shoud use TravelTo, enable functions again
 				$useFunctionsAgain = true;
-				$request="(use function ".getFunctionTrlName("LeadTheWayTo")." to travel) $request";
+				$request="(use function call '".getFunctionTrlName("LeadTheWayTo")."' to travel) $request";
 			}
 			$argName = "target";
 
@@ -566,7 +575,7 @@ if ($finalParsedData[0] == "funcret") {
 
 		} else if ($functionCodeName == "ReadQuestJournal") {
 			//$useFunctionsAgain=true;
-			$request="(use function ".getFunctionTrlName("SetCurrentTask")." to update current quest if needed) $request";
+			$request="(use function call '".getFunctionTrlName("SetCurrentTask")."' to update current quest if needed) $request";
 			$argName = "id_quest";
 			$useFunctionsAgain=true;
 
@@ -682,6 +691,7 @@ if ($finalParsedData[0] == "funcret") {
 } else {
 
 	$prompt[] = array('role' => $LAST_ROLE, 'content' => $request);
+	
 	$parms = array_merge($head, ($contextDataFull), $prompt);
 	$data = array(
 		'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',

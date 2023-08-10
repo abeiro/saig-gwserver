@@ -46,6 +46,9 @@ $F_TRANSLATIONS["WriteIntoDiary"]="Summarize briefly the recent events and dialo
 $F_TRANSLATIONS["ReadDiaryPage"]="Read {$GLOBALS["HERIKA_NAME"]}'s diary to access a specific topic";
 $F_TRANSLATIONS["StopWalk"]="Stop all {$GLOBALS["HERIKA_NAME"]}'s actions inmediately";
 
+// What is this?. We can translate functions or give them a custom name. 
+// This array will handle translations. Plugin must receive the codename always.
+
 $F_NAMES["Inspect"]="Inspect";
 $F_NAMES["LookAt"]="LookAt";
 $F_NAMES["InspectSurroundings"]="InspectSurroundings";
@@ -374,7 +377,7 @@ $FUNCTIONS_SPECIAL_CONTEXT = [
     ]
 ];
 
-
+// This function only is offered when SearchDiary
 $FUNCTIONS_GHOSTED =  [
         "name" => $F_NAMES["ReadDiaryPage"],
         "description" => $F_TRANSLATIONS["ReadDiaryPage"],
@@ -402,6 +405,28 @@ function getFunctionTrlName($key) {
     return $GLOBALS["F_NAMES"][$key];
     
 }
+
+function requireFunctionFilesRecursively($dir) {
+    $files = scandir($dir);
+
+    foreach ($files as $file) {
+        if ($file === '.' || $file === '..') {
+            continue;
+        }
+
+        $path = $dir . '/' . $file;
+
+        if (is_dir($path)) {
+            requireFunctionFilesRecursively($path);
+        } elseif (is_file($path) && $file === 'functions.php') {
+            require_once $path;
+        }
+    }
+}
+
+$folderPath = __DIR__.DIRECTORY_SEPARATOR."../ext/";
+requireFunctionFilesRecursively($folderPath);
+
 
 // Delete non wanted functions    
 foreach ($FUNCTIONS as $n=>$v)

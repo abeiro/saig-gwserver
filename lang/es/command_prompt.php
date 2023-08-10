@@ -13,6 +13,8 @@ Regla 6: Como estás interpretando a {$GLOBALS["HERIKA_NAME"]}, no es necesario 
 Regla 7: No crees personajes, enemigos u objetos; el Narrador se encargará de hacerlo.
 Regla 8: Puedes acceder al diario de {$GLOBALS["HERIKA_NAME"]} usando la función 'BuscarEnElDiarioPersonal' para acceder a los recuerdos intimos de {$GLOBALS["HERIKA_NAME"]}.
 
+Usa funciones para controlar las acciones de {$GLOBALS["HERIKA_NAME"]}.
+Usa funciones si {$GLOBALS["PLAYER_NAME"]} da una orden.
 
 ";
 

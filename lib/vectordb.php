@@ -233,6 +233,7 @@ function queryMemory($embeddings) {
 	//var_dump($responseData);
 	$link = new SQLite3(__DIR__."/../mysqlitedb.db");
 	
+	$dbResults=[];
 	
 	foreach ($responseData["ids"][0] as $n=>$id) {
 		$results = $link->query("select message as content,uid,localts,momentum from memory where uid=$id order by uid asc");	
