@@ -273,7 +273,7 @@ else
 //// DIRECT OPENAI REST API
 
 if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
-	$url = 'https://api.openai.com/v1/chat/completions';
+	$url = $GLOBALS["OPENAI_URL"];
 	$data = array(
 		'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',
 		'messages' => 

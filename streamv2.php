@@ -521,7 +521,7 @@ $head[] = array('role' => 'system', 'content' => '(' . $PROMPT_HEAD . $GLOBALS["
 
 //$foot[] = array('role' => 'user', 'content' => $GLOBALS["PLAYER_NAME"].':' . $preprompt);
 
-$url = 'https://api.openai.com/v1/chat/completions';
+$url = $GLOBALS["OPENAI_URL"];
 
 $forceAttackingText = false;
 

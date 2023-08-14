@@ -40,6 +40,10 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
         $parms = array_merge($head, $contextCurrentPlan, ($historic), $foot, $prompt);
     }
     //// OPENAI CODE
+  
+  
+  
+  
     $data = [
         'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',
         'messages' => $parms,
@@ -67,7 +71,7 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
     // call into tokenizer and tokenize request as part of OpenAI cost monitoring - save result in DB
     tokenizePrompt($jsonEncodedData);
 
-    $url = 'https://api.openai.com/v1/chat/completions';
+    $url = $GLOBALS["OPENAI_URL"];
 
     $context = stream_context_create($options);
     error_reporting(E_ALL);

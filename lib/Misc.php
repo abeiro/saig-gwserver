@@ -565,3 +565,10 @@ function checkOAIComplains($responseTextUnmooded)
 
     return $scoring;
 }
+
+function consoleLog($msg) {
+    
+ if (php_sapi_name()=="cli")
+     echo "$msg".PHP_EOL;
+    
+}
