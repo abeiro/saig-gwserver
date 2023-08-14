@@ -35,15 +35,17 @@ function cleanReponse($rawResponse)
     $replacement = '';
     $rawResponse = preg_replace($pattern, $replacement, $rawResponse);
 
+    // Remove {*}
     $pattern = '/\{.*?\}/';
     $replacement = '';
     $rawResponse = preg_replace($pattern, $replacement, $rawResponse);
 
+    // Remove [*]]
     $pattern = '/\[.*?\]/';
     $replacement = '';
     $rawResponse = preg_replace($pattern, $replacement, $rawResponse);
 
-
+    // Any bracket { or }]
     $rawResponse = strtr($rawResponse, array("{" => "", "}" => ""));
 
     if (strpos($rawResponse, "(Context location") !== false) {
@@ -58,11 +60,11 @@ function cleanReponse($rawResponse)
 
     if (strpos($toSplit, "{$GLOBALS["HERIKA_NAME"]}:") !== false) {
         $rawResponseSplited = explode(":", $toSplit);
-        $toSplit = $rawResponseSplited[1];
+        array_shift($rawResponseSplited);
+        $toSplit = implode(":",$rawResponseSplited);
     }
 
-    $toSplit = preg_replace("/{$GLOBALS["HERIKA_NAME"]}\s*:\s*/", '', $toSplit);
-
+    //$toSplit = preg_replace("/{$GLOBALS["HERIKA_NAME"]}\s*:\s*/", '', $toSplit);
 
     $sentences = split_sentences($toSplit);
 

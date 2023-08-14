@@ -1,5 +1,12 @@
 <?php
+$path = dirname((__FILE__)) . DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR;
+require_once($path . "conf.php");
+require_once($path . "dynmodel.php");
+require_once($path . "lib/$DRIVER.class.php");
+require_once($path . "lib/Misc.php");
 
+require_once($path . "lib/vectordb.php");
+require_once($path . "lib/embeddings.php");
 
 $db = new SQLite3('mysqlitedb.db');
 
@@ -149,6 +156,25 @@ $db->exec("CREATE TABLE IF NOT EXISTS `memory` (
 	PRIMARY KEY(`uid` AUTOINCREMENT)
 );");
 
-@mkdir(__DIR__ .DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR."soundcache");
+$db->exec("DROP TABLE `memory`;");
+
+$db->exec("CREATE TABLE IF NOT EXISTS `memory` (
+	`speaker`	TEXT,
+	`message`	TEXT,
+	`session`	TEXT,
+	`uid`	INTEGER,
+	`listener`	TEXT,
+	`localts`	INTEGER,
+    `gamets` bigint NOT NULL,
+	`momentum`	TEXT,
+	PRIMARY KEY(`uid` AUTOINCREMENT)
+);");
+
+if (isset($GLOBALS["MEMORY_EMBEDDING"]) && $GLOBALS["MEMORY_EMBEDDING"]) {
+  deleteCollection();
+  getCollectionUID();
+}
+
+@mkdir(__DIR__ . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "soundcache");
 
 ?>
