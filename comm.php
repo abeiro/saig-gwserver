@@ -354,7 +354,11 @@ try {
 		);
 		
 		
-	}   else { // It's an event. Store it
+	} else if ($finalParsedData[0] == "togglemodel") {
+		
+		
+		
+	}  else { // It's an event. Store it
 		$db->insert(
 			'eventlog',
 			array(
@@ -500,6 +504,21 @@ if ($finalParsedData[0] == "combatend") {
 				'sess' => 'pending',
 				'localts' => time()
 			)
+	);
+} else if ($finalParsedData[0] == "togglemodel") {
+	require_once(__DIR__.DIRECTORY_SEPARATOR."dynmodel.php");
+	$newModel=DMtoggleModel();
+	echo "Herika|command|ToggleModel@$newModel\r\n";
+	$db->insert(
+		'eventlog',
+		array(
+			'ts' => $finalParsedData[1],
+			'gamets' => $finalParsedData[2],
+			'type' => "togglemodel",
+			'data' => $newModel,
+			'sess' => 'pending',
+			'localts' => time()
+		)
 	);
 } 
 

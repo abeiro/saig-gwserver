@@ -1,12 +1,13 @@
 <?php
 error_reporting(E_ERROR);
 
-define("MAXIMUM_SENTENCE_SIZE", 25);
+define("MAXIMUM_SENTENCE_SIZE", 125);
 
 $MINIMUM_SENTENCE_SIZE=15;
 
 $path = dirname((__FILE__)) . DIRECTORY_SEPARATOR;
 require_once($path . "conf.php");
+require_once($path . "dynmodel.php");
 require_once($path . "lib/$DRIVER.class.php");
 require_once($path . "lib/Misc.php");
 require_once($path . "lib/vectordb.php");
@@ -385,6 +386,8 @@ if ($handle === false) {
 	$breakFlag=false;
 	$lineCounter=0;
 	$fullContent="";
+	$totalProcessedData="";
+
     while (true) {
 		
 		if ($breakFlag)
@@ -405,32 +408,50 @@ if ($handle === false) {
 
 		} else if ( (isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="koboldcpp")))  {
 			
-			if (empty($fullContent))
-				$fullContent=fread($handle,2048);
+			$headers = array(
+				'Content-Type: application/json',
+				'Content-Length: 0',
+			);
+
+			$options = array(
+				'http' => array(
+					'method' => 'POST',
+					'header' => implode("\r\n", $headers),
+				)
+			);
+			
+			error_reporting(E_ERROR);
+			$context = stream_context_create($options);	
+			$fullContent = file_get_contents("{$GLOBALS["KOBOLDCPP_URL"]}/api/extra/generate/check",false,$context);
+
+			if (feof($handle)) {
+				$breakFlag=true;
+				continue;
+			} else
+				fread($handle, 1024);	// Flush input buffer at primary call.
+			
+			
+			
 			$data=json_decode($fullContent,true);
 		
-			$dataArray = preg_split('/\R/', $data["results"][0]["text"]);
+			$buffer=$data["results"][0]["text"];
 
-			$buffer=$dataArray[$lineCounter];
-			foreach ($postData["stop_sequence"] as $keyword) {
-				if (stripos($buffer, $keyword) !== false) {
-					$lineCounter++;
-					$buffer="";
-					continue;
-				}
+			//consoleLog("$buffer vs $oldBuffer");
+
+
+			if (!empty($totalProcessedData)) {
+					$buffer=str_replace($totalProcessedData,"",$buffer);
+				
+			}
+			if (strrpos($buffer,".")<$MINIMUM_SENTENCE_SIZE) {
+				continue;
 			}
 
-			if (substr($buffer, -1) !== '.');
-				$buffer=$buffer."."; // Force final point
-
-			
+			//$oldBuffer.=$buffer;
 			$totalBuffer.=$buffer;
-			file_put_contents("debugStream.log",print_r($dataArray,true),FILE_APPEND);
-			$GLOBALS["DEBUG_DATA"]["response"][]=$dataArray[$lineCounter];	
 
-			$lineCounter++;
-			if ($lineCounter>=sizeof($dataArray))
-				$breakFlag=true;
+
+			//$GLOBALS["DEBUG_DATA"]["response"][]=$data;	
 
 		}
 

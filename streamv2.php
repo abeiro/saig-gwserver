@@ -8,6 +8,7 @@ date_default_timezone_set('Europe/Madrid');
 
 $path = dirname((__FILE__)) . DIRECTORY_SEPARATOR;
 require_once($path . "conf.php");
+require_once($path . "dynmodel.php");
 require_once($path . "lib/$DRIVER.class.php");
 require_once($path . "lib/Misc.php");
 require_once($path . "lib/vectordb.php");

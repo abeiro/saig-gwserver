@@ -87,7 +87,7 @@ if (!$db) {
 }
 
 
-echo "Trying to make a request...<pre>";
+echo "Trying to make a request...using {$GLOBALS["MODEL"]}<pre>";
 
 $GLOBALS["DEBUG_MODE"] = true;
 $response = requestGeneric("(Chat as $HERIKA_NAME)", "Are you there?", 'AASPGQuestDialogue2Topic1B1Topic', 1);

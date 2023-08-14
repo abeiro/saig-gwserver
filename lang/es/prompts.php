@@ -75,7 +75,7 @@ $PROMPTS=array(
         
     ],
     "diary"=>[ 
-        "(Usa la function WriteIntoDiary para escribir en el diario)" ,
+        "(Usa la function para escribir en el diario)" ,
         "Por favor, escribe en tu diario un resumen de los ultimos dialogos y eventos de {$GLOBALS["PLAYER_NAME"]} y $HERIKA_NAME en tercera persona, se creativa y ponle un titulo adecuado"      
     ],
 
