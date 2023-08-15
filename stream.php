@@ -233,6 +233,8 @@ if ($finalParsedData[0]=="inputtext_s") {
 
 }
 
+$request = str_replace("specify action for $HERIKA_NAME or","",$request);	// Make better
+
 $preprompt=preg_replace("/^[^:]*:/", "", $finalParsedData[3]);
 $lastNDataForContext=(isset($GLOBALS["CONTEXT_HISTORY"])) ? ($GLOBALS["CONTEXT_HISTORY"]) : "25";
 $contextData = $db->lastDataFor("",$lastNDataForContext*-1);
