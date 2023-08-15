@@ -351,6 +351,20 @@ function parseResponseV2($responseText, $forceMood = "", $topicQueue = "")
     }
 }
 
+function getCurrentURL()
+{
+    $currentURL = (@$_SERVER["HTTPS"] == "on") ? "https://" : "http://";
+    $currentURL .= $_SERVER["SERVER_NAME"];
+ 
+    if($_SERVER["SERVER_PORT"] != "80" && $_SERVER["SERVER_PORT"] != "443")
+    {
+        $currentURL .= ":".$_SERVER["SERVER_PORT"];
+    } 
+ 
+       
+    return $currentURL;
+}
+
 function getCostPerThousandInputTokens()
 {
     $costPerThousandTokens = 0;
@@ -472,12 +486,9 @@ function tokenizePrompt($jsonEncodedData)
 
         $context = stream_context_create($options);
 
-        $protocol = (!empty($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) == 'on' || $_SERVER['HTTPS'] == '1')) ? 'https://' : 'http://';
-        $server = $_SERVER['SERVER_NAME'];
-        $port = $_SERVER['SERVER_PORT'] ? ':'.$_SERVER['SERVER_PORT'] : '';
-
+        $url=getCurrentURL();
         // Send the request and forget about
-        $response = file_get_contents("{$protocol}{$server}{$port}/saig-gwserver/background.php?action=tokenizePrompt", false, $context, 0, 0);
+        $response = file_get_contents("{$url}/saig-gwserver/background.php?action=tokenizePrompt", false, $context, 0, 0);
     }
 
 }
