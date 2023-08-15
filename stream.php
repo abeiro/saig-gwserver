@@ -227,10 +227,7 @@ if ($finalParsedData[0]=="inputtext_s") {
 	$finalParsedData[3]=$PROMPTS["book"][1]." ".$books[0]["title"];
 
 }  else if ( (strpos($finalParsedData[0],"chatnf")!==false)) {
-
 	$request = $PROMPTS[$finalParsedData[0]][0];
-
-
 }
 
 $request = str_replace("specify action for $HERIKA_NAME or","",$request);	// Make better
