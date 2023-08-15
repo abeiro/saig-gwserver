@@ -89,7 +89,7 @@ $OPENAI_MAX_TOKENS_MEMORY="1024";       // required to create memories.
 
 // NEW CONF VARS
 
-$CORE_LANG="es";                            // Control global lang
+//$CORE_LANG="es";                            // Control global lang. Leave commented for default language
 
 $MEMORY_EMBEDDING=true;                     // Memory feature (needs OpenAI atm)
 $CHROMADB_URL='http://172.16.1.128:8000';   // CHROMADB REST API URL
