@@ -306,7 +306,8 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 
 } else if ( (isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="koboldcpp")))  {
 	$GLOBALS["DEBUG_DATA"]=[];//reset
-	$url = 'http://172.16.1.111:5001/api/v1/generate/';
+
+	$url=$GLOBALS["KOBOLDCPP_URL"].'/api/v1/generate/';
 	$context="";
 
 	foreach ($parms as $s_role=>$s_msg) {	// Have to mangle context format
