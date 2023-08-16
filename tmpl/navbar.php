@@ -54,6 +54,11 @@
                             Export Log
                         </a>
                     </li>
+                    <li>
+                        <a class="dropdown-item" href="index.php?export=diary" title="Diary Log" target="_blank">
+                            Export Diary
+                        </a>
+                    </li>
                 </ul>
             </li>
 

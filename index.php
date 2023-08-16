@@ -57,6 +57,31 @@ if ($_GET["export"] && $_GET["export"] == "log") {
     die();
 }
 
+if ($_GET["export"] && $_GET["export"] == "diary") {
+    while (@ob_end_clean());
+
+    header("Content-Type: text/csv");
+    header("Content-Disposition: attachment; filename=diarylog.txt");
+
+    $data = $db->fetchAll("select topic,content from diarylogv2 order by rowid desc");
+    $n = 1;
+    foreach ($data as $row) {
+        if ($n == 0) {
+            echo "'" . implode("'\t'", array_keys($row)) . "'\n";
+            $n++;
+        }
+        $rowCleaned = [];
+        foreach ($row as $cellname => $cell) {
+            if ($cellname == "prompt")
+                $cell = base64_encode(br2nl($cell));
+            $rowCleaned[] = strtr($cell, array("\n" => " ", "\r" => " ", "'" => "\""));
+        }
+
+        echo "'" . implode("'\t'", ($rowCleaned)) . "'\n";
+    }
+    die();
+}
+
 if ($_GET["reinstall"]) {
     require_once("cmd/install-db.php");
     header("Location: index.php?table=response");
