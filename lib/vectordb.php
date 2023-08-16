@@ -6,6 +6,8 @@
 $VECTORDB_URL = $GLOBALS["CHROMADB_URL"];
 $VECTORDB_URL_COLLECTION_NAME = "herika_memories";
 $VECTORDB_URL_COLLECTION = "";
+$VECTORDB_TIME_DELAY = $GLOBALS["MEMORY_TIME_DELAY"];
+$VECTORDB_QUERY_SIZE = $GLOBALS["MEMORY_CONTEXT_SIZE"];
 
 function getCollectionUID()
 {
@@ -230,7 +232,7 @@ function storeMemory($embeddings, $text, $id)
 
 function queryMemory($embeddings)
 {
-	global $VECTORDB_URL, $VECTORDB_URL_COLLECTION;
+	global $VECTORDB_URL, $VECTORDB_URL_COLLECTION, $VECTORDB_TIME_DELAY;
 
 	if ($GLOBALS["MODEL"] != "openai")
 		return null;
@@ -279,12 +281,12 @@ function queryMemory($embeddings)
 	$link = new SQLite3(__DIR__ . "/../mysqlitedb.db");
 
 	$dbResults = [];
-
+	
 	foreach ($responseData["ids"][0] as $n => $id) {
 		$results = $link->query("select message as content,uid,localts,momentum from memory where uid=$id order by uid asc");
 		while ($row = $results->fetchArray(SQLITE3_ASSOC)) {
 
-			if ($row["localts"] > (time() - 60 * 10)) // Ten minutes to get things as memories
+			if ($row["localts"] > (time() - 60 * $VECTORDB_TIME_DELAY)) // Ten minutes to get things as memories
 				continue;
 			$dbResults[] = [
 				"memory_id" => $row["uid"],
