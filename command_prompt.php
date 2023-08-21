@@ -33,7 +33,7 @@ Use functions if {$GLOBALS["PLAYER_NAME"]} commands an order.
 $DIALOGUE_TARGET="(Talking to {$GLOBALS["HERIKA_NAME"]})";
 $MEMORY_OFFERING="{$GLOBALS["HERIKA_NAME"]} has some potentially related memories:";
 
-$RESPONSE_OK_NOTED="Okey, noted.";
+$RESPONSE_OK_NOTED="Okay, noted.";
 
 $ERROR_OPENAI="Didn't hear you, can you repeat?";								// Say something logical, as this response will be pushed in next call.
 $ERROR_OPENAI_REQLIMIT="Be quiet, I'm having a flashback, give me a minute";	// Say something logical, as this response will be pushed in next call.

@@ -33,6 +33,18 @@
 
                 <li class="list-group-item d-flex justify-content-between align-items-start">
                     <div class="ms-2 me-auto">
+                        <div class="fw-bold">Error Phrases</div>
+                        Herika has certain phrases that are for when there is an error with the AI generation. It is a good idea to check the Log page for more information.
+                        <ul>
+                            <li>"Didn't hear you, can you repeat?" = There is an error connecting to OpenAI/Local LLM</li>
+                            <li>"Be quiet, I'm having a flashback, give me a minute" = To many request being sent to OpenAI/Local LLM</li>
+                            <li>"I can't think clearly now..." = You broke OpenAI's useage policy</li>
+                          </ul>
+                    </div>
+                </li>
+
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
                         <div class="fw-bold">Adjust the prompts</div>
                         Create the files prompts_custom.php and command_prompt_custom.php. Look at the variables defined in the original
                         prompts.php and command_prompt.php, and redefine them in their respective custom files. Example:
