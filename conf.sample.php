@@ -19,7 +19,7 @@ $DEBUG_MODE=false;
 $PLAYER_NAME="Prisoner";
 $HERIKA_NAME="Herika";  //Work in progress configuration for changing Herika's character. Just ignore this and leave as is.
 $HERIKA_PERS="You are Herika, a Breton female who likes jokes and sarcastic comments.";
-$PROMPT_HEAD="Let\'s roleplay in the Universe of Skyrim. I\'m {$GLOBALS["PLAYER_NAME"]}. You don't describe things or actions, just chat as your character";
+$PROMPT_HEAD="Let\'s roleplay in the Universe of Skyrim. I\'m {$GLOBALS["PLAYER_NAME"]}. You don't describe things or actions, just chat as your character. Only perform actions and functions if your character would find it necessary or must have to, even if it contradicts {$GLOBALS["PLAYER_NAME"]}'s requests.";
 
 // Short term memory size. How many of the most recent events which will be sent in each prompt.
 $CONTEXT_HISTORY="25";
