@@ -7,3 +7,7 @@ tts/gcp_key.json
 vendor
 mysqlitedb.db
 tmp
+log.txt
+logSent.txt
+lib/.cache.txt
+CurrentModel.json
