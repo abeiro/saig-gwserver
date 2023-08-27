@@ -1,7 +1,8 @@
+
 <nav class="navbar navbar-expand-lg bg-primary-subtle">
     <div class="container-fluid mx-1">
         <a class="navbar-brand mr-2" href="./index.php">
-            Gateway Server CP
+        Herika Server | Active AI Model: <?php echo trim(file_get_contents('CurrentModel.json'), '"'); ?>
         </a>
 
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">

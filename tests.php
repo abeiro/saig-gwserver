@@ -3,8 +3,8 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-$fileContents = file_get_contents("CurrentModel.json");
-echo "Current AI Model is set to $fileContents.<br/>";
+$modelContents = file_get_contents("CurrentModel.json");
+echo "Current AI Model is set to $modelContents.<br/>";
 echo "Edit CurrentModel.json to either \"koboldcpp\" or \"openai\" to test those connections. <br/>";
 
 echo "Checking conf.php...";
