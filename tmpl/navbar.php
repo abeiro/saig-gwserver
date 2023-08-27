@@ -67,7 +67,7 @@
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="soundcache/" target="_blank">TTS cache</a></li>
                     <li><a class="dropdown-item" href="updater.php">Updater</a></li>
-                    <li><a class="dropdown-item" href="tests.php" target="_blank">Test ChatGPT connection</a></li>
+                    <li><a class="dropdown-item" href="tests.php" target="_blank">Test ChatGPT/KoboldCPP connection</a></li>
                     <li><a class="dropdown-item" href="tests/tts-test-azure.php" target="_blank">Test Azure TTS connection</a></li>
                     <li><a class="dropdown-item" href="tests/tts-test-mimic3.php" target="_blank">Test MIMIC3 TTS connection</a></li>
                     <li><a class="dropdown-item" href="tests/tts-test-11labs.php" target="_blank">Test ElevenLabs TTS connection</a></li>

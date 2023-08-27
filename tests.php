@@ -3,13 +3,16 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+$fileContents = file_get_contents("CurrentModel.json");
+echo "Current AI Model is set to $fileContents.<br/>";
+echo "Edit CurrentModel.json to either \"koboldcpp\" or \"openai\" to test those connections. <br/>";
+
 echo "Checking conf.php...";
 if (!file_exists("conf.php")) {
     echo "not found<br>";
 } else {
     echo "ok<br/>";
 }
-
 
 echo "Checking for database...";
 if (!file_exists("mysqlitedb.db")) {
