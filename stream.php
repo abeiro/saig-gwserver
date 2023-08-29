@@ -267,7 +267,10 @@ $request = str_replace("specify action for $HERIKA_NAME or","",$request);	// Mak
 
 $preprompt=preg_replace("/^[^:]*:/", "", $finalParsedData[3]);
 $lastNDataForContext=(isset($GLOBALS["CONTEXT_HISTORY"])) ? ($GLOBALS["CONTEXT_HISTORY"]) : "25";
-$contextData = $db->lastDataNewFor("",$lastNDataForContext*-1);
+$contextDataDialog = $db->lastDataNewFor("",$lastNDataForContext*-1);
+$contextDataWorld = $db->lastInfoFor("", -2); // Infot about location and npcs in first position
+$contextData=array_merge($contextDataWorld,$contextDataDialog);
+
 $head = array();
 $foot = array();
 
