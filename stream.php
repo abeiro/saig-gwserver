@@ -267,7 +267,7 @@ $request = str_replace("specify action for $HERIKA_NAME or","",$request);	// Mak
 
 $preprompt=preg_replace("/^[^:]*:/", "", $finalParsedData[3]);
 $lastNDataForContext=(isset($GLOBALS["CONTEXT_HISTORY"])) ? ($GLOBALS["CONTEXT_HISTORY"]) : "25";
-$contextData = $db->lastDataFor("",$lastNDataForContext*-1);
+$contextData = $db->lastDataNewFor("",$lastNDataForContext*-1);
 $head = array();
 $foot = array();
 
