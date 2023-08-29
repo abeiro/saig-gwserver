@@ -273,7 +273,7 @@ $contextData=array_merge($contextDataWorld,$contextDataDialog);
 
 $head = array();
 $foot = array();
-
+$MEMORIES="";
 
 /* Memory offering */
 if (isset($GLOBALS["MEMORY_EMBEDDING"]) && $GLOBALS["MEMORY_EMBEDDING"]) {
@@ -292,13 +292,13 @@ if (isset($GLOBALS["MEMORY_EMBEDDING"]) && $GLOBALS["MEMORY_EMBEDDING"]) {
 			consoleLog("Related memory injected");
 			
 			//$memories["content"][0]["search_term"]=$textToEmbedFinal;
-			$contextData[]=['role' => 'user', 'content' => "The Narrator: Past related memories of {$GLOBALS["HERIKA_NAME"]}'s :".json_encode($memories["content"]) ];
+			$MEMORIES="\nThe Narrator: Past related memories of {$GLOBALS["HERIKA_NAME"]}'s :".json_encode($memories["content"]) ;
 		}
 	}
 }
 /**/
 
-$head[] = array('role' => 'system', 'content' => '('.$PROMPT_HEAD.$GLOBALS["HERIKA_PERS"]);
+$head[] = array('role' => 'system', 'content' => '('.$PROMPT_HEAD.$GLOBALS["HERIKA_PERS"].$MEMORIES);
 $prompt[] = array('role' => $LAST_ROLE, 'content' => $request);
 $foot[] = array('role' => 'user', 'content' => $GLOBALS["PLAYER_NAME"].':' . $preprompt);
 
