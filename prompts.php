@@ -50,11 +50,11 @@ $PROMPTS=array(
     ],
 
     "inputtext"=>[
-        "(specify action for $HERIKA_NAME or complete $HERIKA_NAME's dialogue using this format '$HERIKA_NAME: (optional mood from this list [" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . "]) ...'" // Prompt is implicit
+        "specify action for $HERIKA_NAME or complete $HERIKA_NAME's dialogue using this format '$HERIKA_NAME: (voice tone:[" . implode(",", (@is_array($GLOBALS["AZURETTS_CONF"]["validMoods"])?$GLOBALS["AZURETTS_CONF"]["validMoods"]:array())) . "]) ...'" // Prompt is implicit
 
     ],
     "inputtext_s"=>[
-        "(specify action for $HERIKA_NAME or complete $HERIKA_NAME's dialogue using this format: '$HERIKA_NAME: ...'", // Prompt is implicit
+        "specify action for $HERIKA_NAME or complete $HERIKA_NAME's dialogue using this format: '$HERIKA_NAME: ...'", // Prompt is implicit
         "extra"=>["mood"=>"whispering"]
     ],
     "afterfunc"=>[

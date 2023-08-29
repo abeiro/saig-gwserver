@@ -6,8 +6,8 @@
 $VECTORDB_URL = $GLOBALS["CHROMADB_URL"];
 $VECTORDB_URL_COLLECTION_NAME = "herika_memories";
 $VECTORDB_URL_COLLECTION = "";
-$VECTORDB_TIME_DELAY = $GLOBALS["MEMORY_TIME_DELAY"];
-$VECTORDB_QUERY_SIZE = $GLOBALS["MEMORY_CONTEXT_SIZE"];
+$VECTORDB_TIME_DELAY = ($GLOBALS["MEMORY_TIME_DELAY"])?:10;
+$VECTORDB_QUERY_SIZE = $GLOBALS["MEMORY_CONTEXT_SIZE"]?:1;
 
 function getCollectionUID()
 {
@@ -270,7 +270,7 @@ function queryMemory($embeddings)
 	// Check if the response is successful
 	if ($response === false) {
 		// Handle error
-		die("Error: Unable to fetch response.");
+		die("Error: Unable to fetch response.".__LINE__);
 	}
 
 	// Decode the JSON response
@@ -308,7 +308,7 @@ function queryMemory($embeddings)
 			return ($a["distance"] < $b["distance"]) ? -1 : 1;
 		}
 		uasort($dbResults, 'cmp');
-
+		// Use $VECTORDB_QUERY_SIZE here
 		return ["item" => "{$GLOBALS["HERIKA_NAME"]}'s memories", "content" => $dbResults[0]];
 
 	} else {

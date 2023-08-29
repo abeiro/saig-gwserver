@@ -13,6 +13,12 @@ require_once($path . "lib/$DRIVER.class.php");
 require_once($path . "lib/Misc.php");
 require_once($path . "lib/vectordb.php");
 require_once($path . "lib/embeddings.php");
+
+if (DMgetCurrentModel()!="openai") {
+		require($path . "stream.php");
+		die();
+}
+
 $db = new sql();
 
 while (@ob_end_clean())	;

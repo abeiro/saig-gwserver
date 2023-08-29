@@ -115,7 +115,7 @@ class sql
     FROM  eventlog a WHERE data like '%$actor%' 
     and type<>'combatend'  
     and type<>'bored' and type<>'init' and type<>'lockpicked' and type<>'infonpc' and type<>'infoloc' and type<>'info' and type<>'funcret'  and type<>'quest'
-    and type<>'funccall'  order by gamets desc,ts desc LIMIT 0,50");
+    and type<>'funccall'  and type<>'togglemodel' order by gamets desc,ts desc,localts desc LIMIT 0,50");
         $lastData = "";
 
 
@@ -380,7 +380,7 @@ class sql
     FROM  eventlog a WHERE data like '%$actor%' 
     and type<>'combatend'  
     and type<>'bored' and type<>'init' and type<>'lockpicked' and type<>'infonpc' and type<>'infoloc' and type<>'info' and type<>'funcret'  and type<>'quest'
-    and type<>'funccall'  order by gamets desc,ts desc LIMIT 0,100");
+    and type<>'funccall'  and type<>'togglemodel'  order by gamets desc,ts desc LIMIT 0,100");
 
         while ($row = $results->fetchArray()) {
             $rawData[] = $row;

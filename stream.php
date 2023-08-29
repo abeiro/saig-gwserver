@@ -62,7 +62,7 @@ function split_sentences_stream($paragraph) {
 
 function returnLines($lines) {
 	
-	global $db,$startTime,$forceMood,$staticMood,$talkedSoFar;
+	global $db,$startTime,$forceMood,$staticMood,$talkedSoFar,$memories;
 	foreach ($lines as $n=>$sentence) {
 
 		$output = preg_replace('/\*([^*]+)\*/', '', $sentence); // Remove text bewteen * *
@@ -87,6 +87,10 @@ function returnLines($lines) {
 		if (preg_match('/^[^a-zA-Z0-9]+$/', $responseText))	// Skip if only non alphanumeric
 			return;
 
+		if (is_array($talkedSoFar))							// Fast hack to avoid duplicate sentences
+			if (in_array($responseTextUnmooded,$talkedSoFar))
+				return;
+				
 		if (isset($GLOBALS["FORCE_MOOD"]))
 			$mood = $GLOBALS["FORCE_MOOD"];
 		
@@ -130,9 +134,29 @@ function returnLines($lines) {
 						'tag'=>(isset($tag)?$tag:"")
 					);
 		
+		
 		echo "{$outBuffer["actor"]}|{$outBuffer["action"]}|$responseTextUnmooded\r\n";
 		ob_flush();
 		flush();
+		
+		if (php_sapi_name()=="cli") {
+			if (!isset($GLOBALS["nts"]))
+				$GLOBALS["nts"]=0;
+			else
+				$GLOBALS["nts"]++;
+			$db->insert(
+				'eventlog',
+				array(
+					'localts' => time()+$GLOBALS["nts"],
+					'type' => "chat",
+					'data' => (SQLite3::escapeString("{$outBuffer["actor"]}: $responseTextUnmooded")),
+					'gamets' => 770416256,
+					'ts'=>108826400925500
+				)
+			);
+			
+		}
+		
 		
 		$db->insert(
 				'log',
@@ -151,6 +175,9 @@ function returnLines($lines) {
 
 function logMemory($speaker,$listener,$message,$momentum,$gamets) {
     global $db;
+	
+	// Here, we could use the LLM to generate a summary. Will consume a lot of tokens.
+	
     $db->insert(
 	'memory',
 		array(
@@ -176,6 +203,12 @@ $starTime=microtime(true);
 
 // PARSE GET RESPONSE
 $finalData = base64_decode(stripslashes($_GET["DATA"]));
+if (php_sapi_name()=="cli") {
+	// You can run this script directly with php: stream.php "Player text" 
+	$finalData = "inputtext|108826400925500|770416256|{$GLOBALS["PLAYER_NAME"]}: {$argv[1]}";
+}
+
+
 $finalParsedData = explode("|", $finalData);
 foreach ($finalParsedData as $i => $ele)
 		$finalParsedData[$i] = trim(preg_replace('/\s\s+/', ' ', preg_replace('/\'/m', "''", $ele)));
@@ -242,7 +275,7 @@ $foot = array();
 /* Memory offering */
 if (isset($GLOBALS["MEMORY_EMBEDDING"]) && $GLOBALS["MEMORY_EMBEDDING"]) {
 	if (($finalParsedData[0] == "inputtext") || ($finalParsedData[0] == "inputtext_s")) {
-		$memory=array();
+		$memories=array();
 		
 		$textToEmbed=str_replace($DIALOGUE_TARGET,"",$finalParsedData[3]);
 		$pattern = '/\([^)]+\)/';
@@ -251,7 +284,10 @@ if (isset($GLOBALS["MEMORY_EMBEDDING"]) && $GLOBALS["MEMORY_EMBEDDING"]) {
 
 		$embeddings=getEmbeddingRemote($textToEmbedFinal);
 		$memories=queryMemory($embeddings);
-		if ($memories["content"][0]) {
+		$GLOBALS["DEBUG_DATA"]["memories"]=$memories["content"];
+		if (is_array($memories["content"])) {
+			consoleLog("Related memory injected");
+			
 			//$memories["content"][0]["search_term"]=$textToEmbedFinal;
 			$contextData[]=['role' => 'user', 'content' => "The Narrator: Past related memories of {$GLOBALS["HERIKA_NAME"]}'s :".json_encode($memories["content"]) ];
 		}
@@ -273,6 +309,7 @@ else
 //// DIRECT OPENAI REST API
 
 if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
+	consoleLog("OpenAI type call");
 	$url = $GLOBALS["OPENAI_URL"];
 	$data = array(
 		'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',
@@ -294,10 +331,11 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 		'http' => array(
 			'method' => 'POST',
 			'header' => implode("\r\n", $headers),
-			'content' => json_encode($data)
+			'content' => json_encode($data),
+			'timeout' => ($GLOBALS["HTTP_TIMEOUT"]) ?: 30
 		)
 	);
-	error_reporting(E_ALL);
+	//error_reporting(E_ALL);
 	$context = stream_context_create($options);
 	$handle = fopen($url, 'r', false, $context);
 	$GLOBALS["DEBUG_DATA"][]=$parms;
@@ -305,6 +343,7 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 
 } else if ( (isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="koboldcpp")))  {
 	$GLOBALS["DEBUG_DATA"]=[];//reset
+	consoleLog("koboldcpp type call");
 
 	$url=$GLOBALS["KOBOLDCPP_URL"].'/api/v1/generate/';
 	$context="";
@@ -387,6 +426,7 @@ if ($handle === false) {
 	$lineCounter=0;
 	$fullContent="";
 	$totalProcessedData="";
+	$numOutputTokens = 0;
 
     while (true) {
 		
@@ -401,8 +441,11 @@ if ($handle === false) {
 
 			$data=json_decode(substr($line,6),true);
 			if (isset($data["choices"][0]["delta"]["content"])) {
-				if (strlen(trim($data["choices"][0]["delta"]["content"]))>0)
+				if (strlen(trim($data["choices"][0]["delta"]["content"]))>0) {
 					$buffer.=$data["choices"][0]["delta"]["content"];
+					$numOutputTokens += 1;
+
+				}
 			$totalBuffer.=$data["choices"][0]["delta"]["content"];
 			}
 
@@ -490,6 +533,9 @@ if ($handle === false) {
 		 $totalBuffer.=trim($buffer);
 		
 	}
+
+	tokenizeResponse($numOutputTokens);
+
     fclose($handle);
 	//fwrite($fileLog, $totalBuffer . PHP_EOL); // Write the line to the file with a line break // DEBUG CODE
 }
