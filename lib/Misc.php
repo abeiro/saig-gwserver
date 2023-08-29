@@ -497,7 +497,7 @@ function tokenizeResponse($numOutputTokens)
 {
     global $db;
 
-    if (isset($GLOBALS["GPTMODEL"]) && isset($GLOBALS["COST_MONITOR_ENABLED"]) && $GLOBALS["COST_MONITOR_ENABLED"]) {
+    if (isset($GLOBALS["GPTMODEL"]) && isset($GLOBALS["COST_MONITOR_ENABLED"]) && $GLOBALS["COST_MONITOR_ENABLED"]  && $GLOBALS["MODEL"] == "openai") {
         $costPerThousandTokens = getCostPerThousandOutputTokens();
         $cost = $numOutputTokens * $costPerThousandTokens * 0.001;
         $db->insert_and_calc_totals(
