@@ -463,7 +463,7 @@ function tokenizePrompt($jsonEncodedData)
         }
     }
     */
-    if (isset($GLOBALS["GPTMODEL"]) && isset($GLOBALS["COST_MONITOR_ENABLED"]) && $GLOBALS["COST_MONITOR_ENABLED"]) {
+    if (isset($GLOBALS["GPTMODEL"]) && isset($GLOBALS["COST_MONITOR_ENABLED"]) && $GLOBALS["COST_MONITOR_ENABLED"] && $GLOBALS["MODEL"] == "openai") {
         $data =http_build_query(
             array(
                 'jsonEncodedData' => $jsonEncodedData,
