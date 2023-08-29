@@ -126,7 +126,7 @@ function print_array_as_table($data)
                     <pre class='collapse prompt-$i'>" . $cell . "</pre>
                 </td>";
                 */
-                echo "<td style='background-color:{$colors[$colorIndex]}'><span class='foldableCtl' onclick='togglePre(this)' style='cursor:pointer'>[+]</span><pre class='foldable'>" . $cell . "</pre></td>";
+                echo "<td><span class='foldableCtl' onclick='togglePre(this)' style='cursor:pointer'>[+]</span><pre class='foldable'>" . $cell . "</pre></td>";
 
             } elseif ($n == "rowid") {
                 echo "<td class='$colorClass'>

@@ -64,7 +64,7 @@ function getEmbeddingRemote($text)
 	global $db;
 
 	if ($GLOBALS["MODEL"] != "openai")
-		return null;
+		return array();
 
 	if (!$db) {
 		$db = new sql();

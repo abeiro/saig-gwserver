@@ -193,7 +193,8 @@ function logMemory($speaker,$listener,$message,$momentum,$gamets) {
     if (isset($GLOBALS["MEMORY_EMBEDDING"]) && $GLOBALS["MEMORY_EMBEDDING"]) {
 		$insertedSeq=$db->fetchAll("SELECT SEQ from sqlite_sequence WHERE name='memory'");
 		$embeddings=getEmbeddingRemote($message);
-		storeMemory($embeddings,$message,$insertedSeq[0]["seq"]);	
+		if (sizeof($embeddings)>0)
+			storeMemory($embeddings,$message,$insertedSeq[0]["seq"]);	
 	}
     
 }
@@ -232,6 +233,9 @@ require_once(__DIR__ . DIRECTORY_SEPARATOR . "prompts.php");
 
 $PROMPT_HEAD=($GLOBALS["PROMPT_HEAD"])?$GLOBALS["PROMPT_HEAD"]:"Let\'s roleplay in the Universe of Skyrim. I\'m {$GLOBALS["PLAYER_NAME"]} ";
 
+require_once(__DIR__.DIRECTORY_SEPARATOR."command_prompt.php");
+
+
 /* SUPER PROMPT CUSTOMIZATION */
 
 if (isset($PROMPTS[$finalParsedData[0]]["extra"])) {
@@ -250,7 +254,13 @@ if (isset($PROMPTS[$finalParsedData[0]]["extra"])) {
 $request=$PROMPTS[$finalParsedData[0]][0];
 
 if ($finalParsedData[0]=="inputtext_s") {
-		$forceMood="whispering";
+	$forceMood="whispering";
+	$finalParsedData[3] = $finalParsedData[3]." $DIALOGUE_TARGET";
+
+	
+} else if ($finalParsedData[0]=="inputtext") {
+
+	$finalParsedData[3] = $finalParsedData[3]." $DIALOGUE_TARGET";
 
 	
 } else if ($finalParsedData[0] == "chatnf_book") { // new read book event
@@ -280,19 +290,23 @@ if (isset($GLOBALS["MEMORY_EMBEDDING"]) && $GLOBALS["MEMORY_EMBEDDING"]) {
 	if (($finalParsedData[0] == "inputtext") || ($finalParsedData[0] == "inputtext_s")) {
 		$memories=array();
 		
+		// This is to remove the "Player:" aprt.
 		$textToEmbed=str_replace($DIALOGUE_TARGET,"",$finalParsedData[3]);
 		$pattern = '/\([^)]+\)/';
 		$textToEmbedFinal = preg_replace($pattern, '', $textToEmbed);
 		$textToEmbedFinal=str_replace("{$GLOBALS["PLAYER_NAME"]}:","",$textToEmbedFinal);
 
 		$embeddings=getEmbeddingRemote($textToEmbedFinal);
-		$memories=queryMemory($embeddings);
-		$GLOBALS["DEBUG_DATA"]["memories"]=$memories["content"];
-		if (is_array($memories["content"])) {
-			consoleLog("Related memory injected");
-			
-			//$memories["content"][0]["search_term"]=$textToEmbedFinal;
-			$MEMORIES="\nThe Narrator: Past related memories of {$GLOBALS["HERIKA_NAME"]}'s :".json_encode($memories["content"]) ;
+		if (sizeof($embeddings)>0) {
+			$memories=queryMemory($embeddings);
+			$GLOBALS["DEBUG_DATA"]["memories"]=$memories["content"];
+			if (is_array($memories["content"])) {
+				consoleLog("Related memory injected");
+				
+				//$memories["content"][0]["search_term"]=$textToEmbedFinal;
+				$MEMORIES=$GLOBALS["MEMORY_OFFERING"].json_encode($memories["content"]);
+
+			}
 		}
 	}
 }
