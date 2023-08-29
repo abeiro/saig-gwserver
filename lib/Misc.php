@@ -361,7 +361,7 @@ function getCurrentURL()
         $currentURL .= ":".$_SERVER["SERVER_PORT"];
     } 
  
-    $currentURL .= ":8081";   // Need to fix this.
+    //$currentURL .= ":8081";   // Need to fix this. ¿Works with uwamp?"
     return $currentURL;
 }
 
