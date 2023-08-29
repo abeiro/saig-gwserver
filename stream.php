@@ -255,12 +255,12 @@ $request=$PROMPTS[$finalParsedData[0]][0];
 
 if ($finalParsedData[0]=="inputtext_s") {
 	$forceMood="whispering";
-	$finalParsedData[3] = $finalParsedData[3]." $DIALOGUE_TARGET";
+	$request = $finalParsedData[3]." $DIALOGUE_TARGET";
 
 	
 } else if ($finalParsedData[0]=="inputtext") {
 
-	$finalParsedData[3] = $finalParsedData[3]." $DIALOGUE_TARGET";
+	$request = $finalParsedData[3]." $DIALOGUE_TARGET";
 
 	
 } else if ($finalParsedData[0] == "chatnf_book") { // new read book event
@@ -304,7 +304,7 @@ if (isset($GLOBALS["MEMORY_EMBEDDING"]) && $GLOBALS["MEMORY_EMBEDDING"]) {
 				consoleLog("Related memory injected");
 				
 				//$memories["content"][0]["search_term"]=$textToEmbedFinal;
-				$MEMORIES=$GLOBALS["MEMORY_OFFERING"].json_encode($memories["content"]);
+				$MEMORIES="\n".$GLOBALS["MEMORY_OFFERING"].json_encode($memories["content"]);
 
 			}
 		}
