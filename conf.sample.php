@@ -84,18 +84,18 @@ $TTSLANGUAGE_WHISPER="en";							// en, es formats
 //100 is a good starting point for experimenting with larger responses.
 $OPENAI_MAX_TOKENS="48";							// Limit size of responses. 
 
-$OPENAI_MAX_TOKENS_MEMORY="1024";       // Length of Diary entries. Do not make it any smaller then default. More = longer entry but higher cost.
-$HTTP_TIMEOUT=30;                       // How long we will wait for OpenAI response
+$OPENAI_MAX_TOKENS_MEMORY="1024";             // Length of Diary entries. More = longer entry but higher cost.
+$HTTP_TIMEOUT=30;                             // How long we will wait for LLM response
 
 
 // NEW CONF VARS FOR 0.99
 
 //$CORE_LANG="es";                            // Control global lang. Leave commented for default language.
 
-$MEMORY_EMBEDDING=false;                     // Memory feature (needs OpenAI atm)
-$CHROMADB_URL='http://172.16.1.128:8000';   // CHROMADB REST API URL. Change to the one provided by DwemerDistro.
-$MEMORY_TIME_DELAY='10';                   // How many minutes to wait before allowing a memory to be pulled. Prevents short term memory overlapping($CONTEXT_HISTORY).
-$MEMORY_CONTEXT_SIZE='1';                  // How many longterm memories will be injected into the prompt. Higher amount means a more acurate response but higher token count/cost. 
+$MEMORY_EMBEDDING=false;                      // Memory feature (needs OpenAI atm)
+$CHROMADB_URL='http://172.16.1.128:8000';     // CHROMADB REST API URL. Change to the one provided by DwemerDistro.
+$MEMORY_TIME_DELAY='10';                      // How many minutes to wait before allowing a memory to be pulled. Prevents short term memory overlapping($CONTEXT_HISTORY).
+$MEMORY_CONTEXT_SIZE='1';                     // How many longterm memories will be injected into the prompt. Higher amount means a more acurate response but higher token count/cost. 
 
 // MODEL="openai";
 $GPTMODEL="gpt-3.5-turbo-0613";                           // Changes GPT model to use. Options are gpt-4 or gpt-3.5-turbo-0613, more can be found here https://platform.openai.com/account/rate-limits
@@ -104,8 +104,9 @@ $OPENAI_URL="https://api.openai.com/v1/chat/completions"; // OpenAI endpoint
 // MODEL="koboldcpp";                         // Koboldcpp model
 $KOBOLDCPP_URL="http://172.16.1.128:5001";  // Endpoint URL. Change with your custom endpoint.
 
-$KOBOLDCPP_MAX_TOKENS="80";                   // Limit size of responses. 
-$KOBOLDCPP_MAX_TOKENS_MEMORY="1024";          // Length of Diary entries. Do not make it any smaller then default. More = longer entry but higher time.
+$KOBOLDCPP_MAX_TOKENS="80";                 // Limit size of responses. 
+$KOBOLDCPP_MAX_TOKENS_MEMORY="256";         // Length of Diary entries. Do not make it any smaller then default. More = longer entry but higher time. 
+                                            // Note that this is the length of the response. 
 
 
 $MODELS=["openai","koboldcpp"];             // Models available;
