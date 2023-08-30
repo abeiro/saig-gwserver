@@ -80,6 +80,9 @@ $PROMPTS=array(
         "(Use function to Write into diary) $HERIKA_NAME:" ,
         "Please, write in your diary a summary of {$GLOBALS["PLAYER_NAME"]} and $HERIKA_NAME's last dialogues and events. Be creative and create the topic by yourself."      
     ],
+     "diary_noactions"=>[ 
+        "Please, write in your personal diary style a short summary of {$GLOBALS["PLAYER_NAME"]} and $HERIKA_NAME's last dialogues and events written above. Write only as $HERIKA_NAME."      
+    ],
 
 );
 

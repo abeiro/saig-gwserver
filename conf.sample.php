@@ -104,6 +104,10 @@ $OPENAI_URL="https://api.openai.com/v1/chat/completions"; // OpenAI endpoint
 // MODEL="koboldcpp";                         // Koboldcpp model
 $KOBOLDCPP_URL="http://172.16.1.128:5001";  // Endpoint URL. Change with your custom endpoint.
 
+$KOBOLDCPP_MAX_TOKENS="80";                   // Limit size of responses. 
+$KOBOLDCPP_MAX_TOKENS_MEMORY="1024";          // Length of Diary entries. Do not make it any smaller then default. More = longer entry but higher time.
+
+
 $MODELS=["openai","koboldcpp"];             // Models available;
 
 

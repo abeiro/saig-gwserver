@@ -667,4 +667,26 @@ class sql
 
     }
 
+    function lastKnowDate() {
+        
+        $lastLoc=self::fetchAll("select  a.data  as data  FROM  eventlog a  WHERE type in ('infoloc')  order by gamets desc,ts desc LIMIT 0,1");
+        if (!is_array($lastLoc) || sizeof($lastLoc)==0)
+            return "";
+        $re = '/(\w+), (\d{1,2}:\d{2} (?:AM|PM)), (\d{1,2})(?:st|nd|rd|th) of ([A-Za-z\ ]+), 4E (\d+)/';
+        preg_match($re, $lastLoc[0]["data"], $matches, PREG_OFFSET_CAPTURE, 0);
+        return $matches[0][0];
+        
+    }
+    
+     function lastKnownLocation() {
+        
+        $lastLoc=self::fetchAll("select  a.data  as data  FROM  eventlog a  WHERE type in ('infoloc')  order by gamets desc,ts desc LIMIT 0,1");
+        if (!is_array($lastLoc) || sizeof($lastLoc)==0)
+            return "";
+        $re = '/Context location: ([\w\ ]*)/';
+        preg_match($re, $lastLoc[0]["data"], $matches, PREG_OFFSET_CAPTURE, 0);
+        return $matches[1][0];
+        
+    }
+    
 }

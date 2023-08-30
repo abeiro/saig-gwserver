@@ -22,8 +22,9 @@ if ($handle) {
 	closedir($handle);
 }
 		
-$testString="In Skyrim's land of snow and ice,Where dragons soar and souls entwine,Heroes rise, their fate unveiled,As ancient tales, the land does bind.";
-$testString="In Skyrim's land of snow and ice,Where dragons soar and souls entwine,Heroes rise, their fate unveiled,As ancient tales, the land does bind.";
+
+$testString="In Skyrim's land of snow and ice, Where dragons soar and souls entwine, Heroes rise, their fate unveiled, As ancient tales, the land does bind.";
+
 if (isset($GLOBALS["CORE_LANG"])) {
 	require_once(__DIR__.DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR."command_prompt.php");
 	$testString=$GLOBALS["ERROR_OPENAI_REQLIMIT"];

@@ -214,18 +214,6 @@ $finalParsedData = explode("|", $finalData);
 foreach ($finalParsedData as $i => $ele)
 		$finalParsedData[$i] = trim(preg_replace('/\s\s+/', ' ', preg_replace('/\'/m', "''", $ele)));
 
-// Log my chat
-$db->insert(
-			'eventlog',
-			array(
-				'ts' => $finalParsedData[1],
-				'gamets' => $finalParsedData[2],
-				'type' => $finalParsedData[0],
-				'data' => $finalParsedData[3],
-				'sess' => 'pending',
-				'localts' => time()
-			)
-		);
 
 
 // PREPARE CONTEXT DATA
@@ -235,6 +223,26 @@ $PROMPT_HEAD=($GLOBALS["PROMPT_HEAD"])?$GLOBALS["PROMPT_HEAD"]:"Let\'s roleplay 
 
 require_once(__DIR__.DIRECTORY_SEPARATOR."command_prompt.php");
 
+
+// Add the DIALOGUE_TARGET
+if (($finalParsedData[0] == "inputtext") || ($finalParsedData[0] == "inputtext_s") || (strpos($finalParsedData[0],"chatnf")!==false)) {
+	$finalParsedData[3] = $finalParsedData[3]." $DIALOGUE_TARGET";
+}
+
+// Log my chat
+ if ($finalParsedData[0] != "diary") {
+	$db->insert(
+				'eventlog',
+				array(
+					'ts' => $finalParsedData[1],
+					'gamets' => $finalParsedData[2],
+					'type' => $finalParsedData[0],
+					'data' => $finalParsedData[3],
+					'sess' => 'pending',
+					'localts' => time()
+				)
+			);
+ }
 
 /* SUPER PROMPT CUSTOMIZATION */
 
@@ -255,12 +263,12 @@ $request=$PROMPTS[$finalParsedData[0]][0];
 
 if ($finalParsedData[0]=="inputtext_s") {
 	$forceMood="whispering";
-	$request = $finalParsedData[3]." $DIALOGUE_TARGET";
+	
 
 	
 } else if ($finalParsedData[0]=="inputtext") {
 
-	$request = $finalParsedData[3]." $DIALOGUE_TARGET";
+	
 
 	
 } else if ($finalParsedData[0] == "chatnf_book") { // new read book event
@@ -270,8 +278,16 @@ if ($finalParsedData[0]=="inputtext_s") {
 	$finalParsedData[3]=$PROMPTS["book"][1]." ".$books[0]["title"];
 
 }  else if ( (strpos($finalParsedData[0],"chatnf")!==false)) {
+	
 	$request = $PROMPTS[$finalParsedData[0]][0];
-}
+
+	
+}  else if ($finalParsedData[0] == "diary") {
+	
+	$request = $PROMPTS["diary_noactions"][0];
+
+	
+} 
 
 $request = str_replace("specify action for $HERIKA_NAME or","",$request);	// Make better
 
@@ -323,22 +339,31 @@ else
 	$parms = array_merge($head, ($contextData),  $prompt);
 
 
+
+
 //// DIRECT OPENAI REST API
 
 if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 	consoleLog("OpenAI type call");
 	$url = $GLOBALS["OPENAI_URL"];
+	
+	if ($finalParsedData[0] == "diary") 
+		$MAX_TOKENS=((isset($GLOBALS["OPENAI_MAX_TOKENS_MEMORY"]) ? $GLOBALS["OPENAI_MAX_TOKENS_MEMORY"] : 1024) + 0);
+	else
+		$MAX_TOKENS=((isset($GLOBALS["OPENAI_MAX_TOKENS"])?$GLOBALS["OPENAI_MAX_TOKENS"]:48)+0);
+	
+	
 	$data = array(
 		'model' => (isset($GLOBALS["GPTMODEL"]))?$GLOBALS["GPTMODEL"]:'gpt-3.5-turbo-0613',
 		'messages' => 
 			$parms
 		,
 		'stream' => true,
-		'max_tokens'=>((isset($GLOBALS["OPENAI_MAX_TOKENS"])?$GLOBALS["OPENAI_MAX_TOKENS"]:48)+0)
+		'max_tokens'=>$MAX_TOKENS
 		
 	);
 
-
+ 
 	$headers = array(
 		'Content-Type: application/json',
 		"Authorization: Bearer {$GLOBALS["OPENAI_API_KEY"]}"
@@ -365,42 +390,69 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 	$url=$GLOBALS["KOBOLDCPP_URL"].'/api/v1/generate/';
 	$context="";
 
+
 	foreach ($parms as $s_role=>$s_msg) {	// Have to mangle context format
 
 		if (empty(trim($s_msg["content"])))
 			continue;
-		else
+		else {
+			// This should be customizable per model
+			/*
+			if ($s_msg["role"]=="user")
+				$normalizedContext[]="### Instruction: ".$s_msg["content"];
+			else if ($s_msg["role"]=="assistant")
+				$normalizedContext[]="### Response: ".$s_msg["content"];
+			else if ($s_msg["role"]=="system")
+				$normalizedContext[]=$s_msg["content"];
+			*/
 			$normalizedContext[]=$s_msg["content"];
+		}
 	}	
 
 	foreach ($normalizedContext as $n=>$s_msg) {
 		if ($n==(sizeof($normalizedContext)-1)) {
-			$context.="[Author's notes: ".$s_msg."]";
+			$context.="### Instruction: ".$s_msg."";
 			$GLOBALS["DEBUG_DATA"][]="[Author's notes: ".$s_msg."]";
 
 		} else {
-			$s_msg_p = preg_replace('/^(?=.*The Narrator).*$/s', '[Author\'s notes: $0 ]', $s_msg);
+			$s_msg_p = preg_replace('/^(The Narrator:)(.*)/m', '[Author\'s notes: $2 ]', $s_msg);
 			$context.="$s_msg_p\n";
 			$GLOBALS["DEBUG_DATA"][]=$s_msg_p;
 		}
 		
 	}
-	$context.="\n{$GLOBALS["HERIKA_NAME"]}:";
-	//$GLOBALS["DEBUG_DATA"]=explode("\n",$context);
-	$postData = array(
+	//$context.="\n{$GLOBALS["HERIKA_NAME"]}:";
+	$context.="\n### Response:";
+	if ($finalParsedData[0] == "diary") {
+		$MAX_TOKENS=((isset($GLOBALS["KOBOLDCPP_MAX_TOKENS_MEMORY"]) ? $GLOBALS["KOBOLDCPP_MAX_TOKENS_MEMORY"] : 1024) + 0);
+		$stop_sequence=["{$GLOBALS["PLAYER_NAME"]}:","\n{$GLOBALS["PLAYER_NAME"]} ","Author\'s notes","\n"];
+		$postData = array(
 		
-		"prompt"=>$context,
-		"temperature"=> 0.9,
-		"top_p"=> 0.9,
-		"max_context_length"=>1024,
-		"max_length"=>80,
-		"rep_pen"=>1.1,
-		"stop_sequence"=>["{$GLOBALS["PLAYER_NAME"]}:","\\n{$GLOBALS["PLAYER_NAME"]} ","The Narrator","\n"]
-	);
+			"prompt"=>$context,
+			"temperature"=> 0.7,
+			"top_p"=> 0.9,
+			"max_context_length"=>1024,
+			"max_length"=>$MAX_TOKENS,
+			"rep_pen"=>1.1,
+			"stop_sequence"=>$stop_sequence
+		);
 		
+	}
+	else {
+		$MAX_TOKENS=((isset($GLOBALS["KOBOLDCPP_MAX_TOKENS"])?$GLOBALS["KOBOLDCPP_MAX_TOKENS"]:48)+0);
+		$stop_sequence=["{$GLOBALS["PLAYER_NAME"]}:","\n{$GLOBALS["PLAYER_NAME"]} ","Author\'s notes","\n"];
+		$postData = array(
+		
+			"prompt"=>$context,
+			"temperature"=> 0.9,
+			"top_p"=> 0.9,
+			"max_context_length"=>1024,
+			"max_length"=>$MAX_TOKENS,
+			"rep_pen"=>1.1,
+			"stop_sequence"=>$stop_sequence
+		);
+	}
 	
-
-
 	$headers = array(
 		'Content-Type: application/json'
 	);
@@ -535,8 +587,13 @@ if ($handle === false) {
             $remainingData = substr($buffer, $position + 1);
             $sentences=split_sentences_stream(cleanReponse($extractedData));
 			$GLOBALS["DEBUG_DATA"][]=(microtime(true) - $starTime)." secs in openai stream";
-            returnLines($sentences);
+			if ($finalParsedData[0] != "diary")
+				returnLines($sentences);
+			else {
+				$talkedSoFar[md5(implode(" ",$sentences))]=implode(" ",$sentences);
+			}
             //echo "$extractedData  # ".(microtime(true)-$starTime)."\t".strlen($finalData)."\t".PHP_EOL;  // Output
+			$totalProcessedData.=$extractedData;
             $extractedData="";
             $buffer=$remainingData;
             
@@ -546,9 +603,13 @@ if ($handle === false) {
     if (trim($buffer)) {
 		 $sentences=split_sentences_stream(cleanReponse(trim($buffer)));
 		 $GLOBALS["DEBUG_DATA"][]=(microtime(true) - $starTime)." secs in openai stream";
-         returnLines($sentences);
+		 if ($finalParsedData[0] != "diary")
+			returnLines($sentences);
+		 else {
+			 $talkedSoFar[md5(implode(" ",$sentences))]=implode(" ",$sentences);
+		 }
 		 $totalBuffer.=trim($buffer);
-		
+		 $totalProcessedData.=trim($buffer);
 	}
 
 	tokenizeResponse($numOutputTokens);
@@ -558,8 +619,28 @@ if ($handle === false) {
 }
 
 if (!$ERROR_TRIGGERED) {
-		$lastPlayerLine=$db->fetchAll("SELECT data from eventlog where type in ('inputtext','inputtext_s') order by gamets desc limit 0,1");
-		logMemory($GLOBALS["HERIKA_NAME"],$GLOBALS["PLAYER_NAME"],"{$lastPlayerLine[0]["data"]} \n\r {$GLOBALS["HERIKA_NAME"]}:".implode(" ",$talkedSoFar),$momentum,$finalParsedData[2]);
+		if ($finalParsedData[0] == "diary") {
+			$topic=$db->lastKnowDate();
+			$location=$db->lastKnownLocation();
+			$db->insert(
+			'diarylog',
+				array(
+					'ts' => $finalParsedData[1],
+					'gamets' => $finalParsedData[2],
+					'topic' => "$topic",
+					'content' => SQLite3::escapeString(implode(" ",$talkedSoFar)),
+					'tags' => "Pending",
+					'people' => "Pending",
+					'location' => "$location",
+					'sess' => 'pending',
+					'localts' => time()
+				)
+			);
+			returnLines([$RESPONSE_OK_NOTED]);
+		} else {
+			$lastPlayerLine=$db->fetchAll("SELECT data from eventlog where type in ('inputtext','inputtext_s') order by gamets desc limit 0,1");
+			logMemory($GLOBALS["HERIKA_NAME"],$GLOBALS["PLAYER_NAME"],"{$lastPlayerLine[0]["data"]} \n\r {$GLOBALS["HERIKA_NAME"]}:".implode(" ",$talkedSoFar),$momentum,$finalParsedData[2]);
+		}
 	}
 
 file_put_contents("log_stream.txt",$totalBuffer,FILE_APPEND);
