@@ -466,7 +466,39 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 	);
 	error_reporting(E_ALL);
 	$context = stream_context_create($options);
-	$handle = fopen($url, 'r', false, $context);
+	
+	
+	$host = parse_url($GLOBALS["KOBOLDCPP_URL"], PHP_URL_HOST);
+	$port = parse_url($GLOBALS["KOBOLDCPP_URL"], PHP_URL_PORT);
+	$path = '/api/v1/generate/'; 
+
+	// Data to send in JSON format
+	$dataJson = json_encode($postData);
+
+	$request = "POST $path HTTP/1.1\r\n";
+	$request .= "Host: $host\r\n";
+	$request .= "Content-Type: application/json\r\n";
+	$request .= "Content-Length: " . strlen($dataJson) . "\r\n";
+	$request .= "Connection: close\r\n\r\n";
+	$request .= $dataJson;
+
+	// Open a non-blocking TCP connection
+	$handle = fsockopen('tcp://' . $host, $port, $errno, $errstr, 30);
+
+
+	// Set the socket to non-blocking mode
+	stream_set_blocking($handle, 0);
+
+	// Send the HTTP request
+	fwrite($handle, $request);
+	
+	// If we go too fast, we will get previous completion. How to know koboldcpp server accepted request?
+	sleep(1);					
+	
+	// Initialize variables for response
+	$responseHeaders = '';
+	$responseBody = '';
+	//$handle = fopen($url, 'r', false, $context);
 	
 	
 }
