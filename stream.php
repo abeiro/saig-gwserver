@@ -427,7 +427,7 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 	foreach ($normalizedContext as $n=>$s_msg) {
 		if ($n==(sizeof($normalizedContext)-1)) {
 			$context.="### Instruction: ".$s_msg."";
-			$GLOBALS["DEBUG_DATA"][]="[Author's notes: ".$s_msg."]";
+			$GLOBALS["DEBUG_DATA"][]="### Instruction: ".$s_msg."";
 
 		} else {
 			$s_msg_p = preg_replace('/^(The Narrator:)(.*)/m', '[Author\'s notes: $2 ]', $s_msg);
@@ -438,6 +438,7 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 	}
 	//$context.="\n{$GLOBALS["HERIKA_NAME"]}:";
 	$context.="\n### Response:";
+	$GLOBALS["DEBUG_DATA"][]="\n### Response:";
 	if ($finalParsedData[0] == "diary") {
 		$MAX_TOKENS=((isset($GLOBALS["KOBOLDCPP_MAX_TOKENS_MEMORY"]) ? $GLOBALS["KOBOLDCPP_MAX_TOKENS_MEMORY"] : 1024) + 0);
 		$stop_sequence=["{$GLOBALS["PLAYER_NAME"]}:","\n{$GLOBALS["PLAYER_NAME"]} ","Author\'s notes","\n"];

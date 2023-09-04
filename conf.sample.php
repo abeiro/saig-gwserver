@@ -106,9 +106,9 @@ $KOBOLDCPP_URL="http://172.16.1.128:5001";  // Endpoint URL. Change with your cu
 $KOBOLDCPP_MAX_TOKENS="80";                 // Limit size of responses. 
 $KOBOLDCPP_MAX_TOKENS_MEMORY="256";         // Length of Diary entries. Do not make it any smaller then default. More = longer entry but higher time. 
                                             // Note that this is the length of the response. 
+$KOBOLDCPP_TEMPERATURE=0.9;                 // Only touch if you know what you're doing
 
-
-$MODELS=["openai","koboldcpp"];             // Models available;
+$MODELS=["openai","koboldcpp"];             // Supported models
 
 
 $COST_MONITOR_ENABLED=false;                // Elbios token counter and cost calculator. Requires a background service running which may slowdown the DwemerDistro.

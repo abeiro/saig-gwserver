@@ -1,12 +1,12 @@
 <?php
 
-$path = dirname((__FILE__)) . DIRECTORY_SEPARATOR;
-require_once($path . ".." . DIRECTORY_SEPARATOR . "conf.php");
-require_once($path . ".." . DIRECTORY_SEPARATOR . "dynmodel.php");
+$localpath = dirname((__FILE__)) . DIRECTORY_SEPARATOR;
+require_once($localpath . ".." . DIRECTORY_SEPARATOR . "conf.php");
+require_once($localpath . ".." . DIRECTORY_SEPARATOR . "dynmodel.php");
 
-$path = dirname((__FILE__)) . DIRECTORY_SEPARATOR;
-require_once($path . "$DRIVER.class.php");
-require_once($path . "Misc.php");
+
+require_once($localpath . "$DRIVER.class.php");
+require_once($localpath . "Misc.php");
 
 
 function getEmbeddingLocal($text)
