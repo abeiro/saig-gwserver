@@ -431,7 +431,6 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 			"prompt"=>$context,
 			"temperature"=> 0.7,
 			"top_p"=> 0.9,
-			"max_context_length"=>1024,
 			"max_length"=>$MAX_TOKENS,
 			"rep_pen"=>1.1,
 			"stop_sequence"=>$stop_sequence
@@ -446,7 +445,6 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 			"prompt"=>$context,
 			"temperature"=> 0.9,
 			"top_p"=> 0.9,
-			"max_context_length"=>1024,
 			"max_length"=>$MAX_TOKENS,
 			"rep_pen"=>1.1,
 			"stop_sequence"=>$stop_sequence
