@@ -387,7 +387,7 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 	$GLOBALS["DEBUG_DATA"]=[];//reset
 	consoleLog("koboldcpp type call");
 
-	$url=$GLOBALS["KOBOLDCPP_URL"].'/api/v1/generate/';
+	$url=$GLOBALS["KOBOLDCPP_URL"].'/api/extra/generate/stream/';
 	$context="";
 
 
@@ -470,7 +470,7 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 	
 	$host = parse_url($GLOBALS["KOBOLDCPP_URL"], PHP_URL_HOST);
 	$port = parse_url($GLOBALS["KOBOLDCPP_URL"], PHP_URL_PORT);
-	$path = '/api/v1/generate/'; 
+	$path = '/api/extra/generate/stream/';
 
 	// Data to send in JSON format
 	$dataJson = json_encode($postData);
@@ -482,25 +482,18 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 	$request .= "Connection: close\r\n\r\n";
 	$request .= $dataJson;
 
-	// Open a non-blocking TCP connection
+	// Open a TCP connection
 	$handle = fsockopen('tcp://' . $host, $port, $errno, $errstr, 30);
 
-
-	// Set the socket to non-blocking mode
-	stream_set_blocking($handle, 0);
-
 	// Send the HTTP request
-	fwrite($handle, $request);
-	
-	// If we go too fast, we will get previous completion. How to know koboldcpp server accepted request?
-	sleep(1);					
+	if ($handle !== false) {
+		fwrite($handle, $request);
+	}
 	
 	// Initialize variables for response
 	$responseHeaders = '';
 	$responseBody = '';
 	//$handle = fopen($url, 'r', false, $context);
-	
-	
 }
 ///////DEBUG CODE
 //$fileLog = fopen("log.txt", 'a');
@@ -551,52 +544,26 @@ if ($handle === false) {
 			}
 
 		} else if ( (isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="koboldcpp")))  {
-			
-			$headers = array(
-				'Content-Type: application/json',
-				'Content-Length: 0',
-			);
-
-			$options = array(
-				'http' => array(
-					'method' => 'POST',
-					'header' => implode("\r\n", $headers),
-				)
-			);
-			
 			error_reporting(E_ERROR);
-			$context = stream_context_create($options);	
-			$fullContent = file_get_contents("{$GLOBALS["KOBOLDCPP_URL"]}/api/extra/generate/check",false,$context);
-
 			if (feof($handle)) {
 				$breakFlag=true;
 				continue;
-			} else
-				fread($handle, 1024);	// Flush input buffer at primary call.
-			
-			
-			
-			$data=json_decode($fullContent,true);
-		
-			$buffer=$data["results"][0]["text"];
-
-			//consoleLog("$buffer vs $oldBuffer");
-
-
-			if (!empty($totalProcessedData)) {
-					$buffer=str_replace($totalProcessedData,"",$buffer);
-				
 			}
-			if (strrpos($buffer,".")<$MINIMUM_SENTENCE_SIZE) {
+
+			$line = fgets($handle);
+
+			file_put_contents("debugStream.log",$line,FILE_APPEND);
+
+			if (strpos($line, 'data: {') !== 0) {
 				continue;
 			}
-
-			//$oldBuffer.=$buffer;
-			$totalBuffer.=$buffer;
-
-
-			//$GLOBALS["DEBUG_DATA"]["response"][]=$data;	
-
+			$data=json_decode(substr($line,6),true);
+			if (isset($data["token"])) {
+				if (strlen(trim($data["token"]))>0) {
+					$buffer.=$data["token"];
+				}
+				$totalBuffer.=$data["token"];
+			}
 		}
 
 		$buffer=strtr($buffer,array("\""=>""));
@@ -605,7 +572,8 @@ if ($handle === false) {
 			if (feof($handle))
 				$breakFlag=true;
 		} else if ( (isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="koboldcpp")))  {
-
+			if (feof($handle))
+				$breakFlag=true;
 				
 		}
 		
