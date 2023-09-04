@@ -650,7 +650,7 @@ if ($finalParsedData[0] == "funcret") {
 		,
 		'stream' => true,
 		'max_tokens' => ((isset($GLOBALS["OPENAI_MAX_TOKENS"]) ? $GLOBALS["OPENAI_MAX_TOKENS"] : 48) + 0),
-		'temperature' => 1,
+		'temperature' => ((isset($GLOBALS["OPENAI_TEMPERATURE"]) ? $GLOBALS["OPENAI_TEMPERATURE"] : 1.0) + 0),
 		'presence_penalty' => 1,
 	);
 
@@ -671,7 +671,7 @@ if ($finalParsedData[0] == "funcret") {
 		$parms,
 		'stream' => true,
 		'max_tokens' => ((isset($GLOBALS["OPENAI_MAX_TOKENS"]) ? $GLOBALS["OPENAI_MAX_TOKENS"] : 48) + 0),
-		'temperature' => 1,
+		'temperature' => ((isset($GLOBALS["OPENAI_TEMPERATURE"]) ? $GLOBALS["OPENAI_TEMPERATURE"] : 1.0) + 0),
 		'presence_penalty' => 1
 	);
 
@@ -688,7 +688,7 @@ if ($finalParsedData[0] == "funcret") {
 		$parms,
 		'stream' => false,
 		'max_tokens' => ((isset($GLOBALS["OPENAI_MAX_TOKENS_MEMORY"]) ? $GLOBALS["OPENAI_MAX_TOKENS_MEMORY"] : 1024) + 0),
-		'temperature' => 1,
+		'temperature' => ((isset($GLOBALS["OPENAI_TEMPERATURE"]) ? $GLOBALS["OPENAI_TEMPERATURE"] : 1.0) + 0),
 		'presence_penalty' => 1,
 		'functions' => $GLOBALS["FUNCTIONS_SPECIAL_CONTEXT"],
 		'function_call' => ["name"=>getFunctionTrlName("WriteIntoDiary")]	// Should be '{"name":\ "WriteIntoDiary"}'
@@ -707,7 +707,7 @@ if ($finalParsedData[0] == "funcret") {
 		,
 		'stream' => true,
 		'max_tokens' => ((isset($GLOBALS["OPENAI_MAX_TOKENS"]) ? $GLOBALS["OPENAI_MAX_TOKENS"] : 48) + 0),
-		'temperature' => 1,
+		'temperature' => ((isset($GLOBALS["OPENAI_TEMPERATURE"]) ? $GLOBALS["OPENAI_TEMPERATURE"] : 1.0) + 0),
 		'presence_penalty' => 1,
 		'functions' => $GLOBALS["FUNCTIONS"],
 		'function_call' => 'auto',

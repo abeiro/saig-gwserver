@@ -453,12 +453,13 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 		
 	}
 	else {
+		$TEMPERATURE=((isset($GLOBALS["KOBOLDCPP_TEMPERATURE"])?$GLOBALS["KOBOLDCPP_TEMPERATURE"]:0.9)+0);
 		$MAX_TOKENS=((isset($GLOBALS["KOBOLDCPP_MAX_TOKENS"])?$GLOBALS["KOBOLDCPP_MAX_TOKENS"]:48)+0);
 		$stop_sequence=["{$GLOBALS["PLAYER_NAME"]}:","\n{$GLOBALS["PLAYER_NAME"]} ","Author\'s notes","\n"];
 		$postData = array(
 		
 			"prompt"=>$context,
-			"temperature"=> 0.9,
+			"temperature"=> $TEMPERATURE,
 			"top_p"=> 0.9,
 			"max_length"=>$MAX_TOKENS,
 			"rep_pen"=>1.1,
