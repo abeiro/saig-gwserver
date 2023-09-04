@@ -24,17 +24,32 @@ $LAST_ROLE="user";
 $ERROR_TRIGGERED=false;
 $momentum=time();
 
-function findDotPosition($string) {
-    $dotPosition = strrpos($string, ".");
-    
-    if ($dotPosition !== false && strpos($string, ".", $dotPosition + 1) === false && substr($string, $dotPosition - 3, 3) !== "...") {
-        return $dotPosition;
+function findLastSentenceEnd($string) {
+    $endMarkers = array('.', '?', '!');
+    $lastPositions = array();
+
+	// find end of sentence marker and get its position
+	// note: if '.' is its own token, then ellipsis ('...') can be misinterpreted as end of sentence
+    foreach ($endMarkers as $marker) {
+        $position = strrpos($string, $marker);
+        if ($position !== false) {
+            $lastPositions[] = $position;
+        }
     }
-    
+
+    if (!empty($lastPositions)) {
+        $lastPosition = max($lastPositions);
+
+        // check for ('..') which could occur in the middle of a sentence
+        if ($string[$lastPosition] == '.' && isset($string[$lastPosition - 1]) && $string[$lastPosition - 1] == '.') {
+            return false;
+        }
+
+        return $lastPosition;
+    }
+
     return false;
 }
-
-
 
 function split_sentences_stream($paragraph) {
     $sentences = preg_split('/(?<=[.!?])\s+/', $paragraph, -1, PREG_SPLIT_NO_EMPTY);
@@ -612,7 +627,7 @@ if ($handle === false) {
 		if (strlen($buffer)<$MINIMUM_SENTENCE_SIZE)	// Avoid too short buffers
 			continue;
 		
-		$position = findDotPosition($buffer);
+		$position = findLastSentenceEnd($buffer);
 		
         if ($position !== false) {
             $extractedData = substr($buffer, 0, $position + 1);
