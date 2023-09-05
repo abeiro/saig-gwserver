@@ -440,22 +440,9 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 	$context.="\n### Response:";
 	$GLOBALS["DEBUG_DATA"][]="\n### Response:";
 	if ($finalParsedData[0] == "diary") {
+		$REP_PEN=((isset($GLOBALS["KOBOLDCPP_REP_PEN"])?$GLOBALS["KOBOLDCPP_REP_PEN"]:1.12)+0);
+		$TOP_P=((isset($GLOBALS["KOBOLDCPP_TOP_P"])?$GLOBALS["KOBOLDCPP_TOP_P"]:0.9)+0);
 		$MAX_TOKENS=((isset($GLOBALS["KOBOLDCPP_MAX_TOKENS_MEMORY"]) ? $GLOBALS["KOBOLDCPP_MAX_TOKENS_MEMORY"] : 1024) + 0);
-		$stop_sequence=["{$GLOBALS["PLAYER_NAME"]}:","\n{$GLOBALS["PLAYER_NAME"]} ","Author\'s notes","\n"];
-		$postData = array(
-		
-			"prompt"=>$context,
-			"temperature"=> 0.7,
-			"top_p"=> 0.9,
-			"max_length"=>$MAX_TOKENS,
-			"rep_pen"=>1.1,
-			"stop_sequence"=>$stop_sequence
-		);
-		
-	}
-	else {
-		$TEMPERATURE=((isset($GLOBALS["KOBOLDCPP_TEMPERATURE"])?$GLOBALS["KOBOLDCPP_TEMPERATURE"]:0.9)+0);
-		$MAX_TOKENS=((isset($GLOBALS["KOBOLDCPP_MAX_TOKENS"])?$GLOBALS["KOBOLDCPP_MAX_TOKENS"]:48)+0);
 		$stop_sequence=["{$GLOBALS["PLAYER_NAME"]}:","\n{$GLOBALS["PLAYER_NAME"]} ","Author\'s notes","\n"];
 		$postData = array(
 		
@@ -463,7 +450,24 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 			"temperature"=> $TEMPERATURE,
 			"top_p"=> 0.9,
 			"max_length"=>$MAX_TOKENS,
-			"rep_pen"=>1.1,
+			"rep_pen"=>$REP_PEN,
+			"stop_sequence"=>$stop_sequence
+		);
+		
+	}
+	else {
+		$TEMPERATURE=((isset($GLOBALS["KOBOLDCPP_TEMPERATURE"])?$GLOBALS["KOBOLDCPP_TEMPERATURE"]:0.9)+0);
+		$REP_PEN=((isset($GLOBALS["KOBOLDCPP_REP_PEN"])?$GLOBALS["KOBOLDCPP_REP_PEN"]:1.12)+0);
+		$TOP_P=((isset($GLOBALS["KOBOLDCPP_TOP_P"])?$GLOBALS["KOBOLDCPP_TOP_P"]:0.9)+0);
+		$MAX_TOKENS=((isset($GLOBALS["KOBOLDCPP_MAX_TOKENS"])?$GLOBALS["KOBOLDCPP_MAX_TOKENS"]:48)+0);
+		$stop_sequence=["{$GLOBALS["PLAYER_NAME"]}:","\n{$GLOBALS["PLAYER_NAME"]} ","Author\'s notes","\n"];
+		$postData = array(
+		
+			"prompt"=>$context,
+			"temperature"=> $TEMPERATURE,
+			"top_p"=> $TOP_P,
+			"max_length"=>$MAX_TOKENS,
+			"rep_pen"=>$REP_PEN,
 			"stop_sequence"=>$stop_sequence
 		);
 	}

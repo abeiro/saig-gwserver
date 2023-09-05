@@ -107,6 +107,8 @@ $KOBOLDCPP_MAX_TOKENS="80";                 // Limit size of responses.
 $KOBOLDCPP_MAX_TOKENS_MEMORY="256";         // Length of Diary entries. Do not make it any smaller then default. More = longer entry but higher time. 
                                             // Note that this is the length of the response. 
 $KOBOLDCPP_TEMPERATURE=0.9;                 // Only touch if you know what you're doing
+$KOBOLDCPP_REP_PEN=1.12;                    // Only touch if you know what you're doing
+$KOBOLDCPP_TOP_P=0.9;                       // Only touch if you know what you're doing
 
 $MODELS=["openai","koboldcpp"];             // Supported models
 

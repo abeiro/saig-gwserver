@@ -118,14 +118,16 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
         $context .= "\n{$GLOBALS["HERIKA_NAME"]}:";
         //$GLOBALS["DEBUG_DATA"]=explode("\n",$context);
         $MAX_TOKENS=((isset($GLOBALS["KOBOLDCPP_MAX_TOKENS"])?$GLOBALS["KOBOLDCPP_MAX_TOKENS"]:80)+0);
+		$REP_PEN=((isset($GLOBALS["KOBOLDCPP_REP_PEN"])?$GLOBALS["KOBOLDCPP_REP_PEN"]:1.12)+0);
+		$TOP_P=((isset($GLOBALS["KOBOLDCPP_TOP_P"])?$GLOBALS["KOBOLDCPP_TOP_P"]:0.9)+0);
         $TEMPERATURE=((isset($GLOBALS["KOBOLDCPP_TEMPERATURE"])?$GLOBALS["KOBOLDCPP_TEMPERATURE"]:0.9)+0);
         $postData = array(
 
             "prompt" => $context,
             "temperature" => $TEMPERATURE,
-            "top_p" => 0.9,
+            "top_p" => $TOP_P,
             "max_length" => $MAX_TOKENS,
-            "rep_pen" => 1.1,
+            "rep_pen" => $REP_PEN,
             "stop_sequence" => ["{$GLOBALS["PLAYER_NAME"]}:", "\\n{$GLOBALS["PLAYER_NAME"]} ", "The Narrator", "\n"]
         );
 
