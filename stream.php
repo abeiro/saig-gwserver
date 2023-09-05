@@ -23,6 +23,8 @@ $startTime=time();
 $LAST_ROLE="user";
 $ERROR_TRIGGERED=false;
 $momentum=time();
+$talkedSoFar=[];
+
 
 function findLastSentenceEnd($string) {
     $endMarkers = array('.', '?', '!');
@@ -221,7 +223,8 @@ $starTime=microtime(true);
 $finalData = base64_decode(stripslashes($_GET["DATA"]));
 if (php_sapi_name()=="cli") {
 	// You can run this script directly with php: stream.php "Player text" 
-	$finalData = "inputtext|108826400925500|770416256|{$GLOBALS["PLAYER_NAME"]}: {$argv[1]}";
+	
+	$finalData = "inputtext|594939787246000|788840576|{$GLOBALS["PLAYER_NAME"]}: {$argv[1]}";
 }
 
 
