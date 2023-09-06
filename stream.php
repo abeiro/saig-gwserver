@@ -429,7 +429,7 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 
 	foreach ($normalizedContext as $n=>$s_msg) {
 		if ($n==(sizeof($normalizedContext)-1)) {
-			$context.="### Instruction: ".$s_msg."";
+			$context.="### Instruction: ".$s_msg.". Write a single reply only.";
 			$GLOBALS["DEBUG_DATA"][]="### Instruction: ".$s_msg."";
 
 		} else {

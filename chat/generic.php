@@ -95,25 +95,35 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
 
         $context = "";
 
-        foreach ($parms as $s_role => $s_msg) { // Have to mangle context format
+        foreach ($parms as $s_role=>$s_msg) {	// Have to mangle context format
 
             if (empty(trim($s_msg["content"])))
                 continue;
-            else
-                $normalizedContext[] = $s_msg["content"];
-        }
+            else {
+                // This should be customizable per model
+                /*
+                if ($s_msg["role"]=="user")
+                    $normalizedContext[]="### Instruction: ".$s_msg["content"];
+                else if ($s_msg["role"]=="assistant")
+                    $normalizedContext[]="### Response: ".$s_msg["content"];
+                else if ($s_msg["role"]=="system")
+                    $normalizedContext[]=$s_msg["content"];
+                */
+                $normalizedContext[]=$s_msg["content"];
+            }
+        }	
 
-        foreach ($normalizedContext as $n => $s_msg) {
-            if ($n == (sizeof($normalizedContext) - 1)) {
-                $context .= "[Author's notes: " . $s_msg . "]";
-                $GLOBALS["DEBUG_DATA"][] = "[Author's notes: " . $s_msg . "]";
+        foreach ($normalizedContext as $n=>$s_msg) {
+            if ($n==(sizeof($normalizedContext)-1)) {
+                $context.="### Instruction: ".$s_msg.". Write a single reply only.";
+                $GLOBALS["DEBUG_DATA"][]="### Instruction: ".$s_msg."";
 
             } else {
-                $s_msg_p = preg_replace('/^(?=.*The Narrator).*$/s', '[Author\'s notes: $0 ]', $s_msg);
-                $context .= "$s_msg_p\n";
-                $GLOBALS["DEBUG_DATA"][] = $s_msg_p;
+                $s_msg_p = preg_replace('/^(The Narrator:)(.*)/m', '[Author\'s notes: $2 ]', $s_msg);
+                $context.="$s_msg_p\n";
+                $GLOBALS["DEBUG_DATA"][]=$s_msg_p;
             }
-
+            
         }
         $context .= "\n{$GLOBALS["HERIKA_NAME"]}:";
         //$GLOBALS["DEBUG_DATA"]=explode("\n",$context);
