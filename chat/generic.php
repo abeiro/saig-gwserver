@@ -125,8 +125,8 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
             }
             
         }
-        $context .= "\n{$GLOBALS["HERIKA_NAME"]}:";
-        //$GLOBALS["DEBUG_DATA"]=explode("\n",$context);
+        $context.="\n### Response:";
+        $GLOBALS["DEBUG_DATA"][]="\n### Response:";
         $MAX_TOKENS=((isset($GLOBALS["KOBOLDCPP_MAX_TOKENS"])?$GLOBALS["KOBOLDCPP_MAX_TOKENS"]:80)+0);
 		$REP_PEN=((isset($GLOBALS["KOBOLDCPP_REP_PEN"])?$GLOBALS["KOBOLDCPP_REP_PEN"]:1.12)+0);
 		$TOP_P=((isset($GLOBALS["KOBOLDCPP_TOP_P"])?$GLOBALS["KOBOLDCPP_TOP_P"]:0.9)+0);
