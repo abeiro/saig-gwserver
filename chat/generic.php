@@ -18,7 +18,7 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
 
     require_once(__DIR__ . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "command_prompt.php"); //$COMMAND_PROMPT_SHORT
 
-    $PROMPT_RULES = $COMMAND_PROMPT_SHORT;
+    //$PROMPT_RULES = $COMMAND_PROMPT_SHORT;
 
     $starTime = microtime(true);
 
