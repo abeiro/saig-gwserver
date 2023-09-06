@@ -442,7 +442,9 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 	//$context.="\n{$GLOBALS["HERIKA_NAME"]}:";
 	$context.="\n### Response:";
 	$GLOBALS["DEBUG_DATA"][]="\n### Response:";
+	
 	if ($finalParsedData[0] == "diary") {
+		$TEMPERATURE=((isset($GLOBALS["KOBOLDCPP_TEMPERATURE"])?$GLOBALS["KOBOLDCPP_TEMPERATURE"]:0.9)+0);
 		$REP_PEN=((isset($GLOBALS["KOBOLDCPP_REP_PEN"])?$GLOBALS["KOBOLDCPP_REP_PEN"]:1.12)+0);
 		$TOP_P=((isset($GLOBALS["KOBOLDCPP_TOP_P"])?$GLOBALS["KOBOLDCPP_TOP_P"]:0.9)+0);
 		$MAX_TOKENS=((isset($GLOBALS["KOBOLDCPP_MAX_TOKENS_MEMORY"]) ? $GLOBALS["KOBOLDCPP_MAX_TOKENS_MEMORY"] : 1024) + 0);
