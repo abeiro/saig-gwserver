@@ -415,19 +415,21 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 			continue;
 		else {
 			// This should be customizable per model
-			/*
+			
 			if ($s_msg["role"]=="user")
-				$normalizedContext[]="### Instruction: ".$s_msg["content"];
+				$normalizedContext[]="<|user|>".$s_msg["content"];
 			else if ($s_msg["role"]=="assistant")
-				$normalizedContext[]="### Response: ".$s_msg["content"];
+				$normalizedContext[]="<|model|>:".$s_msg["content"];
 			else if ($s_msg["role"]=="system")
-				$normalizedContext[]=$s_msg["content"];
-			*/
+				$normalizedContext[]="<|system|>".$s_msg["content"];
+			
 			$normalizedContext[]=$s_msg["content"];
 		}
 	}	
 
+	
 	foreach ($normalizedContext as $n=>$s_msg) {
+		/*
 		if ($n==(sizeof($normalizedContext)-1)) {
 			$context.="### Instruction: ".$s_msg."";
 			$GLOBALS["DEBUG_DATA"][]="### Instruction: ".$s_msg."";
@@ -436,9 +438,13 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 			$s_msg_p = preg_replace('/^(The Narrator:)(.*)/m', '[Author\'s notes: $2 ]', $s_msg);
 			$context.="$s_msg_p\n";
 			$GLOBALS["DEBUG_DATA"][]=$s_msg_p;
-		}
+		}*/
+		
+		//$s_msg_p = preg_replace('/^(The Narrator:)(.*)/m', '[Author\'s notes: $2 ]', $s_msg);
+		$context.="$s_msg\n";
 		
 	}
+	
 	//$context.="\n{$GLOBALS["HERIKA_NAME"]}:";
 	$context.="\n### Response:";
 	$GLOBALS["DEBUG_DATA"][]="\n### Response:";
