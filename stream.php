@@ -401,7 +401,7 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 	$GLOBALS["DEBUG_DATA"][]=$parms;
 
 
-} else if ( (isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="koboldcpp")))  {
+} else if ($GLOBALS["MODEL"]=="koboldcpp")  {
 	$GLOBALS["DEBUG_DATA"]=[];//reset
 	consoleLog("koboldcpp type call");
 
@@ -567,7 +567,7 @@ if ($handle === false) {
 			$totalBuffer.=$data["choices"][0]["delta"]["content"];
 			}
 
-		} else if ( (isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="koboldcpp")))  {
+		} else if ($GLOBALS["MODEL"]=="koboldcpp")  {
 			error_reporting(E_ERROR);
 			if (feof($handle)) {
 				$breakFlag=true;

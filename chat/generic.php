@@ -90,7 +90,7 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
         $sentence = cleanReponse($rawResponse);
 
 
-    } else if ((isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"] == "koboldcpp"))) {
+    } else if ($GLOBALS["MODEL"] == "koboldcpp") {
         $GLOBALS["DEBUG_DATA"] = []; //reset
 
         $context = "";
