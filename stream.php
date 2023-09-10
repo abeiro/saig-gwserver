@@ -595,7 +595,7 @@ if ($handle === false) {
 		if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
 			if (feof($handle))
 				$breakFlag=true;
-		} else if ( (isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="koboldcpp")))  {
+		} else if ($GLOBALS["MODEL"]=="koboldcpp")  {
 			if (feof($handle))
 				$breakFlag=true;
 				
