@@ -384,7 +384,9 @@ if ( (!isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"]=="openai"))) {
  
 	$headers = array(
 		'Content-Type: application/json',
-		"Authorization: Bearer {$GLOBALS["OPENAI_API_KEY"]}"
+		"Authorization: Bearer {$GLOBALS["OPENAI_API_KEY"]}",
+		'HTTP-Referer: http://localhost:8081/saig-gwserver/',	// value doesn't matter, mandatory for Openrouter
+		'X-Title: Herika'										// Billing Identifier, mandatory for Openrouter
 	);
 
 	$options = array(
