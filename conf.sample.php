@@ -87,14 +87,14 @@ $OPENAI_MAX_TOKENS_MEMORY="1024";             // Length of Diary entries. More =
 $HTTP_TIMEOUT=30;                             // How long we will wait for LLM response
 
 
-// NEW CONF VARS FOR 0.99
+// NEW CONF VARS FOR 1.00
 
 //$CORE_LANG="es";                            // Control global lang. Leave commented for default language.
 
 $MEMORY_EMBEDDING=false;                      // Memory feature (needs OpenAI atm)
 $CHROMADB_URL='http://172.16.1.128:8000';     // CHROMADB REST API URL. Change to the one provided by DwemerDistro.
 $MEMORY_TIME_DELAY='10';                      // How many minutes to wait before allowing a memory to be pulled. Prevents short term memory overlapping($CONTEXT_HISTORY).
-$MEMORY_CONTEXT_SIZE='1';                     // How many longterm memories will be injected into the prompt. Higher amount means a more acurate response but higher token count/cost. 
+$MEMORY_CONTEXT_SIZE='1';                     // How many long-term memories will be injected into the prompt. Higher amount means a more accurate response but higher token count/cost. 
 
 // MODEL="openai";
 $GPTMODEL="gpt-3.5-turbo-0613";                           // Changes GPT model to use. Options are gpt-4 or gpt-3.5-turbo-0613, more can be found here https://platform.openai.com/account/rate-limits
