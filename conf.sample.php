@@ -101,7 +101,10 @@ $GPTMODEL="gpt-3.5-turbo-0613";                           // Changes GPT model t
 $OPENAI_URL="https://api.openai.com/v1/chat/completions"; // OpenAI endpoint
 
 // MODEL="koboldcpp";                         // Koboldcpp model
-$KOBOLDCPP_URL="http://172.16.1.128:5001";  // Endpoint URL. Change with your custom endpoint.
+$KOBOLDCPP_URL="http://172.16.1.128:5001";  // Endpoint URL for KoboldCPP.
+                                            // If using UwAMP: http://localhost:5001
+                                            // If using DwemerAIDistro: open Command Prompt as admin. Run ipconfig. Use your PC's local IP address
+                                            // It will look something like 192.168.x.x or 172.16.x.x. E.G. http://192.168.1.40:5001
 
 $KOBOLDCPP_MAX_TOKENS="80";                 // Limit size of responses. 
 $KOBOLDCPP_MAX_TOKENS_MEMORY="256";         // Length of Diary entries. Do not make it any smaller then default. More = longer entry but higher time. 
