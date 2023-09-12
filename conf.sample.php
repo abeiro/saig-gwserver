@@ -115,6 +115,11 @@ $KOBOLDCPP_TOP_P=0.9;                       // Only touch if you know what you'r
 
 $MODELS=["openai","koboldcpp"];             // Supported models
 
+// $MODEL="openrouter";
+$OPENROUTER_URL="https://openrouter.ai/api/v1/chat/completions";  // Openrouter endpoint
+$OPENROUTER_MODEL="gryphe/mythomax-l2-13b";                       // Changes Openrouter model to use. Options can be found here https://openrouter.ai/docs
+$OPENROUTER_API_KEY="";                                           // Openrouter API key here
+
 
 $COST_MONITOR_ENABLED=false;                // Elbios token counter and cost calculator. Requires a background service running which may slowdown the DwemerDistro.
 ?>

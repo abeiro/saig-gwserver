@@ -90,7 +90,56 @@ function requestGeneric($request, $preprompt = '', $queue = 'AASPGQuestDialogue2
         $sentence = cleanReponse($rawResponse);
 
 
-    } else if ((isset($GLOBALS["MODEL"]) || ($GLOBALS["MODEL"] == "koboldcpp"))) {
+    } else if ($GLOBALS["MODEL"] == "openrouter") {
+
+        $data = [
+            'model' => (isset($GLOBALS["OPENROUTER_MODEL"])) ? $GLOBALS["OPENROUTER_MODEL"] : 'gpt-3.5-turbo-0613',
+            'messages' => $parms,
+            'max_tokens' => ((isset($GLOBALS["OPENAI_MAX_TOKENS"]) ? $GLOBALS["OPENAI_MAX_TOKENS"] : 48) + 0)
+        ];
+
+        $sentence = "";
+        $errorFlag = false;
+        $startTime = time();
+
+        $headers = array(
+            'Content-Type: application/json',
+            "Authorization: Bearer {$GLOBALS["OPENROUTER_API_KEY"]}",
+            'HTTP-Referer: http://localhost:8081/saig-gwserver/',	// value doesn't matter, mandatory for Openrouter
+            'X-Title: Herika'										// Billing Identifier, mandatory for Openrouter
+        );
+        $jsonEncodedData = json_encode($data);
+        $options = array(
+            'http' => array(
+                'method' => 'POST',
+                'header' => implode("\r\n", $headers),
+                'content' => $jsonEncodedData,
+                'timeout' => ($GLOBALS["HTTP_TIMEOUT"]) ?: 30
+            )
+        );
+
+        // call into tokenizer and tokenize request as part of OpenAI cost monitoring - save result in DB
+        tokenizePrompt($jsonEncodedData);
+
+        $url = $GLOBALS["OPENROUTER_URL"];
+
+        $context = stream_context_create($options);
+        error_reporting(E_ALL);
+        $handle = fopen($url, 'r', false, $context);
+        if (!$handle)
+            die("Error " . print_r(error_get_last(), true));
+
+        $buffer = "";
+
+        while (!feof($handle)) {
+            $buffer .= fread($handle, 1024);
+        }
+        $response = json_decode($buffer, true);
+        $rawResponse = $response["choices"][0]["message"]["content"];
+        $sentence = cleanReponse($rawResponse);
+
+
+    } else if ($GLOBALS["MODEL"] == "koboldcpp") {
         $GLOBALS["DEBUG_DATA"] = []; //reset
 
         $context = "";
