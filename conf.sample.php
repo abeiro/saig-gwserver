@@ -92,7 +92,7 @@ $HTTP_TIMEOUT=30;                             // How long we will wait for LLM r
 //$CORE_LANG="es";                            // Control global lang. Leave commented for default language.
 
 $MEMORY_EMBEDDING=false;                      // Memory feature (needs OpenAI atm)
-$CHROMADB_URL='http://172.16.1.128:8000';     // CHROMADB REST API URL. Change to the one provided by DwemerDistro.
+$CHROMADB_URL='http://172.16.1.128:8000';     // CHROMADB REST API URL. Change the URL to the one provided in DwemerAIDistro.
 $MEMORY_TIME_DELAY='10';                      // How many minutes to wait before allowing a memory to be pulled. Prevents short term memory overlapping($CONTEXT_HISTORY).
 $MEMORY_CONTEXT_SIZE='1';                     // How many long-term memories will be injected into the prompt. Higher amount means a more accurate response but higher token count/cost. 
 
@@ -103,7 +103,7 @@ $OPENAI_URL="https://api.openai.com/v1/chat/completions"; // OpenAI endpoint
 // MODEL="koboldcpp";                         // Koboldcpp model
 $KOBOLDCPP_URL="http://172.16.1.128:5001";  // Endpoint URL for KoboldCPP.
                                             // If using UwAMP: http://localhost:5001
-                                            // If using DwemerAIDistro: open Command Prompt as admin. Run ipconfig. Use your PC's local IP address
+                                            // If using DwemerAIDistro: Open Command Prompt as admin. Run ipconfig. Use your PC's local IP address
                                             // It will look something like 192.168.x.x or 172.16.x.x. E.G. http://192.168.1.40:5001
 
 $KOBOLDCPP_MAX_TOKENS="80";                 // Limit size of responses. 
@@ -114,11 +114,6 @@ $KOBOLDCPP_REP_PEN=1.12;                    // Only touch if you know what you'r
 $KOBOLDCPP_TOP_P=0.9;                       // Only touch if you know what you're doing
 
 $MODELS=["openai","koboldcpp"];             // Supported models
-
-// $MODEL="openrouter";
-$OPENROUTER_URL="https://openrouter.ai/api/v1/chat/completions";  // Openrouter endpoint
-$OPENROUTER_MODEL="gryphe/mythomax-l2-13b";                       // Changes Openrouter model to use. Options can be found here https://openrouter.ai/docs
-$OPENROUTER_API_KEY="";                                           // Openrouter API key here
 
 
 $COST_MONITOR_ENABLED=false;                // Elbios token counter and cost calculator. Requires a background service running which may slowdown the DwemerDistro.
